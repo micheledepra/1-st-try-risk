@@ -1,0 +1,43 @@
+[gd_scene load_steps=3 format=3 uid="uid://irpvnyp24kb3"]
+
+[ext_resource type="Material" uid="uid://d0hyi5n6ng25w" path="res://demo/assets/materials/M_rock23_black_tp.tres" id="1_f8q8f"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_14hsv"]
+
+[node name="TerritoryInfo" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.036248684, 0, 0, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.1312113, 0, 0, 0, 0.74028933, 0, 0, 0, 1, 0, 0.10645062, 0)
+mesh = SubResource("BoxMesh_14hsv")
+surface_material_override/0 = ExtResource("1_f8q8f")
+
+[node name="Territory_Name" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.31309336, 0.50999993)
+texture_filter = 1
+modulate = Color(0, 0, 0, 1)
+outline_modulate = Color(0, 0, 0, 0)
+text = "Northwest-Territories"
+font_size = 21
+autowrap_mode = 3
+
+[node name="Territory_Owner" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.09778644, 0.50999993)
+modulate = Color(0, 0, 0, 1)
+outline_modulate = Color(0, 0, 0, 0)
+text = "player 1"
+font_size = 20
+
+[node name="Territory_Continent" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0.51)
+modulate = Color(0, 0, 0, 1)
+outline_modulate = Color(0, 0, 0, 0)
+text = "Asia"
+font_size = 12
+
+[node name="Territory_Units" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.09773972, 0.50999993)
+modulate = Color(0, 0, 0, 1)
+outline_modulate = Color(0, 0, 0, 0)
+text = "42"
+font_size = 26

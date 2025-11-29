@@ -1,0 +1,63 @@
+[gd_scene load_steps=11 format=3 uid="uid://b8p365k1ic0au"]
+
+[ext_resource type="PackedScene" uid="uid://cpx2k8el5p7vs" path="res://Scenes/Continents/America.tscn" id="1_7yn8b"]
+[ext_resource type="Script" uid="uid://dnxkx2urq1t64" path="res://Scripts/Map/Map.gd" id="1_00287"]
+[ext_resource type="PackedScene" uid="uid://df73lhtidw6ie" path="res://Scenes/Continents/South_America.tscn" id="2_etk83"]
+[ext_resource type="Material" uid="uid://vpgiqott6ecc" path="res://materials/Map/bg_material_1.tres" id="3_etk83"]
+[ext_resource type="PackedScene" uid="uid://batfe7xipb0r1" path="res://Scenes/Continents/Europe.tscn" id="5_ngcqm"]
+[ext_resource type="Script" uid="uid://d15yvagxqyclp" path="res://Scripts/Map/TerritoryColorManager.gd" id="6_ngcqm"]
+[ext_resource type="PackedScene" uid="uid://din3vji4px20w" path="res://Scenes/Continents/Africa.tscn" id="6_xicox"]
+[ext_resource type="Script" uid="uid://chaui2x10bgv3" path="res://Scripts/Map/TerritoryInputManager.gd" id="7_input"]
+[ext_resource type="PackedScene" uid="uid://b8jv7k5qhwq7w" path="res://UI/GameUI.tscn" id="7_ui"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_qumfl"]
+
+[node name="Map" type="Node3D"]
+script = ExtResource("1_00287")
+
+[node name="Continents" type="Node3D" parent="."]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0.58865356, 0)
+metadata/_edit_group_ = true
+
+[node name="America" parent="Continents" instance=ExtResource("1_7yn8b")]
+transform = Transform3D(0.15, 0, 0, 0, 0.15, 0, 0, 0, 0.15, -41.881294, -7.6293945e-06, -16.85783)
+raise_speed = 4.0
+
+[node name="SouthAmerica" parent="Continents" instance=ExtResource("2_etk83")]
+transform = Transform3D(-0.15, 1.3113415e-08, -2.2649372e-08, 1.3113417e-08, 0.15, -1.3113417e-08, 2.2649369e-08, -1.3113419e-08, -0.15, -28.953, 0, 13.235)
+
+[node name="Europe" parent="Continents" instance=ExtResource("5_ngcqm")]
+transform = Transform3D(0.13, 0, 0, 0, 0.13, 0, 0, 0, 0.13, -2.3560157, 3.8146973e-06, -18.068073)
+
+[node name="Africa" parent="Continents" instance=ExtResource("6_xicox")]
+transform = Transform3D(-0.18, 0, -2.7179246e-08, 0, 0.18, 0, 2.7179246e-08, 0, -0.18, 9.07099, 0, -9.8360815)
+
+[node name="TerritoryInputManager" type="Node3D" parent="."]
+script = ExtResource("7_input")
+
+[node name="TerritoryColorManager" type="Node3D" parent="."]
+script = ExtResource("6_ngcqm")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="GameUI" parent="CanvasLayer" instance=ExtResource("7_ui")]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.2181432, -0.87937623, -0.42321515, -3.7911683e-08, -0.43365908, 0.90107703, -0.9759168, -0.19656381, -0.09459981, 24.634842, 6.844, 2.0455513)
+shadow_enabled = true
+
+[node name="SpotLight3D" type="SpotLight3D" parent="."]
+transform = Transform3D(1.1924881e-08, 0.7071068, -0.7071068, 0, 0.7071068, 0.7071068, 1, -8.432164e-09, 8.432164e-09, -18.568493, 5.7614374, -6.3075037)
+visible = false
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.3711392e-08, 1, 0, -1, -4.3711392e-08, 0, 11.849057, 0)
+current = true
+fov = 77.333565
+metadata/_edit_group_ = true
+
+[node name="BG" type="MeshInstance3D" parent="."]
+transform = Transform3D(40.537655, 0, 0, 0, 1, 0, 0, 0, 18.2896, 0, 0, 0)
+mesh = SubResource("BoxMesh_qumfl")
+surface_material_override/0 = ExtResource("3_etk83")
+metadata/_edit_group_ = true

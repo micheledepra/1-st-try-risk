@@ -1,0 +1,23 @@
+[gd_scene load_steps=6 format=3 uid="uid://df73lhtidw6ie"]
+
+[ext_resource type="PackedScene" uid="uid://bkpxxlgwftgr5" path="res://Scenes/Territories/3D/argentina.tscn" id="1_n05ik"]
+[ext_resource type="Script" uid="uid://ddekpbow5tjbc" path="res://Scripts/Map/Continents/hover_raise_parent.gd" id="1_s4ea8"]
+[ext_resource type="PackedScene" uid="uid://b63eay2dbq5eo" path="res://Scenes/Territories/3D/brazil.tscn" id="2_s4ea8"]
+[ext_resource type="PackedScene" uid="uid://bhmksjbr5tg7r" path="res://Scenes/Territories/3D/peru.tscn" id="3_6bjmv"]
+[ext_resource type="PackedScene" uid="uid://co00bpdmop0m6" path="res://Scenes/Territories/3D/venezuela.tscn" id="4_02x0q"]
+
+[node name="SouthAmerica" type="Node3D"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+script = ExtResource("1_s4ea8")
+
+[node name="argentina" parent="." instance=ExtResource("1_n05ik")]
+transform = Transform3D(1.54, 0, 0, 0, 1.54, 0, 0, 0, 1.54, 18.127262, 0, -56.840115)
+
+[node name="brazil" parent="." instance=ExtResource("2_s4ea8")]
+transform = Transform3D(1.43, 0, 0, 0, 1.43, 0, 0, 0, 1.43, -19.3672, 0, 1.4676112)
+
+[node name="peru" parent="." instance=ExtResource("3_6bjmv")]
+transform = Transform3D(0.96, 0, 0, 0, 0.96, 0, 0, 0, 0.96, 20.858809, 1.9073486e-06, -6.7315235)
+
+[node name="venezuela" parent="." instance=ExtResource("4_02x0q")]
+transform = Transform3D(0.956, 0, 0, 0, 0.956, 0, 0, 0, 0.956, 22.798786, 0, 62.740337)

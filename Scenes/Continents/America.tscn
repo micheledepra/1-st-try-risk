@@ -1,0 +1,51 @@
+[gd_scene load_steps=11 format=3 uid="uid://cpx2k8el5p7vs"]
+
+[ext_resource type="Script" uid="uid://ddekpbow5tjbc" path="res://Scripts/Map/Continents/hover_raise_parent.gd" id="1_6r28r"]
+[ext_resource type="PackedScene" uid="uid://dg60p8rqs54bw" path="res://Scenes/Territories/3D/alberta.tscn" id="1_dcq43"]
+[ext_resource type="PackedScene" uid="uid://dq15vp3g88req" path="res://Scenes/Territories/3D/central_america.tscn" id="2_7h8m4"]
+[ext_resource type="PackedScene" uid="uid://kb6l7le7csb" path="res://Scenes/Territories/3D/eastern_unitedstates.tscn" id="3_3gmlq"]
+[ext_resource type="PackedScene" uid="uid://bf3hsgl1wmg5r" path="res://Scenes/Territories/3D/greenland.tscn" id="4_6r28r"]
+[ext_resource type="PackedScene" uid="uid://cnmf6tkmjs7s0" path="res://Scenes/Territories/3D/northwest_territory.tscn" id="5_gyh8r"]
+[ext_resource type="PackedScene" uid="uid://gcu66fnugokc" path="res://Scenes/Territories/3D/ontario.tscn" id="6_fu8to"]
+[ext_resource type="PackedScene" uid="uid://b6vf32v31juj7" path="res://Scenes/Territories/3D/quebec.tscn" id="7_otmo4"]
+[ext_resource type="PackedScene" uid="uid://3pr0yy33tuj4" path="res://Scenes/Territories/3D/western_united_states.tscn" id="8_l05md"]
+[ext_resource type="PackedScene" uid="uid://bh4bvawnsy8yy" path="res://Scenes/Territories/3D/alaska.tscn" id="9_7h8m4"]
+
+[node name="America" type="Node3D"]
+script = ExtResource("1_6r28r")
+raise_height = 3.0
+raise_speed = 3.0
+
+[node name="alberta" parent="." instance=ExtResource("1_dcq43")]
+transform = Transform3D(-1.31, 0, -1.978045e-07, 0, 1.31, 0, 1.978045e-07, 0, -1.31, -63.181, 0, -24.825)
+
+[node name="central_america" parent="." instance=ExtResource("2_7h8m4")]
+transform = Transform3D(-1.31, 0, -1.978045e-07, 0, 1.31, 0, 1.978045e-07, 0, -1.31, -32.615, 0, 84.365)
+
+[node name="eastern_united_states" parent="." instance=ExtResource("3_3gmlq")]
+transform = Transform3D(-1.46, 0, -2.2045388e-07, 0, 1.46, 0, 2.2045388e-07, 0, -1.46, 6.339, 0, 27.018)
+
+[node name="greenland" parent="." instance=ExtResource("4_6r28r")]
+transform = Transform3D(-1.2, 0, -1.8119498e-07, 0, 1.2, 0, 1.8119498e-07, 0, -1.2, 124.877045, 0.44252014, -88.18271)
+
+[node name="northwest_territory" parent="." instance=ExtResource("5_gyh8r")]
+transform = Transform3D(-2, 0, -1.7484555e-07, 0, 2, 0, 1.7484555e-07, 0, -2, -44.714, 0, -58.262)
+
+[node name="ontario" parent="." instance=ExtResource("6_fu8to")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -1.341, 0, -16.397213)
+
+[node name="quebec" parent="." instance=ExtResource("7_otmo4")]
+transform = Transform3D(-0.82, 0, 7.168668e-08, 0, 0.82, 0, -7.168668e-08, 0, -0.82, 61.785, 0, -26.981)
+
+[node name="western_united_states" parent="." instance=ExtResource("8_l05md")]
+transform = Transform3D(-0.93, 0, -1.404261e-07, 0, 0.93, 0, 1.404261e-07, 0, -0.93, -52.959, 0, 20.809)
+
+[node name="alaska" parent="." instance=ExtResource("9_7h8m4")]
+transform = Transform3D(1.3, 0, 0, 0, 1.3, 0, 0, 0, 1.3, -167.036, 0, -63.084)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 147.11134, 0)
+metadata/_edit_group_ = true
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1.0000001, 0, 0, 0, 1.1924881e-08, 1, 0, -1, 1.1924881e-08, -0.6712017, 192.89487, 22.190641)

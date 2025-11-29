@@ -1,0 +1,30 @@
+[gd_scene load_steps=8 format=3 uid="uid://din3vji4px20w"]
+
+[ext_resource type="PackedScene" uid="uid://dojix3qoud7dj" path="res://Scenes/Territories/3D/congo.tscn" id="1_qm212"]
+[ext_resource type="Script" uid="uid://ddekpbow5tjbc" path="res://Scripts/Map/Continents/hover_raise_parent.gd" id="1_w8r23"]
+[ext_resource type="PackedScene" uid="uid://ep7qsjis3tvi" path="res://Scenes/Territories/3D/east_africa.tscn" id="2_w8r23"]
+[ext_resource type="PackedScene" uid="uid://bprnot44bo6pl" path="res://Scenes/Territories/3D/egypt.tscn" id="3_bwjuq"]
+[ext_resource type="PackedScene" uid="uid://bcs7yghdxx8xv" path="res://Scenes/Territories/3D/madagascar.tscn" id="4_o5vdv"]
+[ext_resource type="PackedScene" uid="uid://bn1fs6jv5g480" path="res://Scenes/Territories/3D/north_africa.tscn" id="5_xpk2u"]
+[ext_resource type="PackedScene" uid="uid://xifcqucohvaa" path="res://Scenes/Territories/3D/south_africa.tscn" id="6_hblyv"]
+
+[node name="Africa" type="Node3D"]
+script = ExtResource("1_w8r23")
+
+[node name="congo" parent="." instance=ExtResource("1_qm212")]
+transform = Transform3D(-0.6617884, 0, 0.6576664, 0, 0.933, 0, -0.6576664, 0, -0.6617884, 14.525454, 0, -121.48254)
+
+[node name="east_africa" parent="." instance=ExtResource("2_w8r23")]
+transform = Transform3D(-1.0298239, 0, 1.0193447, 0, 1.449, 0, -1.0193447, 0, -1.0298239, -32.8, 0, -97.562)
+
+[node name="egypt" parent="." instance=ExtResource("3_bwjuq")]
+transform = Transform3D(-0.62074494, 0, 0.60671216, 0, 0.868, 0, -0.60671216, 0, -0.62074494, 4.34963, -5.722046e-06, -33.466125)
+
+[node name="madagascar" parent="." instance=ExtResource("4_o5vdv")]
+transform = Transform3D(0.85, 0, 0, 0, 0.85, 0, 0, 0, 0.85, -68.33567, 0, -165.91653)
+
+[node name="north_africa" parent="." instance=ExtResource("5_xpk2u")]
+transform = Transform3D(1.2899921, 0, 0.0045029405, 0, 1.29, 0, -0.0045029405, 0, 1.2899921, 63.165, 0, -55.137)
+
+[node name="south_africa" parent="." instance=ExtResource("6_hblyv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12284851, 0, -182.72601)
