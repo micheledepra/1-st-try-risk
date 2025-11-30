@@ -76,6 +76,13 @@ func update_ui():
 	# Update action info
 	update_action_info()
 
+func _are_all_players_setup_complete() -> bool:
+	# Helper to check if all players have deployed their initial armies
+	for player in game_manager.players:
+		if player.army_reserves > 0:
+			return false
+	return true
+
 func update_button_states():
 	var current_player = game_manager.get_current_player()
 	if current_player == null:
@@ -87,13 +94,8 @@ func update_button_states():
 		game_manager.GamePhase.SETUP:
 			advance_phase_button.visible = false
 			end_turn_button.visible = true
-			# Check if this is the last player with armies to deploy
-			var all_others_done = true
-			for player in game_manager.players:
-				if player != current_player and player.army_reserves > 0:
-					all_others_done = false
-					break
-			if all_others_done and current_player.army_reserves == 0:
+			# Show "Start Game!" if this is the last player to finish deploying
+			if _are_all_players_setup_complete():
 				end_turn_button.text = "Start Game!"
 			else:
 				end_turn_button.text = "Confirm Deployment"
@@ -133,12 +135,7 @@ func update_action_info():
 				action_info_label.text = "INITIAL DEPLOYMENT: Click your territories to place %d armies" % current_player.army_reserves
 			else:
 				# Check if all players are done to show appropriate message
-				var all_done = true
-				for player in game_manager.players:
-					if player.army_reserves > 0:
-						all_done = false
-						break
-				if all_done:
+				if _are_all_players_setup_complete():
 					action_info_label.text = "All players deployed! Click 'Start Game!' to begin"
 				else:
 					action_info_label.text = "All armies placed! Click 'Confirm Deployment' for next player"

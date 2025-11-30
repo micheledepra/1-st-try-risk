@@ -159,10 +159,6 @@ func end_turn():
 				push_warning("Player still has armies to place in setup! Must deploy all %d remaining armies." % get_current_player().army_reserves)
 				return
 			
-			# Check if this was the last player in the setup round
-			# We check BEFORE moving the index to see if we completed a full round
-			var next_player_index = (current_player_index + 1) % players.size()
-			
 			# Check if all players finished setup (including current player who just finished)
 			var all_done = true
 			for player in players:
@@ -181,7 +177,7 @@ func end_turn():
 				emit_signal("turn_changed", get_current_player())
 			else:
 				# Move to next player for their setup turn
-				current_player_index = next_player_index
+				current_player_index = (current_player_index + 1) % players.size()
 				print("GameManager: Setup phase - Player %d's turn to deploy armies" % get_current_player().id)
 				emit_signal("turn_changed", get_current_player())
 			return
