@@ -115,11 +115,12 @@ func start_new_game(player_count: int):
 	emit_signal("phase_changed", current_phase)
 
 func distribute_territories_randomly():
-	# Get all territory names
+	# Get all territory names - territories distributed in alphabetical order
+	# for consistent/deterministic distribution (no randomization)
 	var all_territories = map_data.keys()
-	all_territories.shuffle()
+	all_territories.sort()  # Deterministic ordering instead of shuffle
 	
-	# Distribute territories round-robin to players
+	# Distribute territories round-robin to players (in sequential player order)
 	var player_index = 0
 	for territory_name in all_territories:
 		var player = players[player_index]

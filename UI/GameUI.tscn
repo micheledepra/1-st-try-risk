@@ -116,14 +116,8 @@ separation = 12
 [node name="AdvancePhaseButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(150, 32)
-text = "Start Attack Phase"
-
-[node name="EndTurnButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonRow"]
-unique_name_in_owner = true
-layout_mode = 2
-custom_minimum_size = Vector2(150, 32)
-text = "End Turn"
+custom_minimum_size = Vector2(180, 36)
+text = "Advance"
 
 [node name="MarginContainer2" type="MarginContainer" parent="."]
 layout_mode = 2
