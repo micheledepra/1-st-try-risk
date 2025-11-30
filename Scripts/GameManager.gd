@@ -154,15 +154,16 @@ func end_turn():
 	# Validate phase progression
 	match current_phase:
 		GamePhase.SETUP:
-			# During setup, players place remaining armies
+			# During setup, players must place ALL remaining armies before passing
 			if get_current_player().army_reserves > 0:
-				push_warning("Player still has armies to place in setup!")
+				push_warning("Player still has armies to place in setup! Must deploy all %d remaining armies." % get_current_player().army_reserves)
 				return
 			
-			# Move to next player
-			current_player_index = (current_player_index + 1) % players.size()
+			# Check if this was the last player in the setup round
+			# We check BEFORE moving the index to see if we completed a full round
+			var next_player_index = (current_player_index + 1) % players.size()
 			
-			# Check if all players finished setup
+			# Check if all players finished setup (including current player who just finished)
 			var all_done = true
 			for player in players:
 				if player.army_reserves > 0:
@@ -170,12 +171,20 @@ func end_turn():
 					break
 			
 			if all_done:
-				# Move to main game loop
-				current_phase = GamePhase.REINFORCEMENT
+				# All players have deployed their initial armies
+				# Move to ATTACK phase starting with first player
+				current_phase = GamePhase.ATTACK
 				turn_number = 1
 				current_player_index = 0
-				print("GameManager: Setup complete, starting turn 1")
+				print("GameManager: Setup complete! All initial armies deployed. Starting Turn 1 - ATTACK phase with Player %d" % get_current_player().id)
 				emit_signal("phase_changed", current_phase)
+				emit_signal("turn_changed", get_current_player())
+			else:
+				# Move to next player for their setup turn
+				current_player_index = next_player_index
+				print("GameManager: Setup phase - Player %d's turn to deploy armies" % get_current_player().id)
+				emit_signal("turn_changed", get_current_player())
+			return
 			
 		GamePhase.FORTIFY:
 			# End of turn, move to next player

@@ -23,6 +23,7 @@ func _ready():
 		game_manager.turn_changed.connect(_on_turn_changed)
 		game_manager.phase_changed.connect(_on_phase_changed)
 		game_manager.game_over.connect(_on_game_over)
+		game_manager.armies_changed.connect(_on_armies_changed)
 	
 	# Connect button signals
 	advance_phase_button.pressed.connect(_on_advance_phase_pressed)
@@ -86,7 +87,16 @@ func update_button_states():
 		game_manager.GamePhase.SETUP:
 			advance_phase_button.visible = false
 			end_turn_button.visible = true
-			end_turn_button.text = "Next Player"
+			# Check if this is the last player with armies to deploy
+			var all_others_done = true
+			for player in game_manager.players:
+				if player != current_player and player.army_reserves > 0:
+					all_others_done = false
+					break
+			if all_others_done and current_player.army_reserves == 0:
+				end_turn_button.text = "Start Game!"
+			else:
+				end_turn_button.text = "Confirm Deployment"
 			end_turn_button.disabled = current_player.army_reserves > 0
 			
 		game_manager.GamePhase.REINFORCEMENT:
@@ -120,9 +130,18 @@ func update_action_info():
 	match game_manager.current_phase:
 		game_manager.GamePhase.SETUP:
 			if current_player.army_reserves > 0:
-				action_info_label.text = "Click your territories to place %d armies" % current_player.army_reserves
+				action_info_label.text = "INITIAL DEPLOYMENT: Click your territories to place %d armies" % current_player.army_reserves
 			else:
-				action_info_label.text = "All armies placed! Click Next Player"
+				# Check if all players are done to show appropriate message
+				var all_done = true
+				for player in game_manager.players:
+					if player.army_reserves > 0:
+						all_done = false
+						break
+				if all_done:
+					action_info_label.text = "All players deployed! Click 'Start Game!' to begin"
+				else:
+					action_info_label.text = "All armies placed! Click 'Confirm Deployment' for next player"
 				
 		game_manager.GamePhase.REINFORCEMENT:
 			if current_player.army_reserves > 0:
@@ -152,6 +171,10 @@ func _on_game_over(winner: Player):
 	update_ui()
 	action_info_label.text = "%s WINS!" % winner.player_name
 	print("UI: Game over - %s wins!" % winner.player_name)
+
+func _on_armies_changed(_territory_name: String, _army_count: int):
+	# Update UI when armies are placed/changed to reflect current reserves
+	update_ui()
 
 func _on_advance_phase_pressed():
 	game_manager.advance_phase()
