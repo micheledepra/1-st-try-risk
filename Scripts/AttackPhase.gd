@@ -127,6 +127,10 @@ func conquer_territory(from_territory: String, to_territory: String, attacker: P
 	defender.remove_territory(to_territory)
 	attacker.add_territory(to_territory)
 	
+	# Invalidate caches (Performance Improvements 8 & 9)
+	game_manager.connectivity_dirty = true
+	game_manager.continent_cache_dirty = true
+	
 	# Update map ownership
 	if map:
 		map.set_territory_owner(to_territory, attacker.id)
