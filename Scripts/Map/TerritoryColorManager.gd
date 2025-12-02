@@ -28,6 +28,9 @@ var continents_cache: Dictionary = {}
 var label_pool: Array[Label3D] = []
 var label_pool_max_size: int = 50  # Max labels to keep in pool
 
+# Material cache to avoid duplicating materials (Performance Improvement 3)
+var material_cache: Dictionary = {}  # Color -> StandardMaterial3D
+
 func _ready():
 	call_deferred("setup_color_system")
 
@@ -109,16 +112,27 @@ func set_territory_color(territory: Node3D, color: Color):
 		push_warning("No MeshInstance3D found in territory: %s" % territory.name)
 		return
 	
-	# Apply color to all meshes
+	# Get or create cached material (Performance Improvement 3)
+	var material = _get_or_create_material(color)
+	
+	# Apply cached material to all meshes
 	for mesh in meshes:
-		var material = mesh.get_active_material(0)
-		if material:
-			material = material.duplicate()
-		else:
-			material = StandardMaterial3D.new()
-		
-		material.albedo_color = color
 		mesh.set_surface_override_material(0, material)
+
+# Material cache management (Performance Improvement 3)
+func _get_or_create_material(color: Color) -> StandardMaterial3D:
+	# Use color as key (convert to string for dictionary key)
+	var color_key = color.to_html()
+	
+	if material_cache.has(color_key):
+		return material_cache[color_key]
+	
+	# Create new material and cache it
+	var material = StandardMaterial3D.new()
+	material.albedo_color = color
+	material_cache[color_key] = material
+	
+	return material
 
 func find_mesh_instance(territory: Node3D) -> MeshInstance3D:
 	for child in territory.get_children():
