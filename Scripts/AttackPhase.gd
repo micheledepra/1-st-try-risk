@@ -4,10 +4,16 @@ extends Node
 
 var game_manager: Node
 var map: Node3D
+# Cached reference to color_manager (Performance Improvement 2)
+var color_manager: Node
 
 func _ready():
 	game_manager = get_node("/root/GameManager")
-	map = get_node("/root/Map")
+	# Cache parent map reference instead of using global path
+	map = get_parent()
+	# Cache color_manager to avoid repeated access
+	if map:
+		color_manager = map.get_node_or_null("TerritoryColorManager")
 
 func can_attack(from_territory: String, to_territory: String) -> bool:
 	# Check if it's attack phase
@@ -77,10 +83,10 @@ func execute_attack(from_territory: String, to_territory: String, attacker_dice_
 	game_manager.add_armies_to_territory(from_territory, -attacker_losses)
 	game_manager.add_armies_to_territory(to_territory, -defender_losses)
 	
-	# Update visuals
-	if map and map.color_manager:
-		map.color_manager.set_territory_armies(from_territory, game_manager.get_territory_armies(from_territory))
-		map.color_manager.set_territory_armies(to_territory, game_manager.get_territory_armies(to_territory))
+	# Update visuals using cached reference (Performance Improvement 2)
+	if color_manager:
+		color_manager.set_territory_armies(from_territory, game_manager.get_territory_armies(from_territory))
+		color_manager.set_territory_armies(to_territory, game_manager.get_territory_armies(to_territory))
 	
 	# Check if territory was conquered
 	var conquered = false
@@ -127,10 +133,10 @@ func conquer_territory(from_territory: String, to_territory: String, attacker: P
 	game_manager.add_armies_to_territory(from_territory, -armies_to_move)
 	game_manager.set_territory_armies(to_territory, armies_to_move)
 	
-	# Update visuals
-	if map and map.color_manager:
-		map.color_manager.set_territory_armies(from_territory, game_manager.get_territory_armies(from_territory))
-		map.color_manager.set_territory_armies(to_territory, game_manager.get_territory_armies(to_territory))
+	# Update visuals using cached reference (Performance Improvement 2)
+	if color_manager:
+		color_manager.set_territory_armies(from_territory, game_manager.get_territory_armies(from_territory))
+		color_manager.set_territory_armies(to_territory, game_manager.get_territory_armies(to_territory))
 	
 	# Check if defender was eliminated
 	if defender.territories_owned.is_empty():

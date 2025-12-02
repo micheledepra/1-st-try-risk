@@ -4,10 +4,16 @@ extends Node
 
 var game_manager: Node
 var map: Node3D
+# Cached reference to color_manager (Performance Improvement 2)
+var color_manager: Node
 
 func _ready():
 	game_manager = get_node("/root/GameManager")
-	map = get_node("/root/Map")
+	# Cache parent map reference instead of using global path
+	map = get_parent()
+	# Cache color_manager to avoid repeated access
+	if map:
+		color_manager = map.get_node_or_null("TerritoryColorManager")
 
 func can_fortify(from_territory: String, to_territory: String, army_count: int) -> Dictionary:
 	var result = {"valid": false, "error": ""}
@@ -68,10 +74,10 @@ func execute_fortify(from_territory: String, to_territory: String, army_count: i
 	game_manager.add_armies_to_territory(from_territory, -army_count)
 	game_manager.add_armies_to_territory(to_territory, army_count)
 	
-	# Update visuals
-	if map and map.color_manager:
-		map.color_manager.set_territory_armies(from_territory, game_manager.get_territory_armies(from_territory))
-		map.color_manager.set_territory_armies(to_territory, game_manager.get_territory_armies(to_territory))
+	# Update visuals using cached reference (Performance Improvement 2)
+	if color_manager:
+		color_manager.set_territory_armies(from_territory, game_manager.get_territory_armies(from_territory))
+		color_manager.set_territory_armies(to_territory, game_manager.get_territory_armies(to_territory))
 	
 	print("Fortified: Moved %d armies from %s to %s" % [army_count, from_territory, to_territory])
 	
