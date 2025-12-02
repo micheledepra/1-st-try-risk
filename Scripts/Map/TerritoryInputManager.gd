@@ -17,8 +17,8 @@ var territories_cache: Dictionary = {}  # territory_name -> Node3D reference
 var hover_states: Dictionary = {}  # territory_name -> bool (prevents duplicate hover events)
 
 # Click debouncing (Performance Improvement 6)
-var last_click_time: float = 0.0
-var click_debounce_delay: float = 0.1  # Minimum seconds between clicks
+var last_click_time: int = 0  # milliseconds
+var click_debounce_delay: int = 100  # Minimum milliseconds between clicks
 var click_enabled: bool = true
 
 func _ready():
@@ -107,7 +107,7 @@ func _on_area_input_event(_camera: Node, event: InputEvent, _position: Vector3, 
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			# Debounce rapid clicks (Performance Improvement 6)
-			var current_time = Time.get_ticks_msec() / 1000.0
+			var current_time = Time.get_ticks_msec()
 			if not click_enabled or (current_time - last_click_time) < click_debounce_delay:
 				return
 			
@@ -126,5 +126,5 @@ func is_territory_hovered(territory_name: String) -> bool:
 func set_click_enabled(enabled: bool):
 	click_enabled = enabled
 
-func set_click_debounce_delay(delay: float):
-	click_debounce_delay = delay
+func set_click_debounce_delay(delay_ms: int):
+	click_debounce_delay = delay_ms

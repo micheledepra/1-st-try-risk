@@ -45,6 +45,11 @@ func _ready():
 
 func setup_color_system():
 	var map = get_parent()
+	# Validate parent is a Node3D (Map)
+	if not map is Node3D:
+		push_error("TerritoryColorManager: Parent is not a Node3D/Map node!")
+		return
+	
 	var continents_node = map.get_node_or_null("Continents")
 	
 	if continents_node == null:
@@ -129,7 +134,9 @@ func set_territory_color(territory: Node3D, color: Color):
 	
 	# Apply cached material to all meshes
 	for mesh in meshes:
-		mesh.set_surface_override_material(0, material)
+		# Check surface exists before accessing it
+		if mesh.get_surface_override_material_count() > 0 or mesh.mesh != null:
+			mesh.set_surface_override_material(0, material)
 
 # Material cache management (Performance Improvement 3)
 func _get_or_create_material(color: Color) -> StandardMaterial3D:
@@ -200,14 +207,6 @@ func update_territory_label(territory_name: String):
 	if territory == null:
 		return
 	
-	# Skip label update if territory is far from camera (Performance Improvement 5)
-	if visibility_check_enabled and camera and not _is_territory_near_camera(territory):
-		# Hide label for distant territories to save rendering
-		var label = find_label_3d(territory)
-		if label:
-			label.visible = false
-		return
-	
 	var label = find_label_3d(territory)
 	if label == null:
 		# Get label from pool or create new one
@@ -218,7 +217,16 @@ func update_territory_label(territory_name: String):
 	
 	var army_count = get_territory_armies(territory_name)
 	label.text = str(army_count)
-	label.visible = army_count > 0
+	
+	# Apply visibility based on army count AND camera distance (Performance Improvement 5)
+	if army_count > 0:
+		# Check visibility only if label should be shown
+		if visibility_check_enabled and camera and not _is_territory_near_camera(territory):
+			label.visible = false
+		else:
+			label.visible = true
+	else:
+		label.visible = false
 
 # Object pool management for Label3D (Performance Improvement 1)
 func _get_label_from_pool() -> Label3D:

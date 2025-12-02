@@ -11,6 +11,9 @@ func _ready():
 	game_manager = get_node("/root/GameManager")
 	# Cache parent map reference instead of using global path
 	map = get_parent()
+	if not map is Node3D:
+		push_error("FortifyPhase: Parent is not a Map node!")
+		return
 	# Cache color_manager to avoid repeated access
 	if map:
 		color_manager = map.get_node_or_null("TerritoryColorManager")
