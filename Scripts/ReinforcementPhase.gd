@@ -4,10 +4,19 @@ extends Node
 
 var game_manager: Node
 var map: Node3D
+# Cached reference to color_manager (Performance Improvement 2)
+var color_manager: Node
 
 func _ready():
 	game_manager = get_node("/root/GameManager")
-	map = get_node("/root/Map")
+	# Cache parent map reference instead of using global path
+	map = get_parent()
+	if not map is Node3D:
+		push_error("ReinforcementPhase: Parent is not a Map node!")
+		return
+	# Cache color_manager to avoid repeated access
+	if map:
+		color_manager = map.get_node_or_null("TerritoryColorManager")
 
 func can_place_army(territory_name: String) -> bool:
 	var current_player = game_manager.get_current_player()
@@ -42,9 +51,9 @@ func place_army(territory_name: String) -> bool:
 	# Add army to territory
 	game_manager.add_armies_to_territory(territory_name, 1)
 	
-	# Update visuals
-	if map and map.color_manager:
-		map.color_manager.set_territory_armies(territory_name, game_manager.get_territory_armies(territory_name))
+	# Update visuals using cached reference (Performance Improvement 2)
+	if color_manager:
+		color_manager.set_territory_armies(territory_name, game_manager.get_territory_armies(territory_name))
 	
 	print("Placed 1 army on %s. Player %d has %d armies remaining" % [territory_name, current_player.id, current_player.army_reserves])
 	
@@ -73,9 +82,9 @@ func place_multiple_armies(territory_name: String, count: int) -> bool:
 	
 	game_manager.add_armies_to_territory(territory_name, count)
 	
-	# Update visuals
-	if map and map.color_manager:
-		map.color_manager.set_territory_armies(territory_name, game_manager.get_territory_armies(territory_name))
+	# Update visuals using cached reference (Performance Improvement 2)
+	if color_manager:
+		color_manager.set_territory_armies(territory_name, game_manager.get_territory_armies(territory_name))
 	
 	print("Placed %d armies on %s. Player %d has %d armies remaining" % [count, territory_name, current_player.id, current_player.army_reserves])
 	

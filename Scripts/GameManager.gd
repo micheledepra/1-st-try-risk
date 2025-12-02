@@ -227,20 +227,44 @@ func give_reinforcement_armies():
 	print("Player %d receives %d armies (%d base + %d continent bonus)" % [player.id, total_armies, base_armies, continent_bonus])
 
 func does_player_own_continent(player_id: int, continent_name: String) -> bool:
+	# Use cached continent ownership (Performance Improvement 9)
+	update_continent_ownership_cache()
+	return continent_ownership_cache.get(continent_name, 0) == player_id
+
+func update_continent_ownership_cache():
+	# Pre-compute continent ownership (Performance Improvement 9)
+	if not continent_cache_dirty:
+		return
+	
+	continent_ownership_cache.clear()
+	
+	for continent_name in CONTINENT_BONUSES.keys():
+		continent_ownership_cache[continent_name] = _compute_continent_owner(continent_name)
+	
+	continent_cache_dirty = false
+
+func _compute_continent_owner(continent_name: String) -> int:
+	# Determine who owns a continent (0 = contested, player_id = owned)
+	var owner_id = -1
+	
 	for territory_name in map_data.keys():
 		var territory_data = map_data[territory_name]
 		if territory_data.get("continent", "") == continent_name:
-			# Check if this territory is owned by the player
-			var owner_id = 0
+			# Check if this territory is owned by a player
+			var territory_owner_id = 0
 			for player in players:
 				if player.territories_owned.has(territory_name):
-					owner_id = player.id
+					territory_owner_id = player.id
 					break
 			
-			if owner_id != player_id:
-				return false
+			if owner_id == -1:
+				# First territory in continent
+				owner_id = territory_owner_id
+			elif owner_id != territory_owner_id:
+				# Different owner - continent is contested
+				return 0
 	
-	return true
+	return owner_id if owner_id > 0 else 0
 
 func advance_phase():
 	match current_phase:
@@ -267,6 +291,14 @@ func advance_phase():
 # Territory army management
 var territory_armies: Dictionary = {}
 
+# Connectivity cache (Performance Improvement 8)
+var player_connectivity_cache: Dictionary = {}  # player_id -> {territory -> reachable_set}
+var connectivity_dirty: bool = true
+
+# Continent ownership cache (Performance Improvement 9)
+var continent_ownership_cache: Dictionary = {}  # continent_name -> player_id (0 = contested)
+var continent_cache_dirty: bool = true
+
 func set_territory_armies(territory_name: String, count: int):
 	territory_armies[territory_name] = count
 	emit_signal("armies_changed", territory_name, count)
@@ -285,16 +317,40 @@ func get_territory_owner(territory_name: String) -> Player:
 	return null
 
 func are_territories_connected(from_territory: String, to_territory: String, player_id: int) -> bool:
-	# BFS to check if territories are connected through player-owned territories
+	# Use cached connectivity (Performance Improvement 8)
+	update_connectivity_cache()
+	var reachable = player_connectivity_cache.get(player_id, {}).get(from_territory, [])
+	return to_territory in reachable
+
+func update_connectivity_cache():
+	# Pre-compute connectivity graphs per player (Performance Improvement 8)
+	# Note: O(V²) complexity per player, but only runs when territories change ownership
+	# This is acceptable as the cache remains valid until next conquest
+	if not connectivity_dirty:
+		return
+	
+	player_connectivity_cache.clear()
+	
+	for player in players:
+		if player.is_eliminated:
+			continue
+		
+		var player_graph = {}
+		for territory in player.territories_owned:
+			player_graph[territory] = _compute_reachable_territories(territory, player.id)
+		player_connectivity_cache[player.id] = player_graph
+	
+	connectivity_dirty = false
+
+func _compute_reachable_territories(from_territory: String, player_id: int) -> Array:
+	# BFS to find all reachable territories for a given starting territory
+	var reachable = []
 	var visited = {}
 	var queue = [from_territory]
 	visited[from_territory] = true
 	
 	while not queue.is_empty():
 		var current = queue.pop_front()
-		
-		if current == to_territory:
-			return true
 		
 		var neighbors = map_data.get(current, {}).get("neighbors", [])
 		for neighbor in neighbors:
@@ -305,8 +361,9 @@ func are_territories_connected(from_territory: String, to_territory: String, pla
 			if territory_owner and territory_owner.id == player_id:
 				visited[neighbor] = true
 				queue.append(neighbor)
+				reachable.append(neighbor)
 	
-	return false
+	return reachable
 
 func check_win_condition():
 	var remaining_players = 0

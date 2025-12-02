@@ -16,6 +16,11 @@ signal territory_unhovered(territory_name: String)
 var territories_cache: Dictionary = {}  # territory_name -> Node3D reference
 var hover_states: Dictionary = {}  # territory_name -> bool (prevents duplicate hover events)
 
+# Click debouncing (Performance Improvement 6)
+var last_click_time: int = 0  # milliseconds
+var click_debounce_delay: int = 100  # Minimum milliseconds between clicks
+var click_enabled: bool = true
+
 func _ready():
 	call_deferred("setup_input_system")
 
@@ -56,11 +61,16 @@ func _connect_territory_inputs(territory: Node3D, territory_name: String) -> int
 	# Find ALL Area3D nodes recursively (handles multi-mesh territories)
 	var areas = _find_all_area3d_nodes(territory)
 	
+	# Use single callable for multiple areas to reduce memory (Performance Improvement 6)
+	var mouse_entered_callable = _on_area_mouse_entered.bind(territory_name)
+	var mouse_exited_callable = _on_area_mouse_exited.bind(territory_name)
+	var input_event_callable = _on_area_input_event.bind(territory_name)
+	
 	for area in areas:
-		# Connect all input signals
-		area.mouse_entered.connect(_on_area_mouse_entered.bind(territory_name))
-		area.mouse_exited.connect(_on_area_mouse_exited.bind(territory_name))
-		area.input_event.connect(_on_area_input_event.bind(territory_name))
+		# Connect all input signals with reusable callables
+		area.mouse_entered.connect(mouse_entered_callable)
+		area.mouse_exited.connect(mouse_exited_callable)
+		area.input_event.connect(input_event_callable)
 	
 	if areas.size() > 0:
 		print("TerritoryInputManager: Connected %d Area3D nodes for '%s'" % [areas.size(), territory_name])
@@ -96,6 +106,12 @@ func _on_area_mouse_exited(territory_name: String):
 func _on_area_input_event(_camera: Node, event: InputEvent, _position: Vector3, _normal: Vector3, _shape_idx: int, territory_name: String):
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			# Debounce rapid clicks (Performance Improvement 6)
+			var current_time = Time.get_ticks_msec()
+			if not click_enabled or (current_time - last_click_time) < click_debounce_delay:
+				return
+			
+			last_click_time = current_time
 			territory_clicked.emit(territory_name)
 			print("TerritoryInputManager: Territory clicked - %s" % territory_name)
 
@@ -105,3 +121,10 @@ func get_territory_node(territory_name: String) -> Node3D:
 
 func is_territory_hovered(territory_name: String) -> bool:
 	return hover_states.get(territory_name, false)
+
+# Signal control (Performance Improvement 6)
+func set_click_enabled(enabled: bool):
+	click_enabled = enabled
+
+func set_click_debounce_delay(delay_ms: int):
+	click_debounce_delay = delay_ms

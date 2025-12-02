@@ -4,10 +4,27 @@ extends Node
 
 var game_manager: Node
 var map: Node3D
+# Cached reference to color_manager (Performance Improvement 2)
+var color_manager: Node
+
+# Dice rolling optimization (Performance Improvement 14)
+var rng_cache: Array[int] = []
+var rng_cache_index: int = 0
+const RNG_CACHE_SIZE: int = 1000
 
 func _ready():
 	game_manager = get_node("/root/GameManager")
-	map = get_node("/root/Map")
+	# Cache parent map reference instead of using global path
+	map = get_parent()
+	if not map is Node3D:
+		push_error("AttackPhase: Parent is not a Map node!")
+		return
+	# Cache color_manager to avoid repeated access
+	if map:
+		color_manager = map.get_node_or_null("TerritoryColorManager")
+	
+	# Pre-generate random numbers for dice rolls (Performance Improvement 14)
+	_refill_rng_cache()
 
 func can_attack(from_territory: String, to_territory: String) -> bool:
 	# Check if it's attack phase
@@ -77,10 +94,10 @@ func execute_attack(from_territory: String, to_territory: String, attacker_dice_
 	game_manager.add_armies_to_territory(from_territory, -attacker_losses)
 	game_manager.add_armies_to_territory(to_territory, -defender_losses)
 	
-	# Update visuals
-	if map and map.color_manager:
-		map.color_manager.set_territory_armies(from_territory, game_manager.get_territory_armies(from_territory))
-		map.color_manager.set_territory_armies(to_territory, game_manager.get_territory_armies(to_territory))
+	# Update visuals using cached reference (Performance Improvement 2)
+	if color_manager:
+		color_manager.set_territory_armies(from_territory, game_manager.get_territory_armies(from_territory))
+		color_manager.set_territory_armies(to_territory, game_manager.get_territory_armies(to_territory))
 	
 	# Check if territory was conquered
 	var conquered = false
@@ -108,15 +125,32 @@ func execute_attack(from_territory: String, to_territory: String, attacker_dice_
 	return result
 
 func roll_dice(count: int) -> Array[int]:
+	# Use pre-generated random numbers (Performance Improvement 14)
 	var rolls: Array[int] = []
+	
 	for i in range(count):
-		rolls.append(randi() % 6 + 1)
+		if rng_cache_index >= rng_cache.size():
+			_refill_rng_cache()
+		rolls.append(rng_cache[rng_cache_index])
+		rng_cache_index += 1
+	
 	return rolls
+
+func _refill_rng_cache():
+	# Pre-generate random numbers in batches (Performance Improvement 14)
+	rng_cache.clear()
+	for i in range(RNG_CACHE_SIZE):
+		rng_cache.append(randi_range(1, 6))  # Uniform distribution
+	rng_cache_index = 0
 
 func conquer_territory(from_territory: String, to_territory: String, attacker: Player, defender: Player):
 	# Transfer ownership
 	defender.remove_territory(to_territory)
 	attacker.add_territory(to_territory)
+	
+	# Invalidate caches (Performance Improvements 8 & 9)
+	game_manager.connectivity_dirty = true
+	game_manager.continent_cache_dirty = true
 	
 	# Update map ownership
 	if map:
@@ -127,10 +161,10 @@ func conquer_territory(from_territory: String, to_territory: String, attacker: P
 	game_manager.add_armies_to_territory(from_territory, -armies_to_move)
 	game_manager.set_territory_armies(to_territory, armies_to_move)
 	
-	# Update visuals
-	if map and map.color_manager:
-		map.color_manager.set_territory_armies(from_territory, game_manager.get_territory_armies(from_territory))
-		map.color_manager.set_territory_armies(to_territory, game_manager.get_territory_armies(to_territory))
+	# Update visuals using cached reference (Performance Improvement 2)
+	if color_manager:
+		color_manager.set_territory_armies(from_territory, game_manager.get_territory_armies(from_territory))
+		color_manager.set_territory_armies(to_territory, game_manager.get_territory_armies(to_territory))
 	
 	# Check if defender was eliminated
 	if defender.territories_owned.is_empty():
