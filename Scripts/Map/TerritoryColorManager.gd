@@ -35,6 +35,11 @@ var material_cache: Dictionary = {}  # Color -> StandardMaterial3D
 var pending_visual_updates: Dictionary = {}  # territory_name -> bool
 var update_scheduled: bool = false
 
+# Visibility optimization (Performance Improvement 5)
+var camera: Camera3D = null
+var visibility_check_enabled: bool = true
+var max_visible_distance: float = 100.0  # Distance beyond which territories are simplified
+
 func _ready():
 	call_deferred("setup_color_system")
 
@@ -45,6 +50,9 @@ func setup_color_system():
 	if continents_node == null:
 		push_error("TerritoryColorManager: No 'Continents' node found in Map!")
 		return
+	
+	# Try to find the camera for visibility checks (Performance Improvement 5)
+	camera = get_viewport().get_camera_3d()
 	
 	var total_territories = 0
 	for continent in continents_node.get_children():
@@ -192,6 +200,14 @@ func update_territory_label(territory_name: String):
 	if territory == null:
 		return
 	
+	# Skip label update if territory is far from camera (Performance Improvement 5)
+	if visibility_check_enabled and camera and not _is_territory_near_camera(territory):
+		# Hide label for distant territories to save rendering
+		var label = find_label_3d(territory)
+		if label:
+			label.visible = false
+		return
+	
 	var label = find_label_3d(territory)
 	if label == null:
 		# Get label from pool or create new one
@@ -245,3 +261,17 @@ func _process_pending_updates():
 	
 	pending_visual_updates.clear()
 	update_scheduled = false
+
+# Visibility optimization helpers (Performance Improvement 5)
+func _is_territory_near_camera(territory: Node3D) -> bool:
+	if not camera:
+		return true  # If no camera, assume visible
+	
+	var distance = camera.global_position.distance_to(territory.global_position)
+	return distance <= max_visible_distance
+
+func set_visibility_optimization(enabled: bool):
+	visibility_check_enabled = enabled
+
+func set_max_visible_distance(distance: float):
+	max_visible_distance = distance
