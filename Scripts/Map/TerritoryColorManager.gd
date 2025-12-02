@@ -24,6 +24,10 @@ var territory_armies: Dictionary = {}  # territory_name -> army count
 var territories_cache: Dictionary = {}
 var continents_cache: Dictionary = {}
 
+# Object pool for Label3D nodes (Performance Improvement 1)
+var label_pool: Array[Label3D] = []
+var label_pool_max_size: int = 50  # Max labels to keep in pool
+
 func _ready():
 	call_deferred("setup_color_system")
 
@@ -171,19 +175,35 @@ func update_territory_label(territory_name: String):
 	
 	var label = find_label_3d(territory)
 	if label == null:
-		# Create label if it doesn't exist
-		label = Label3D.new()
+		# Get label from pool or create new one
+		label = _get_label_from_pool()
 		label.name = "ArmyLabel"
-		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-		label.font_size = 32
-		label.outline_size = 4
-		label.outline_modulate = Color.BLACK
 		territory.add_child(label)
 		label.position = Vector3(0, 0.05, 0)  # Slightly above territory
 	
 	var army_count = get_territory_armies(territory_name)
 	label.text = str(army_count)
 	label.visible = army_count > 0
+
+# Object pool management for Label3D (Performance Improvement 1)
+func _get_label_from_pool() -> Label3D:
+	if label_pool.size() > 0:
+		return label_pool.pop_back()
+	else:
+		# Create new label with standard configuration
+		var label = Label3D.new()
+		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		label.font_size = 32
+		label.outline_size = 4
+		label.outline_modulate = Color.BLACK
+		return label
+
+func _return_label_to_pool(label: Label3D):
+	if label_pool.size() < label_pool_max_size:
+		label.get_parent().remove_child(label)
+		label_pool.append(label)
+	else:
+		label.queue_free()
 
 func find_label_3d(territory: Node3D) -> Label3D:
 	for child in territory.get_children():
