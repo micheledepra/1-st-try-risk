@@ -15,6 +15,16 @@ extends PanelContainer
 
 var game_manager: Node
 
+# UI update throttling (Performance Improvement 10)
+var ui_update_scheduled: bool = false
+var ui_dirty_flags: Dictionary = {
+	"player_info": false,
+	"phase_info": false,
+	"armies": false,
+	"buttons": false,
+	"action_info": false
+}
+
 func _ready():
 	game_manager = get_node("/root/GameManager")
 	
@@ -30,7 +40,41 @@ func _ready():
 	
 	update_ui()
 
-func update_ui():
+func mark_ui_dirty(sections: Array = []):
+	# Mark UI sections as needing update (Performance Improvement 10)
+	if sections.is_empty():
+		# Mark all sections dirty
+		for key in ui_dirty_flags.keys():
+			ui_dirty_flags[key] = true
+	else:
+		for section in sections:
+			if ui_dirty_flags.has(section):
+				ui_dirty_flags[section] = true
+	
+	if not ui_update_scheduled:
+		ui_update_scheduled = true
+		call_deferred("_process_ui_updates")
+
+func _process_ui_updates():
+	# Batch UI updates (Performance Improvement 10)
+	if ui_dirty_flags["player_info"]:
+		_update_player_info()
+	if ui_dirty_flags["phase_info"]:
+		_update_phase_info()
+	if ui_dirty_flags["armies"]:
+		_update_army_display()
+	if ui_dirty_flags["buttons"]:
+		update_button_states()
+	if ui_dirty_flags["action_info"]:
+		update_action_info()
+	
+	# Clear all flags
+	for key in ui_dirty_flags.keys():
+		ui_dirty_flags[key] = false
+	ui_update_scheduled = false
+
+func _update_player_info():
+	# Update player-specific UI elements (Performance Improvement 10)
 	if not game_manager:
 		return
 	
@@ -38,15 +82,27 @@ func update_ui():
 	if current_player == null:
 		return
 	
-	# Update player info
 	player_name_label.text = current_player.player_name
 	player_name_label.add_theme_color_override("font_color", current_player.color)
-	
 	turn_number_label.text = "Turn: %d" % game_manager.turn_number
-	army_reserves_label.text = "Armies: %d" % current_player.army_reserves
 	territory_count_label.text = "Territories: %d" % current_player.get_territory_count()
+
+func _update_army_display():
+	# Update army count (Performance Improvement 10)
+	if not game_manager:
+		return
 	
-	# Update phase info
+	var current_player = game_manager.get_current_player()
+	if current_player == null:
+		return
+	
+	army_reserves_label.text = "Armies: %d" % current_player.army_reserves
+
+func _update_phase_info():
+	# Update phase display (Performance Improvement 10)
+	if not game_manager:
+		return
+	
 	var phase_name = ""
 	var phase_color = Color.WHITE
 	match game_manager.current_phase:
@@ -68,11 +124,20 @@ func update_ui():
 	
 	phase_label.text = phase_name
 	phase_label.add_theme_color_override("font_color", phase_color)
+
+func update_ui():
+	# Legacy method - updates entire UI at once
+	if not game_manager:
+		return
 	
-	# Update button states
+	var current_player = game_manager.get_current_player()
+	if current_player == null:
+		return
+	
+	_update_player_info()
+	_update_army_display()
+	_update_phase_info()
 	update_button_states()
-	
-	# Update action info
 	update_action_info()
 
 func update_button_states():
@@ -140,11 +205,11 @@ func update_action_info():
 			action_info_label.text = "Game Over!"
 
 func _on_turn_changed(player: Player):
-	update_ui()
+	mark_ui_dirty(["player_info", "armies", "phase_info", "buttons", "action_info"])
 	print("UI: Turn changed to %s" % player.player_name)
 
 func _on_phase_changed(new_phase):
-	update_ui()
+	mark_ui_dirty(["phase_info", "buttons", "action_info"])
 	var phase_name = game_manager.GamePhase.keys()[new_phase]
 	print("UI: Phase changed to %s" % phase_name)
 
