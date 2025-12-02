@@ -324,6 +324,8 @@ func are_territories_connected(from_territory: String, to_territory: String, pla
 
 func update_connectivity_cache():
 	# Pre-compute connectivity graphs per player (Performance Improvement 8)
+	# Note: O(V²) complexity per player, but only runs when territories change ownership
+	# This is acceptable as the cache remains valid until next conquest
 	if not connectivity_dirty:
 		return
 	

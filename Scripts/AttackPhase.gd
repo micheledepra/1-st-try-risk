@@ -140,7 +140,7 @@ func _refill_rng_cache():
 	# Pre-generate random numbers in batches (Performance Improvement 14)
 	rng_cache.clear()
 	for i in range(RNG_CACHE_SIZE):
-		rng_cache.append(randi() % 6 + 1)
+		rng_cache.append(randi_range(1, 6))  # Uniform distribution
 	rng_cache_index = 0
 
 func conquer_territory(from_territory: String, to_territory: String, attacker: Player, defender: Player):

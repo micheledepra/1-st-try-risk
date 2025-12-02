@@ -51,6 +51,7 @@ func mark_ui_dirty(sections: Array = []):
 			if ui_dirty_flags.has(section):
 				ui_dirty_flags[section] = true
 	
+	# Only schedule deferred update once per frame
 	if not ui_update_scheduled:
 		ui_update_scheduled = true
 		call_deferred("_process_ui_updates")
