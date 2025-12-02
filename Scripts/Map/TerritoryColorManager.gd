@@ -31,6 +31,10 @@ var label_pool_max_size: int = 50  # Max labels to keep in pool
 # Material cache to avoid duplicating materials (Performance Improvement 3)
 var material_cache: Dictionary = {}  # Color -> StandardMaterial3D
 
+# Batch update system (Performance Improvement 4)
+var pending_visual_updates: Dictionary = {}  # territory_name -> bool
+var update_scheduled: bool = false
+
 func _ready():
 	call_deferred("setup_color_system")
 
@@ -160,7 +164,8 @@ func get_all_continents() -> Array:
 # Army management functions
 func set_territory_armies(territory_name: String, count: int):
 	territory_armies[territory_name] = count
-	update_territory_label(territory_name)
+	# Schedule batched update (Performance Improvement 4)
+	_schedule_territory_update(territory_name)
 
 func get_territory_armies(territory_name: String) -> int:
 	return territory_armies.get(territory_name, 0)
@@ -224,3 +229,19 @@ func find_label_3d(territory: Node3D) -> Label3D:
 		if child is Label3D:
 			return child
 	return null
+
+# Batch update system (Performance Improvement 4)
+func _schedule_territory_update(territory_name: String):
+	pending_visual_updates[territory_name] = true
+	
+	if not update_scheduled:
+		update_scheduled = true
+		# Defer update to next frame to batch multiple changes
+		call_deferred("_process_pending_updates")
+
+func _process_pending_updates():
+	for territory_name in pending_visual_updates.keys():
+		update_territory_label(territory_name)
+	
+	pending_visual_updates.clear()
+	update_scheduled = false
