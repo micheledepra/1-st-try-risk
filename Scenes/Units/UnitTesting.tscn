@@ -1,0 +1,203 @@
+[gd_scene load_steps=7 format=3 uid="uid://40qql2e36emd"]
+
+[ext_resource type="PackedScene" uid="uid://b5qn3k0c6ky1j" path="res://Scenes/Units/Import/t34/t_34.tscn" id="1_t34"]
+[ext_resource type="PackedScene" uid="uid://cg018tob0jnlr" path="res://Scenes/Units/Import/Panther/Panther.tscn" id="2_panther"]
+[ext_resource type="PackedScene" uid="uid://bfkxreidk5n2t" path="res://Scenes/Units/Import/t34/t34Decorative.tscn" id="4_t34_dec"]
+[ext_resource type="PackedScene" uid="uid://b4ray8ujmeoaf" path="res://Scenes/Units/Import/Panther/PantherDecorative.tscn" id="5_panther_dec"]
+[ext_resource type="Script" path="res://Scenes/Units/UnitTestingUI.gd" id="6_ui_script"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(50, 1, 50)
+
+[node name="UnitTesting" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.60647357, -0.79216015, -0.06835237, -0.14703155, 0.027250687, 0.98875636, -0.7813907, 0.60970455, -0.13299936, 24.634842, 6.844, 2.0455513)
+light_color = Color(0.80812395, 0.7538307, 0.573668, 1)
+light_indirect_energy = 16.0
+light_volumetric_fog_energy = 4.579
+light_specular = 3.105
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.642788, 0.766044, 0, -0.766044, 0.642788, 0, 20, 15)
+current = true
+
+[node name="TestArena" type="Node3D" parent="."]
+
+[node name="Floor" type="StaticBody3D" parent="TestArena"]
+collision_mask = 0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="TestArena/Floor"]
+transform = Transform3D(50, 0, 0, 0, 1, 0, 0, 0, 50, 0, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TestArena/Floor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("BoxShape3D_floor")
+
+[node name="Ramp1_15deg" type="StaticBody3D" parent="TestArena"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, -15, 2.5, -10)
+collision_mask = 0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="TestArena/Ramp1_15deg"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TestArena/Ramp1_15deg"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="Ramp2_30deg" type="StaticBody3D" parent="TestArena"]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 15, 5, -10)
+collision_mask = 0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="TestArena/Ramp2_30deg"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TestArena/Ramp2_30deg"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="Wall" type="StaticBody3D" parent="TestArena"]
+transform = Transform3D(20, 0, 0, 0, 5, 0, 0, 0, 1, 0, 2.5, 20)
+collision_mask = 0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="TestArena/Wall"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TestArena/Wall"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="Obstacles" type="Node3D" parent="TestArena"]
+
+[node name="Box1" type="StaticBody3D" parent="TestArena/Obstacles"]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -8, 1.5, 5)
+collision_mask = 0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="TestArena/Obstacles/Box1"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TestArena/Obstacles/Box1"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="Box2" type="StaticBody3D" parent="TestArena/Obstacles"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 8, 1, 8)
+collision_mask = 0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="TestArena/Obstacles/Box2"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TestArena/Obstacles/Box2"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="Cylinder1" type="StaticBody3D" parent="TestArena/Obstacles"]
+transform = Transform3D(2.5, 0, 0, 0, 4, 0, 0, 0, 2.5, 0, 2, 10)
+collision_mask = 0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="TestArena/Obstacles/Cylinder1"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TestArena/Obstacles/Cylinder1"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="DistanceMarkers" type="Node3D" parent="TestArena"]
+
+[node name="Marker_10m" type="MeshInstance3D" parent="TestArena/DistanceMarkers"]
+transform = Transform3D(0.2, 0, 0, 0, 3, 0, 0, 0, 0.2, 10, 1.5, 0)
+
+[node name="Marker_20m" type="MeshInstance3D" parent="TestArena/DistanceMarkers"]
+transform = Transform3D(0.2, 0, 0, 0, 3, 0, 0, 0, 0.2, 20, 1.5, 0)
+
+[node name="Marker_30m" type="MeshInstance3D" parent="TestArena/DistanceMarkers"]
+transform = Transform3D(0.2, 0, 0, 0, 3, 0, 0, 0, 0.2, 30, 1.5, 0)
+
+[node name="Marker_neg10m" type="MeshInstance3D" parent="TestArena/DistanceMarkers"]
+transform = Transform3D(0.2, 0, 0, 0, 3, 0, 0, 0, 0.2, -10, 1.5, 0)
+
+[node name="Marker_neg20m" type="MeshInstance3D" parent="TestArena/DistanceMarkers"]
+transform = Transform3D(0.2, 0, 0, 0, 3, 0, 0, 0, 0.2, -20, 1.5, 0)
+
+[node name="Units" type="Node3D" parent="."]
+
+[node name="T34_Test" parent="Units" instance=ExtResource("1_t34")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Panther_Test" parent="Units" instance=ExtResource("2_panther")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0)
+
+[node name="TargetUnits" type="Node3D" parent="."]
+
+[node name="T34_Target1" parent="TargetUnits" instance=ExtResource("4_t34_dec")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 15, 0, 0)
+
+[node name="Panther_Target1" parent="TargetUnits" instance=ExtResource("5_panther_dec")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 15, 0, 5)
+
+[node name="T34_Target2" parent="TargetUnits" instance=ExtResource("4_t34_dec")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 20, 0, -3)
+
+[node name="Panther_Target2" parent="TargetUnits" instance=ExtResource("5_panther_dec")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 20, 0, 3)
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="TestInfo" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("6_ui_script")
+
+[node name="InstructionsLabel" type="Label" parent="UI/TestInfo"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -120.0
+offset_right = 400.0
+offset_bottom = -20.0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 16
+text = "UNIT TESTING CONTROLS
+━━━━━━━━━━━━━━━━━━━━━━━━
+WASD - Move Tank
+Mouse - Aim Turret/Barrel
+LMB - Fire Projectile
+Tab - Switch Camera (Coming Soon)
+━━━━━━━━━━━━━━━━━━━━━━━━"
+vertical_alignment = 1
+
+[node name="FPSCounter" type="Label" parent="UI/TestInfo"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -150.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 50.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 20
+text = "FPS: 60"
+horizontal_alignment = 2
+
+[node name="PoolStatsLabel" type="Label" parent="UI/TestInfo"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -250.0
+offset_top = 60.0
+offset_right = -20.0
+offset_bottom = 90.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.7, 0.7, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 14
+text = "Projectiles Active: 0/180"
+horizontal_alignment = 2

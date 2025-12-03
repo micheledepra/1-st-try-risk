@@ -1,0 +1,49 @@
+[gd_scene load_steps=6 format=3 uid="uid://c0qnw8skl8ej8"]
+
+[ext_resource type="Script" uid="uid://f1qh6fxyaw0h" path="res://Scripts/BlastEffect.gd" id="1"]
+
+[sub_resource type="Curve" id="Curve_alpha"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.3, 0.8), 0.0, -1.5, 0, 0, Vector2(1, 0), -2.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_alpha"]
+curve = SubResource("Curve_alpha")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_blast"]
+direction = Vector3(0, 0, -1)
+spread = 48.878
+initial_velocity_min = 2.0
+initial_velocity_max = 3.5
+radial_velocity_min = -0.50002235
+radial_velocity_max = 0.09997764
+gravity = Vector3(0, -1, 0)
+damping_min = 27.000002
+damping_max = 29.000002
+scale_min = 0.099999994
+scale_max = 0.5
+color = Color(0.5, 0.5, 0.5, 1)
+alpha_curve = SubResource("CurveTexture_alpha")
+turbulence_noise_strength = 0.5
+turbulence_noise_scale = 2.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_particle"]
+radius = 0.15
+height = 0.3
+
+[node name="BlastEffect" type="GPUParticles3D"]
+transparency = 0.78
+cast_shadow = 0
+emitting = false
+amount = 25
+lifetime = 0.09999999999999999
+one_shot = true
+explosiveness = 0.95
+process_material = SubResource("ParticleProcessMaterial_blast")
+draw_pass_1 = SubResource("SphereMesh_particle")
+script = ExtResource("1")
+
+[node name="BlastLight" type="OmniLight3D" parent="."]
+light_color = Color(1, 0.2, 0.1, 1)
+light_energy = 3.0
+omni_range = 1.5
+omni_attenuation = 2.0

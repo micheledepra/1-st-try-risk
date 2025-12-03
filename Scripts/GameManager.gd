@@ -17,6 +17,7 @@ signal turn_changed(player: Player)
 signal player_eliminated(player: Player)
 signal game_over(winner: Player)
 signal armies_changed(territory_name: String, army_count: int)
+signal stats_updated()
 
 # Game state
 var players: Array[Player] = []
@@ -25,6 +26,45 @@ var current_phase: GamePhase = GamePhase.SETUP
 var turn_number: int = 0
 var map_data: Dictionary = {}
 var num_players: int = 0
+
+# Battle mode: If true, uses UI modals for manual battle resolution (developer mode)
+# If false, uses automatic resolution (each side loses 1 unit per attack)
+var developer_mode: bool = false
+
+# Statistics tracking
+class TurnSnapshot:
+	var turn: int
+	var player_id: int
+	var phase: String
+	var territories_count: int
+	var total_armies: int
+	var reinforcements_received: int
+	var continents_owned: Array[String] = []
+
+class BattleRecord:
+	var turn: int
+	var attacker_id: int
+	var defender_id: int
+	var from_territory: String
+	var to_territory: String
+	var attacker_armies: int
+	var defender_armies: int
+	var attacker_losses: int
+	var defender_losses: int
+	var conquered: bool
+
+var turn_history: Array[TurnSnapshot] = []
+var battle_history: Array[BattleRecord] = []
+
+# Player cumulative stats
+class PlayerStats:
+	var total_kills: int = 0
+	var total_deaths: int = 0
+	var territories_conquered: int = 0
+	var territories_lost: int = 0
+	var battles_initiated: int = 0
+
+var player_stats: Dictionary = {}  # player_id -> PlayerStats
 
 # Continent bonuses (armies per turn)
 const CONTINENT_BONUSES = {
@@ -87,6 +127,11 @@ func start_new_game(player_count: int):
 	turn_number = 0
 	current_phase = GamePhase.SETUP
 	
+	# Reset statistics
+	turn_history.clear()
+	battle_history.clear()
+	player_stats.clear()
+	
 	# Create players
 	var player_colors = [
 		Color(0.8, 0.2, 0.2, 1.0),  # Red
@@ -99,7 +144,14 @@ func start_new_game(player_count: int):
 	
 	for i in range(player_count):
 		var player = Player.new(i + 1, "Player %d" % (i + 1), player_colors[i])
+		# Randomly assign unit type: "panther" or "t34"
+		player.unit_type = "panther" if randi() % 2 == 0 else "t34"
 		players.append(player)
+		
+		# Initialize player stats
+		player_stats[player.id] = PlayerStats.new()
+		
+		print("GameManager: Player %d assigned %s units" % [player.id, player.unit_type])
 	
 	print("GameManager: Started new game with %d players" % player_count)
 	
@@ -170,12 +222,18 @@ func end_turn():
 					break
 			
 			if all_done:
-				# Move to main game loop
-				current_phase = GamePhase.REINFORCEMENT
+				# Move to main game loop - start with first player
+				# Turn 1 skips reinforcement phase and goes directly to attack
+				current_phase = GamePhase.ATTACK
 				turn_number = 1
 				current_player_index = 0
-				print("GameManager: Setup complete, starting turn 1")
+				print("GameManager: Setup complete, starting turn 1 (Attack Phase - no reinforcement)")
 				emit_signal("phase_changed", current_phase)
+				emit_signal("turn_changed", get_current_player())
+			else:
+				# Continue setup with next player
+				print("GameManager: Setup continues - Player %d's turn" % get_current_player().id)
+				emit_signal("turn_changed", get_current_player())
 			
 		GamePhase.FORTIFY:
 			# End of turn, move to next player
@@ -184,8 +242,6 @@ func end_turn():
 		_:
 			push_warning("Cannot end turn in phase: %s" % GamePhase.keys()[current_phase])
 			return
-	
-	emit_signal("turn_changed", get_current_player())
 
 func advance_to_next_player():
 	# Skip eliminated players
@@ -196,23 +252,28 @@ func advance_to_next_player():
 			break
 		attempts += 1
 	
-	# Start new turn with reinforcement phase
-	current_phase = GamePhase.REINFORCEMENT
-	turn_number += 1
+	# Check if we're cycling back to player 1 (increment turn)
+	if current_player_index == 0:
+		turn_number += 1
 	
-	# Calculate and give reinforcement armies
-	give_reinforcement_armies()
+	# Turn 1 uses ATTACK phase (no reinforcement), turn 2+ uses REINFORCEMENT
+	if turn_number == 1:
+		current_phase = GamePhase.ATTACK
+		print("GameManager: Turn 1 - Player %d's turn (Attack Phase - no reinforcement)" % get_current_player().id)
+	else:
+		current_phase = GamePhase.REINFORCEMENT
+		# Calculate and give reinforcement armies
+		give_reinforcement_armies()
+		print("GameManager: Turn %d - Player %d's turn" % [turn_number, get_current_player().id])
 	
 	emit_signal("phase_changed", current_phase)
 	emit_signal("turn_changed", get_current_player())
-	
-	print("GameManager: Turn %d - Player %d's turn" % [turn_number, get_current_player().id])
 
 func give_reinforcement_armies():
 	var player = get_current_player()
 	
-	# Base reinforcement: territories / 3 (minimum 3)
-	var base_armies = max(3, player.get_territory_count() / 3)
+	# Base reinforcement: territories / 3 (minimum 1)
+	var base_armies = max(1, player.get_territory_count() / 3)
 	
 	# Add continent bonuses
 	var continent_bonus = 0
@@ -223,6 +284,9 @@ func give_reinforcement_armies():
 	
 	var total_armies = base_armies + continent_bonus
 	player.add_armies(total_armies)
+	
+	# Record turn snapshot with reinforcements
+	record_turn_snapshot(player, total_armies)
 	
 	print("Player %d receives %d armies (%d base + %d continent bonus)" % [player.id, total_armies, base_armies, continent_bonus])
 
@@ -244,6 +308,11 @@ func does_player_own_continent(player_id: int, continent_name: String) -> bool:
 
 func advance_phase():
 	match current_phase:
+		GamePhase.SETUP:
+			# Cannot advance phase during setup - must use end_turn
+			push_warning("Cannot advance phase during SETUP. Use End Turn to pass to next player.")
+			return
+			
 		GamePhase.REINFORCEMENT:
 			# Check if player placed all armies
 			if get_current_player().army_reserves > 0:
@@ -327,3 +396,71 @@ func eliminate_player(player: Player):
 	emit_signal("player_eliminated", player)
 	print("Player %d has been eliminated" % player.id)
 	check_win_condition()
+
+# Statistics recording methods
+func record_turn_snapshot(player: Player, reinforcements_received: int = 0):
+	var snapshot = TurnSnapshot.new()
+	snapshot.turn = turn_number
+	snapshot.player_id = player.id
+	snapshot.phase = GamePhase.keys()[current_phase]
+	snapshot.territories_count = player.get_territory_count()
+	
+	# Calculate total armies deployed on map
+	var total_armies = 0
+	for territory_name in player.territories_owned:
+		total_armies += get_territory_armies(territory_name)
+	snapshot.total_armies = total_armies
+	
+	snapshot.reinforcements_received = reinforcements_received
+	
+	# Record owned continents
+	for continent_name in CONTINENT_BONUSES.keys():
+		if does_player_own_continent(player.id, continent_name):
+			snapshot.continents_owned.append(continent_name)
+	
+	turn_history.append(snapshot)
+	emit_signal("stats_updated")
+
+func record_battle(attacker_id: int, defender_id: int, from_territory: String, to_territory: String, 
+				   attacker_armies: int, defender_armies: int, attacker_losses: int, 
+				   defender_losses: int, conquered: bool):
+	var record = BattleRecord.new()
+	record.turn = turn_number
+	record.attacker_id = attacker_id
+	record.defender_id = defender_id
+	record.from_territory = from_territory
+	record.to_territory = to_territory
+	record.attacker_armies = attacker_armies
+	record.defender_armies = defender_armies
+	record.attacker_losses = attacker_losses
+	record.defender_losses = defender_losses
+	record.conquered = conquered
+	
+	battle_history.append(record)
+	
+	# Update cumulative stats
+	if player_stats.has(attacker_id):
+		var attacker_stats = player_stats[attacker_id]
+		attacker_stats.battles_initiated += 1
+		attacker_stats.total_kills += defender_losses
+		attacker_stats.total_deaths += attacker_losses
+		if conquered:
+			attacker_stats.territories_conquered += 1
+	
+	if player_stats.has(defender_id):
+		var defender_stats = player_stats[defender_id]
+		defender_stats.total_kills += attacker_losses
+		defender_stats.total_deaths += defender_losses
+		if conquered:
+			defender_stats.territories_lost += 1
+	
+	emit_signal("stats_updated")
+
+func get_player_stats(player_id: int) -> PlayerStats:
+	return player_stats.get(player_id, null)
+
+func get_kd_ratio(player_id: int) -> float:
+	var stats = get_player_stats(player_id)
+	if stats == null or stats.total_deaths == 0:
+		return float(stats.total_kills) if stats else 0.0
+	return float(stats.total_kills) / float(stats.total_deaths)

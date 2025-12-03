@@ -1,7 +1,6 @@
-[gd_scene load_steps=7 format=4 uid="uid://b4q51uas8uian"]
+[gd_scene load_steps=6 format=4 uid="uid://b4q51uas8uian"]
 
 [ext_resource type="Material" uid="uid://brghp1o6u4wuj" path="res://materials/Map/territory_material_1.tres" id="1_ihrpb"]
-[ext_resource type="Texture2D" uid="uid://c88j3oj0lf6om" path="res://demo/assets/textures/rock023_alb_ht.png" id="2_ljg7e"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hg7fi"]
 resource_name = "material_0"
@@ -77,21 +76,9 @@ transform = Transform3D(2.489029, 0, -0.06952462, 0.06952462, 1.08841355e-07, 2.
 transform = Transform3D(0.40144992, 0.01121347, -4.901564e-10, -3.983825e-17, 1.7554779e-08, 0.4016065, -0.01121347, 0.40144992, -1.7547933e-08, -817.40533, 3.51265, -223.02081)
 shape = SubResource("ConcavePolygonShape3D_atm6e")
 
-[node name="Sprite3D" type="Sprite3D" parent="."]
-transform = Transform3D(-12.235827, 0, 0, 0, 1.3743531e-07, 0.5438092, 0, -3.1441453, 2.3770719e-08, 3.4255733, 19.143559, -14.3538475)
-transparency = 0.4
-gi_lightmap_texel_scale = 1.8239
-modulate = Color(0.24705882, 0.11764706, 0.007843138, 1)
-billboard = 1
-transparent = false
-texture = ExtResource("2_ljg7e")
-region_enabled = true
-region_rect = Rect2(0, 0, 1024, 1024)
+[node name="StaticBody3D" type="StaticBody3D" parent="Mesh"]
+input_ray_pickable = false
 
-[node name="Label3D" type="Label3D" parent="Sprite3D"]
-transform = Transform3D(1.1374646, 0, 0, 0, 4.0934944, -7.1054274e-15, 0, 5.684342e-14, 1.9999999, 0, 0, 0.7323284)
-billboard = 1
-text = "Iceland
-"
-font_size = 350
-outline_size = 100
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Mesh/StaticBody3D"]
+transform = Transform3D(1, -1.8626451e-09, 1.110223e-16, 1.8626451e-09, 1, 7.1054274e-15, -1.110223e-16, 0, 1, -0.00024414063, -6.1035156e-05, 5.9366175e-07)
+shape = SubResource("ConcavePolygonShape3D_atm6e")

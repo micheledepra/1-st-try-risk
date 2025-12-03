@@ -1,0 +1,51 @@
+[gd_scene load_steps=7 format=3 uid="uid://b5vvkln5nguyv"]
+
+[ext_resource type="Material" uid="uid://8s1sxp10t3ri" path="res://materials/Units/tank.tres" id="1_vgw0t"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_tgi01"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_jgb2c"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_0pw0p"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_jgb2c"]
+
+[sub_resource type="TubeTrailMesh" id="TubeTrailMesh_0pw0p"]
+
+[node name="Tank" type="Node3D"]
+
+[node name="Node3D" type="Node3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Node3D"]
+transform = Transform3D(5.6569355e-16, -1.8397701e-08, -1.25133, -0.2960684, -1.8397701e-08, 0, -1.2941562e-08, 0.42089033, -5.469737e-08, -0.087940745, -1.3131143e-23, -3.8440127e-09)
+mesh = SubResource("CylinderMesh_tgi01")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("1_vgw0t")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="Node3D"]
+transform = Transform3D(5.151957e-16, -3.059797e-08, -0.7, -0.26963925, -3.059797e-08, 7.686974e-23, -1.1786305e-08, 0.7, -3.059797e-08, -0.042028546, 0.20639375, 0)
+mesh = SubResource("SphereMesh_jgb2c")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("1_vgw0t")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="Node3D"]
+transform = Transform3D(1.2691694e-08, -0.33733085, 9.035593e-17, 0.044985276, 9.517115e-08, 2.0671032e-09, 1.9663693e-09, 3.5155304e-15, -0.047289807, 0.59012306, 0.20639375, 0)
+mesh = SubResource("CylinderMesh_0pw0p")
+skeleton = NodePath("../MeshInstance3D2")
+surface_material_override/0 = ExtResource("1_vgw0t")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="Node3D"]
+transform = Transform3D(0.2, 0, 0, 0, 0.05367155, 0, 0, 0, 0.2, -0.086103454, 0.3136279, 0.13075605)
+mesh = SubResource("CylinderMesh_jgb2c")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("1_vgw0t")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="Node3D"]
+transform = Transform3D(-4.3711387e-10, 0.24789321, -4.3711387e-10, 0, -1.0835756e-08, -0.01, -0.01, -1.0835756e-08, 1.9106855e-17, 0.29579765, 0.2063001, -0.056019932)
+mesh = SubResource("TubeTrailMesh_0pw0p")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("1_vgw0t")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="Node3D"]
+skeleton = NodePath("../..")

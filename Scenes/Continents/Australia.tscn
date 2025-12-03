@@ -1,0 +1,22 @@
+[gd_scene load_steps=6 format=3 uid="uid://d3mn07twamxe0"]
+
+[ext_resource type="PackedScene" uid="uid://budhgo2rt1jpd" path="res://Scenes/Territories/3D/eastern_australia.tscn" id="1_b5oym"]
+[ext_resource type="Script" uid="uid://ddekpbow5tjbc" path="res://Scripts/Map/Continents/hover_raise_parent.gd" id="1_vmpk0"]
+[ext_resource type="PackedScene" uid="uid://buu53tsbb20x3" path="res://Scenes/Territories/3D/indonesia.tscn" id="2_vmpk0"]
+[ext_resource type="PackedScene" uid="uid://l5remn2kjbj4" path="res://Scenes/Territories/3D/new_guinea.tscn" id="3_5t0ig"]
+[ext_resource type="PackedScene" uid="uid://cb8140r3iob6t" path="res://Scenes/Territories/3D/western_australia.tscn" id="4_hpnd1"]
+
+[node name="Australia" type="Node3D"]
+script = ExtResource("1_vmpk0")
+
+[node name="eastern_australia" parent="." instance=ExtResource("1_b5oym")]
+transform = Transform3D(-0.99634826, 0, -0.08538224, 0, 1, 0, 0.08538224, 0, -0.99634826, 37.853413, 7.6293945e-06, 43.786076)
+
+[node name="indonesia" parent="." instance=ExtResource("2_vmpk0")]
+transform = Transform3D(-0.86933327, 0, -0.23293702, 0, 0.9, 0, 0.23293702, 0, -0.86933327, -57.867645, 1.5258789e-05, -19.014791)
+
+[node name="new_guinea" parent="." instance=ExtResource("3_5t0ig")]
+transform = Transform3D(-0.8999933, 0, 0.0034558028, 0, 0.9, 0, -0.0034558028, 0, -0.8999933, 13.196533, -7.6293945e-06, -33.895733)
+
+[node name="western_australia" parent="." instance=ExtResource("4_hpnd1")]
+transform = Transform3D(-0.7970786, 0, -0.06830579, 0, 0.8, 0, 0.06830579, 0, -0.7970786, -24.021837, 7.6293945e-06, 39.354538)

@@ -9,7 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://dxqe81bkifxov" path="res://Scenes/Territories/3D/western_europe.tscn" id="6_eyr56"]
 [ext_resource type="PackedScene" uid="uid://buaa0vd5itot7" path="res://Scenes/Territories/3D/ukraine.tscn" id="7_qas24"]
 
-[node name="Europe" type="Node3D"]
+[node name="europe" type="Node3D"]
 script = ExtResource("1_du0o1")
 
 [node name="great_britain" parent="." instance=ExtResource("1_ckera")]
@@ -19,7 +19,7 @@ transform = Transform3D(0.66258085, 0, -0.74899054, 0, 1, 0, 0.74899054, 0, 0.66
 transform = Transform3D(0.6, 0, 0, 0, 0.6, 0, 0, 0, 0.6, -71.5807, 0, -65.80487)
 
 [node name="northern_europe" parent="." instance=ExtResource("3_ui6q4")]
-transform = Transform3D(0.70710677, 0, -0.70710677, 0, 1, 0, 0.70710677, 0, 0.70710677, -723.58374, 0, -252.19992)
+transform = Transform3D(0.9999839, 0, -0.005672276, 0, 1, 0, 0.005672276, 0, 0.9999839, 57.784817, 0, 2.8078327)
 
 [node name="scandinavia" parent="." instance=ExtResource("4_77lmd")]
 transform = Transform3D(0.9035156, 0, -0.9066749, 0, 1.28, 0, 0.9066749, 0, 0.9035156, 64.573044, 0.0011329651, -65.74191)

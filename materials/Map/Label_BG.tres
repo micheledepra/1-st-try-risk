@@ -4,9 +4,11 @@
 
 [resource]
 transparency = 2
-alpha_scissor_threshold = 0.5
+alpha_scissor_threshold = 0.0
 alpha_antialiasing_mode = 0
+albedo_color = Color(0.02745098, 0, 0.44705883, 1)
 albedo_texture = ExtResource("1_14npu")
-metallic_specular = 1.0
-roughness = 0.0
+metallic = 0.95
+metallic_specular = 0.45
+roughness = 0.1
 billboard_keep_scale = true

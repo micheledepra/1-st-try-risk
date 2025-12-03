@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://bhmksjbr5tg7r" path="res://Scenes/Territories/3D/peru.tscn" id="3_6bjmv"]
 [ext_resource type="PackedScene" uid="uid://co00bpdmop0m6" path="res://Scenes/Territories/3D/venezuela.tscn" id="4_02x0q"]
 
-[node name="SouthAmerica" type="Node3D"]
+[node name="south_america" type="Node3D"]
 transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
 script = ExtResource("1_s4ea8")
 

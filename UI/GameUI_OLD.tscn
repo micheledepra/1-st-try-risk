@@ -1,0 +1,87 @@
+[gd_scene load_steps=2 format=3 uid="uid://b8jv7k5qhwq7w"]
+
+[ext_resource type="Script" uid="uid://by2revkcs3ei" path="res://UI/GameUI_OLD.gd" id="1_2e2ql"]
+
+[node name="GameUI" type="PanelContainer"]
+offset_right = 391.0
+offset_bottom = 144.0
+scale = Vector2(1.2729737, 1.2304194)
+script = ExtResource("1_2e2ql")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="PhaseInfoSection" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="TurnNumberLabel" type="Label" parent="MarginContainer/PhaseInfoSection"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Turn: 1"
+horizontal_alignment = 1
+
+[node name="PhaseLabel" type="Label" parent="MarginContainer/PhaseInfoSection"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "REINFORCEMENT"
+horizontal_alignment = 1
+
+[node name="PlayerInfoSection" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="PlayerNameLabel" type="Label" parent="MarginContainer/PlayerInfoSection"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Player 1"
+
+[node name="ArmyReservesLabel" type="Label" parent="MarginContainer/PlayerInfoSection"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Armies: 0"
+
+[node name="TerritoryCountLabel" type="Label" parent="MarginContainer/PlayerInfoSection"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Territories: 0"
+
+[node name="ActionInfoSection" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="ActionMargin" type="MarginContainer" parent="MarginContainer/ActionInfoSection"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ActionLabel" type="Label" parent="MarginContainer/ActionInfoSection/ActionMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ButtonSection" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="AdvancePhaseButton" type="Button" parent="MarginContainer/ButtonSection"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 32)
+layout_mode = 2
+text = "Start Attack Phase"
+
+[node name="EndTurnButton" type="Button" parent="MarginContainer/ButtonSection"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 32)
+layout_mode = 2
+text = "End Turn"
+
+[node name="MarginContainer2" type="MarginContainer" parent="."]
+layout_mode = 2
+
+[connection signal="pressed" from="MarginContainer/ButtonSection/AdvancePhaseButton" to="." method="_on_advance_phase_button_pressed"]
+[connection signal="pressed" from="MarginContainer/ButtonSection/EndTurnButton" to="." method="_on_end_turn_button_pressed"]

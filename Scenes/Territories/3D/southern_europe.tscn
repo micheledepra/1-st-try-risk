@@ -1,7 +1,6 @@
-[gd_scene load_steps=7 format=4 uid="uid://boutxx5dck8e"]
+[gd_scene load_steps=6 format=4 uid="uid://boutxx5dck8e"]
 
 [ext_resource type="Material" uid="uid://brghp1o6u4wuj" path="res://materials/Map/territory_material_1.tres" id="1_3xhhq"]
-[ext_resource type="Texture2D" uid="uid://c88j3oj0lf6om" path="res://demo/assets/textures/rock023_alb_ht.png" id="2_pa8s5"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i4ijd"]
 resource_name = "material_0"
@@ -77,21 +76,9 @@ transform = Transform3D(3.4799998, -1.329837e-14, 3.0423124e-07, -3.0423124e-07,
 transform = Transform3D(0.2873563, -2.5121485e-08, 0, -1.0980949e-15, -1.2560743e-08, 0.2873563, 2.5121485e-08, 0.2873563, 1.2560743e-08, -744.22296, 0, -264.0796)
 shape = SubResource("ConcavePolygonShape3D_wdolj")
 
-[node name="Sprite3D" type="Sprite3D" parent="."]
-transform = Transform3D(-5.0121207, 0, 0, 0, 1.0843678e-07, 0.42078903, 0, -2.4807398, 1.8393326e-08, 17.839058, 14.334095, 25.512775)
-transparency = 0.4
-gi_lightmap_texel_scale = 1.8239
-modulate = Color(0.24705882, 0.11764706, 0.007843138, 1)
-billboard = 1
-transparent = false
-texture = ExtResource("2_pa8s5")
-region_enabled = true
-region_rect = Rect2(0, 0, 1024, 1024)
+[node name="StaticBody3D" type="StaticBody3D" parent="Mesh"]
+input_ray_pickable = false
 
-[node name="Label3D" type="Label3D" parent="Sprite3D"]
-transform = Transform3D(1.2448201, 0, 0, 0, 2.2287512, -6.217249e-15, 0, 3.9790393e-13, 1.9999998, 0.00016927719, -0.0002541542, 3.2408714)
-billboard = 1
-text = "Southern
-Europe"
-font_size = 350
-outline_size = 100
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Mesh/StaticBody3D"]
+transform = Transform3D(0.9999997, -7.1054274e-15, 4.2351647e-22, 7.1054274e-15, 0.9999997, 3.5527137e-15, 1.2705494e-21, -3.5527137e-15, 0.9999997, 0, 0, 3.637979e-12)
+shape = SubResource("ConcavePolygonShape3D_wdolj")

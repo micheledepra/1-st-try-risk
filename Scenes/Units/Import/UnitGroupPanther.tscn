@@ -1,0 +1,155 @@
+[gd_scene load_steps=2 format=3 uid="uid://drjboqv85u21c"]
+
+[ext_resource type="PackedScene" uid="uid://cg018tob0jnlr" path="res://Scenes/Units/Import/Panther/Panther.tscn" id="1_gv1nk"]
+
+[node name="UnitGroupPanther" type="Node3D"]
+
+[node name="Formation1" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation1" instance=ExtResource("1_gv1nk")]
+
+[node name="Formation2" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation2" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.84569055, 0, 0.5336736, 0, 1, 0, -0.5336736, 0, 0.84569055, -3.7876873, 0, 0)
+
+[node name="Unit2" parent="Formation2" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.9387339, 0, -0.34464294, 0, 1, 0, 0.34464294, 0, 0.9387339, 2.026339, 0, 1.2860813)
+
+[node name="Formation3" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation3" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.2745423)
+
+[node name="Unit2" parent="Formation3" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.8660254, 0, 0.5, 0, 1, 0, -0.5, 0, 0.8660254, -3.536687, 0, 1.5186193)
+
+[node name="Unit3" parent="Formation3" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.49999997, 0, -0.86602545, 0, 1, 0, 0.86602545, 0, 0.49999997, 4.2599387, 0, 2.398459)
+
+[node name="Formation4" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation4" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.8660254, 0, 0.5, 0, 1, 0, -0.5, 0, 0.8660254, -3.9569886, 0, -4.0237513)
+
+[node name="Unit2" parent="Formation4" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.8660254, 0, -0.5, 0, 1, 0, 0.5, 0, 0.8660254, 1.941237, 0, -3.139103)
+
+[node name="Unit3" parent="Formation4" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(-0.50000006, 0, 0.8660254, 0, 1, 0, -0.8660254, 0, -0.50000006, -4.431101, 0, 3.055653)
+
+[node name="Unit4" parent="Formation4" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(-0.25881904, 0, -0.9659258, 0, 1, 0, 0.9659258, 0, -0.25881904, 4.060239, 0, 3.2187347)
+
+[node name="Formation5" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation5" instance=ExtResource("1_gv1nk")]
+
+[node name="Unit2" parent="Formation5" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.8660254, 0, 0.5, 0, 1, 0, -0.5, 0, 0.8660254, -4.0213146, 0, 3.3368907)
+
+[node name="Unit3" parent="Formation5" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.8660254, 0, -0.5, 0, 1, 0, 0.5, 0, 0.8660254, 5.283579, 0, -1.9432392)
+
+[node name="Unit4" parent="Formation5" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.49999994, 0, 0.8660253, 0, 1, 0, -0.8660253, 0, 0.49999994, -4.6154423, 0, -4.6719246)
+
+[node name="Unit5" parent="Formation5" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.49999997, 0, -0.8660253, 0, 1, 0, 0.8660253, 0, 0.49999997, 4.2746525, 0, 4.584181)
+
+[node name="Formation6" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation6" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.74278265, 0, 0.6695326, 0, 1, 0, -0.6695326, 0, 0.74278265, -5.0891275, 0, -1.3081031)
+
+[node name="Unit2" parent="Formation6" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -5.653823)
+
+[node name="Unit3" parent="Formation6" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.70710677, 0, -0.70710677, 0, 1, 0, 0.70710677, 0, 0.70710677, 3.6230383, 0, -1.2190604)
+
+[node name="Unit4" parent="Formation6" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(-0.25881904, 0, 0.9659258, 0, 1, 0, -0.9659258, 0, -0.25881904, -6.7308993, 0, 7.748084)
+
+[node name="Unit5" parent="Formation6" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, -1.5568244, 0, 4.4306965)
+
+[node name="Unit6" parent="Formation6" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(-0.8660254, 0, -0.50000006, 0, 1, 0, 0.50000006, 0, -0.8660254, 5.8770404, 0, 6.7979712)
+
+[node name="Formation7" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation7" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.5369828)
+
+[node name="Unit2" parent="Formation7" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.7071064, 0, 0.7071067, 0, 1, 0, -0.7071067, 0, 0.7071064, -7.7580757, 0, -3.4884162)
+
+[node name="Unit3" parent="Formation7" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(-0.70710635, 0, 0.7071068, 0, 1, 0, -0.7071068, 0, -0.70710635, -6.2296047, 0, 5.426698)
+
+[node name="Unit4" parent="Formation7" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(-0.62899476, 0, 0.77740955, 0, 1, 0, -0.77740955, 0, -0.62899476, -1.981899, 0, 8.912876)
+
+[node name="Unit5" parent="Formation7" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(-0.70710635, 0, -0.7071068, 0, 1, 0, 0.7071068, 0, -0.70710635, 4.809788, 0, 6.1633167)
+
+[node name="Unit6" parent="Formation7" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.7071064, 0, -0.7071067, 0, 1, 0, 0.7071067, 0, 0.7071064, 6.8102007, 0, -2.1327581)
+
+[node name="Unit7" parent="Formation7" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.68128324, 0, 0.73201996, 0, 1, 0, -0.73201996, 0, 0.68128324, 0.7834842, 0, -7.253724)
+
+[node name="Formation8" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation8" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4436717, 0, 1.0788169)
+
+[node name="Unit2" parent="Formation8" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, -2.8313556, 0, -6.780737)
+
+[node name="Unit3" parent="Formation8" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.4039874, 0, -2.4262056)
+
+[node name="Unit4" parent="Formation8" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, 8.368226, 0, 0.35476542)
+
+[node name="Unit5" parent="Formation8" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.936648, 0, -2.356371)
+
+[node name="Unit6" parent="Formation8" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(-0.8426594, 0, -0.5384475, 0, 1, 0, 0.5384475, 0, -0.8426594, 3.220965, 0, 6.254443)
+
+[node name="Unit7" parent="Formation8" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(-0.63374543, 0, -0.7735417, 0, 1, 0, 0.7735417, 0, -0.63374543, 0.7917267, 0, 10.165146)
+
+[node name="Unit8" parent="Formation8" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(-0.70710695, 0, 0.70710707, 0, 1, 0, -0.70710707, 0, -0.70710695, -7.9958596, 0, 7.937516)
+
+[node name="Formation9" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation9" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.8660254, 0, 0.5, 0, 1, 0, -0.5, 0, 0.8660254, -8.635749, 0, -0.7153225)
+
+[node name="Unit2" parent="Formation9" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.44997373, 0, 0.8930418, 0, 1, 0, -0.8930418, 0, 0.44997373, -8.428644, 0, 4.8195257)
+
+[node name="Unit3" parent="Formation9" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.8660254, 0, -0.5, 0, 1, 0, 0.5, 0, 0.8660254, 8.925243, 0, -0.787138)
+
+[node name="Unit4" parent="Formation9" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 0)
+
+[node name="Unit5" parent="Formation9" instance=ExtResource("1_gv1nk")]
+
+[node name="Unit6" parent="Formation9" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0)
+
+[node name="Unit7" parent="Formation9" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(0.5327729, 0, -0.8462582, 0, 1, 0, 0.8462582, 0, 0.5327729, 7.542553, 0, 5.210745)
+
+[node name="Unit8" parent="Formation9" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4203467, 0, 6.7502766)
+
+[node name="Unit9" parent="Formation9" instance=ExtResource("1_gv1nk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5796533, 0, 6.5382442)

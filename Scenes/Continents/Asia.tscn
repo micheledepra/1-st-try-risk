@@ -1,0 +1,54 @@
+[gd_scene load_steps=14 format=3 uid="uid://b7t46jsuknb21"]
+
+[ext_resource type="Script" uid="uid://ddekpbow5tjbc" path="res://Scripts/Map/Continents/hover_raise_parent.gd" id="1_bi8fh"]
+[ext_resource type="PackedScene" uid="uid://c0l31yhb1j3rr" path="res://Scenes/Territories/3D/afghanistan.tscn" id="1_y8125"]
+[ext_resource type="PackedScene" uid="uid://kjl62htydopi" path="res://Scenes/Territories/3D/china.tscn" id="2_bi8fh"]
+[ext_resource type="PackedScene" uid="uid://cttbyox6d8pru" path="res://Scenes/Territories/3D/india.tscn" id="3_4x561"]
+[ext_resource type="PackedScene" uid="uid://c5wjwjp60e8pf" path="res://Scenes/Territories/3D/irkutsk.tscn" id="4_7ubf8"]
+[ext_resource type="PackedScene" uid="uid://0fx0aa7eb68x" path="res://Scenes/Territories/3D/japan.tscn" id="5_htya5"]
+[ext_resource type="PackedScene" uid="uid://tc5obvqqmi21" path="res://Scenes/Territories/3D/kamchatka.tscn" id="6_ruktk"]
+[ext_resource type="PackedScene" uid="uid://cdwu27ffrcg27" path="res://Scenes/Territories/3D/middle_east.tscn" id="7_w47fo"]
+[ext_resource type="PackedScene" uid="uid://cgduvh84piqvm" path="res://Scenes/Territories/3D/mongolia.tscn" id="8_abfxv"]
+[ext_resource type="PackedScene" uid="uid://dwitnm2ho3qcl" path="res://Scenes/Territories/3D/siam.tscn" id="9_8k1xq"]
+[ext_resource type="PackedScene" uid="uid://c0wf6wq6b4g2f" path="res://Scenes/Territories/3D/siberia.tscn" id="10_2dli7"]
+[ext_resource type="PackedScene" uid="uid://c7tn3562chxgc" path="res://Scenes/Territories/3D/ural.tscn" id="11_7emu4"]
+[ext_resource type="PackedScene" uid="uid://df5pd40khejlr" path="res://Scenes/Territories/3D/yakutsk.tscn" id="12_5y4gy"]
+
+[node name="Asia" type="Node3D"]
+script = ExtResource("1_bi8fh")
+
+[node name="afghanistan" parent="." instance=ExtResource("1_y8125")]
+transform = Transform3D(0.94, 0, 0, 0, 0.94, 0, 0, 0, 0.94, 21.576046, 0.00037193298, -57.945488)
+
+[node name="china" parent="." instance=ExtResource("2_bi8fh")]
+transform = Transform3D(1.107, 0, 0, 0, 1.107, 0, 0, 0, 1.107, -55.28162, 1.9073486e-05, -89.219666)
+
+[node name="india" parent="." instance=ExtResource("3_4x561")]
+transform = Transform3D(0.87, 0, 0, 0, 0.87, 0, 0, 0, 0.87, -4.9632645, 0, -111.88788)
+
+[node name="irkutsk" parent="." instance=ExtResource("4_7ubf8")]
+transform = Transform3D(1.0189674, 0, -0.008145399, 0, 1.019, 0, 0.008145399, 0, 1.0189674, -59.35357, 1.5258789e-05, -31.336311)
+
+[node name="japan" parent="." instance=ExtResource("5_htya5")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, -148.17639, 7.6293945e-06, -84.42576)
+
+[node name="kamchatka" parent="." instance=ExtResource("6_ruktk")]
+transform = Transform3D(1.5149803, 0, 0.0077209524, 0, 1.515, 0, -0.0077209524, 0, 1.5149803, -148.7755, 1.7166138e-05, -19.358644)
+
+[node name="middle_east" parent="." instance=ExtResource("7_w47fo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 65.2483, -1.5258789e-05, -100.31061)
+
+[node name="mongolia" parent="." instance=ExtResource("8_abfxv")]
+transform = Transform3D(1.08, 0, 0, 0, 1.08, 0, 0, 0, 1.08, -68.358536, 1.1444092e-05, -49.200794)
+
+[node name="siam" parent="." instance=ExtResource("9_8k1xq")]
+transform = Transform3D(0.8298087, 0, -0.017816698, 0, 0.83, 0, 0.017816698, 0, 0.8298087, -52.339706, 0, -135.43855)
+
+[node name="siberia" parent="." instance=ExtResource("10_2dli7")]
+transform = Transform3D(0.88, 0, 0, 0, 0.88, 0, 0, 0, 0.88, -36.600933, -5.340576e-05, -9.340504)
+
+[node name="ural" parent="." instance=ExtResource("11_7emu4")]
+transform = Transform3D(0.99999994, 0, -0.0004188791, 0, 1, 0, 0.0004188791, 0, 0.99999994, 19.007866, 0, -23.177277)
+
+[node name="yakutsk" parent="." instance=ExtResource("12_5y4gy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -93.501724, 3.0517578e-05, -10.493285)

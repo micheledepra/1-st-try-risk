@@ -1,7 +1,6 @@
-[gd_scene load_steps=7 format=4 uid="uid://b63eay2dbq5eo"]
+[gd_scene load_steps=6 format=4 uid="uid://b63eay2dbq5eo"]
 
 [ext_resource type="Material" uid="uid://brghp1o6u4wuj" path="res://materials/Map/territory_material_1.tres" id="1_whhjx"]
-[ext_resource type="Texture2D" uid="uid://c88j3oj0lf6om" path="res://demo/assets/textures/rock023_alb_ht.png" id="2_uwt3j"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_py2rm"]
 resource_name = "material_0"
@@ -70,24 +69,16 @@ mesh = SubResource("ArrayMesh_md7de")
 skeleton = NodePath("")
 surface_material_override/0 = ExtResource("1_whhjx")
 
-[node name="Area3D" type="Area3D" parent="."]
-transform = Transform3D(1.0000001, 0, 0, 0, 1.0000001, 0, 0, -3.5527137e-15, 1.0000001, -1.5258789e-05, 0, -3.0517578e-05)
+[node name="Area3D" type="Area3D" parent="Mesh"]
+transform = Transform3D(-6.6900024, 0, 0, 0, 2.924293e-07, -6.690002, 0, 6.6900024, 2.924293e-07, 1672.5005, 1806.3005, -7.8955905e-05)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Mesh/Area3D"]
 transform = Transform3D(-0.14947681, 0, 0, 0, 6.5338397e-09, 0.14947681, 0, -0.14947683, 6.533839e-09, 250, 0, 270)
 shape = SubResource("ConcavePolygonShape3D_cbber")
 
-[node name="Sprite3D" type="Sprite3D" parent="Area3D"]
-transform = Transform3D(-2.7501957, 0, 0, 0, 3.6121904e-08, 0.5438092, 0, -0.8263706, 2.3770719e-08, 0, 5.724461, 0)
-transparency = 0.4
-modulate = Color(0.24705882, 0.11764706, 0.007843138, 1)
-billboard = 1
-transparent = false
-texture = ExtResource("2_uwt3j")
+[node name="StaticBody3D" type="StaticBody3D" parent="Mesh"]
+input_ray_pickable = false
 
-[node name="Label3D" type="Label3D" parent="Area3D/Sprite3D"]
-transform = Transform3D(1.7982957, 0, 0, 0, 3.3333337, -7.1054274e-15, 0, 4.2632564e-14, 1.9999999, 5.2452087e-06, -2.980596e-08, 0.20280266)
-billboard = 1
-text = "Brazil"
-font_size = 350
-outline_size = 100
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Mesh/StaticBody3D"]
+transform = Transform3D(1.0000002, 0, 0, 0, 1.0000004, 3.5527137e-15, 0, 3.5527137e-15, 1.0000002, -0.00012207031, 0, 7.275958e-12)
+shape = SubResource("ConcavePolygonShape3D_cbber")

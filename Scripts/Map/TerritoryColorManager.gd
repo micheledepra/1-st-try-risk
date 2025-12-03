@@ -3,12 +3,15 @@ extends Node
 ## TerritoryColorManager
 ## Responsibility: Manage visual state of territories
 ## - Territory colors (owner-based)
-## - Army count labels
+## - Army count labels via 2D UI overlay (performance optimized)
 ## - Ownership tracking
 ## NO INPUT HANDLING - All input handled by TerritoryInputManager
 
+# Template material - cloned for each player color, inherits all properties (texture, metallic, roughness, etc.)
+const TERRITORY_MATERIAL_TEMPLATE = preload("res://materials/Map/territory_material_1.tres")
+
 # Color configuration
-@export var neutral_color: Color = Color(0.7, 0.7, 0.7, 1.0)
+@export var neutral_color: Color = Color(0.7, 0.7, 0.7, 1.0)  # Fully opaque
 @export var player_colors: Array[Color] = [
 	Color(0.8, 0.2, 0.2, 1.0),
 	Color(0.2, 0.2, 0.8, 1.0),
@@ -24,6 +27,17 @@ var territory_armies: Dictionary = {}  # territory_name -> army count
 var territories_cache: Dictionary = {}
 var continents_cache: Dictionary = {}
 
+# Material pooling - per-continent-per-player (for independent transparency per continent)
+var material_pool: Dictionary = {}  # continent_name -> Dictionary[player_id -> StandardMaterial3D]
+var territory_materials: Dictionary = {}  # territory_name -> StandardMaterial3D (individual material reference)
+var camera: Camera3D = null
+var ui_overlay_layer: CanvasLayer = null
+var territory_labels: Dictionary = {}  # territory_name -> Label (2D UI)
+
+# Performance optimization: Cache territory centers (calculated once at startup)
+var territory_centers_cache: Dictionary = {}  # territory_name -> Vector3
+var label_update_counter: int = 0  # Frame counter for throttling label updates
+
 func _ready():
 	call_deferred("setup_color_system")
 
@@ -35,14 +49,43 @@ func setup_color_system():
 		push_error("TerritoryColorManager: No 'Continents' node found in Map!")
 		return
 	
+	# Find camera for 2D label projection
+	camera = map.get_node_or_null("Camera3D")
+	if not camera:
+		push_error("TerritoryColorManager: No Camera3D found in Map!")
+		return
+	
+	# Create or find UI overlay layer
+	var canvas_layer = map.get_node_or_null("CanvasLayer")
+	if not canvas_layer:
+		canvas_layer = CanvasLayer.new()
+		canvas_layer.name = "CanvasLayer"
+		map.add_child(canvas_layer)
+	
+	# Create overlay container for labels
+	ui_overlay_layer = canvas_layer
+	var label_container = Control.new()
+	label_container.name = "TerritoryLabels"
+	label_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label_container.set_anchors_preset(Control.PRESET_FULL_RECT)
+	ui_overlay_layer.add_child(label_container)
+	
+	# FIRST PASS: Build caches only (no coloring yet)
 	var total_territories = 0
 	for continent in continents_node.get_children():
+		# Skip any non-Node3D children (cameras, lights, etc.)
+		if not continent is Node3D:
+			continue
+		
 		var continent_territories = []
 		
 		for territory in continent.get_children():
+			# Only process Node3D children that represent actual territories
+			if not territory is Node3D:
+				continue
+			
 			territories_cache[territory.name] = territory
 			continent_territories.append(territory.name)
-			set_territory_color(territory, neutral_color)
 			# Initialize army count to 0
 			territory_armies[territory.name] = 0
 			total_territories += 1
@@ -50,6 +93,28 @@ func setup_color_system():
 		continents_cache[continent.name] = continent_territories
 	
 	print("TerritoryColorManager: Initialized with %d territories across %d continents" % [total_territories, continents_cache.size()])
+	
+	# Initialize material pool structure after caches are ready
+	initialize_material_pool()
+	
+	# SECOND PASS: Apply initial neutral colors now that caches are complete
+	for territory_name in territories_cache.keys():
+		var territory = territories_cache[territory_name]
+		set_territory_color(territory, neutral_color, 0)
+	
+	# Initialize 2D UI labels for all territories
+	initialize_all_territory_labels()
+	
+	# Pre-calculate territory centers once at startup (PERFORMANCE FIX)
+	precalculate_territory_centers()
+
+func initialize_material_pool():
+	"""Initialize material pool structure - materials created per-continent-per-player on demand"""
+	# Initialize empty pool structure for each continent
+	for continent_name in continents_cache.keys():
+		material_pool[continent_name] = {}
+	
+	print("TerritoryColorManager: Material pool structure initialized for %d continents" % continents_cache.size())
 
 func set_territory_owner(territory_name: String, player_id: int):
 	territory_owners[territory_name] = player_id
@@ -60,7 +125,7 @@ func set_territory_owner(territory_name: String, player_id: int):
 		return
 	
 	var color = neutral_color if player_id == 0 else get_player_color(player_id)
-	set_territory_color(territory, color)
+	set_territory_color(territory, color, player_id)
 	print("Territory %s assigned to player %d" % [territory_name, player_id])
 
 func set_continent_owner(continent_name: String, player_id: int):
@@ -97,7 +162,8 @@ func get_player_color(player_id: int) -> Color:
 	var index = (player_id - 1) % player_colors.size()
 	return player_colors[index]
 
-func set_territory_color(territory: Node3D, color: Color):
+func set_territory_color(territory: Node3D, color: Color, player_id: int):
+	"""Apply color using per-territory material for independent transparency control"""
 	# Find ALL mesh instances in the territory (for multi-mesh territories like Great Britain)
 	var meshes = find_all_mesh_instances(territory)
 	
@@ -105,15 +171,60 @@ func set_territory_color(territory: Node3D, color: Color):
 		push_warning("No MeshInstance3D found in territory: %s" % territory.name)
 		return
 	
-	# Apply color to all meshes
-	for mesh in meshes:
-		var material = mesh.get_active_material(0)
-		if material:
-			material = material.duplicate()
-		else:
-			material = StandardMaterial3D.new()
+	# Find which continent this territory belongs to
+	var continent_name = find_territory_continent(territory.name)
+	if continent_name.is_empty():
+		push_warning("Territory %s not found in any continent" % territory.name)
+		return
+	
+	# Try to get pre-created material from GameManager first (FAST PATH)
+	var color_hash = color.to_html()
+	var material: StandardMaterial3D = null
+	
+	if GameManager.has_meta("territory_materials"):
+		var materials_dict = GameManager.get_meta("territory_materials")
+		material = materials_dict.get(color_hash)
 		
-		material.albedo_color = color
+		if material:
+			# Use pre-created material (inherits all template properties + player color)
+			territory_materials[territory.name] = material
+			for mesh in meshes:
+				mesh.set_surface_override_material(0, material)
+			return
+	
+	# FALLBACK: Get or create material for this territory (neutral color or edge cases)
+	material = get_territory_material(territory.name, continent_name, player_id)
+	if not material:
+		# Clone template material and override color
+		material = TERRITORY_MATERIAL_TEMPLATE.duplicate()
+		material.albedo_color = Color(color.r, color.g, color.b, 1.0)  # Always opaque
+		
+		# Remove texture if textures are disabled
+		var textures_enabled = SettingsManager.get_territory_textures_enabled()
+		if not textures_enabled:
+			material.albedo_texture = null
+		
+		# Template already has: metallic, roughness, cull_mode, texture (if present), etc.
+		# Just ensure transparency is disabled for gameplay
+		material.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
+		material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_OPAQUE_ONLY
+		
+		# Store in continent pool and territory cache
+		if not material_pool.has(continent_name):
+			material_pool[continent_name] = {}
+		material_pool[continent_name][player_id] = material
+		territory_materials[territory.name] = material
+	else:
+		# Update existing material color (fully opaque)
+		material.albedo_color = Color(color.r, color.g, color.b, 1.0)
+		# Ensure opaque rendering flags are set
+		if material.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED:
+			material.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
+		if material.depth_draw_mode != BaseMaterial3D.DEPTH_DRAW_OPAQUE_ONLY:
+			material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_OPAQUE_ONLY
+	
+	# Apply material to all meshes
+	for mesh in meshes:
 		mesh.set_surface_override_material(0, material)
 
 func find_mesh_instance(territory: Node3D) -> MeshInstance3D:
@@ -128,6 +239,49 @@ func find_all_mesh_instances(territory: Node3D) -> Array[MeshInstance3D]:
 		if child is MeshInstance3D:
 			meshes.append(child)
 	return meshes
+
+func find_territory_continent(territory_name: String) -> String:
+	"""Find which continent a territory belongs to"""
+	for continent_name in continents_cache.keys():
+		var territories = continents_cache[continent_name]
+		if territory_name in territories:
+			return continent_name
+	return ""
+
+func get_territory_material(territory_name: String, continent_name: String, player_id: int) -> StandardMaterial3D:
+	"""Get or create material for a specific territory in a continent"""
+	# Check if territory already has a material
+	if territory_materials.has(territory_name):
+		var mat = territory_materials[territory_name]
+		# Ensure opaque rendering flags are set
+		if mat.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED:
+			mat.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
+		if mat.depth_draw_mode != BaseMaterial3D.DEPTH_DRAW_OPAQUE_ONLY:
+			mat.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_OPAQUE_ONLY
+		if mat.cull_mode != BaseMaterial3D.CULL_BACK:
+			mat.cull_mode = BaseMaterial3D.CULL_BACK
+		# Ensure full opacity
+		if mat.albedo_color.a < 1.0:
+			mat.albedo_color.a = 1.0
+		return mat
+	
+	# Check if continent pool has a material for this player
+	if material_pool.has(continent_name) and material_pool[continent_name].has(player_id):
+		# Create a duplicate material for this territory
+		var base_material = material_pool[continent_name][player_id]
+		var new_material = base_material.duplicate()
+		# Ensure opaque rendering flags
+		new_material.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
+		new_material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_OPAQUE_ONLY
+		new_material.cull_mode = BaseMaterial3D.CULL_BACK
+		new_material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+		# Ensure full opacity
+		if new_material.albedo_color.a < 1.0:
+			new_material.albedo_color.a = 1.0
+		territory_materials[territory_name] = new_material
+		return new_material
+	
+	return null
 
 func reset_all_territories():
 	for territory_name in territories_cache.keys():
@@ -165,28 +319,153 @@ func move_armies(from_territory: String, to_territory: String, count: int) -> bo
 	return false
 
 func update_territory_label(territory_name: String):
+	"""Update 2D UI label position and text"""
 	var territory = territories_cache.get(territory_name)
 	if territory == null:
 		return
 	
-	var label = find_label_3d(territory)
+	# Find or create 2D label
+	var label = territory_labels.get(territory_name)
 	if label == null:
-		# Create label if it doesn't exist
-		label = Label3D.new()
-		label.name = "ArmyLabel"
-		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-		label.font_size = 32
-		label.outline_size = 4
-		label.outline_modulate = Color.BLACK
-		territory.add_child(label)
-		label.position = Vector3(0, 0.05, 0)  # Slightly above territory
+		# Create 2D label in UI overlay
+		var label_container = ui_overlay_layer.get_node_or_null("TerritoryLabels")
+		if not label_container:
+			return
+		
+		# Create background panel
+		var panel = PanelContainer.new()
+		panel.name = territory_name + "_Panel"
+		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		label_container.add_child(panel)
+		
+		# Style panel with transparent background (no visible background)
+		var style = StyleBoxFlat.new()
+		style.bg_color = Color(0, 0, 0, 0)  # Fully transparent
+		style.corner_radius_top_left = 20
+		style.corner_radius_top_right = 20
+		style.corner_radius_bottom_left = 20
+		style.corner_radius_bottom_right = 20
+		panel.add_theme_stylebox_override("panel", style)
+		
+		# Create label
+		label = Label.new()
+		label.name = territory_name + "_Label"
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		
+		# Style label
+		label.add_theme_color_override("font_color", Color.WHITE)
+		label.add_theme_font_size_override("font_size", 16)
+		
+		panel.add_child(label)
+		panel.custom_minimum_size = Vector2(40, 40)
+		
+		territory_labels[territory_name] = {"label": label, "panel": panel}
+	else:
+		label = label["label"]
 	
+	# Update label text
 	var army_count = get_territory_armies(territory_name)
-	label.text = str(army_count)
-	label.visible = army_count > 0
+	var display_count = max(1, army_count)
+	label.text = str(display_count)
 
-func find_label_3d(territory: Node3D) -> Label3D:
-	for child in territory.get_children():
-		if child is Label3D:
-			return child
-	return null
+func _process(_delta: float):
+	"""Update 2D label positions to follow 3D territories (OPTIMIZED)"""
+	if not camera:
+		return
+	
+	# Throttle updates: Only update every 3rd frame (~20 FPS instead of 60 FPS)
+	label_update_counter += 1
+	if label_update_counter % 3 != 0:
+		return
+	
+	for territory_name in territory_labels.keys():
+		var territory = territories_cache.get(territory_name)
+		if not territory:
+			continue
+		
+		var label_data = territory_labels[territory_name]
+		var panel = label_data["panel"]
+		
+		# Use pre-calculated territory center (CACHED - no expensive AABB calculation!)
+		var territory_center = territory_centers_cache.get(territory_name, Vector3.ZERO)
+		var world_pos = territory.global_transform * (territory_center + Vector3(0, 0.3, 0))
+		
+		# Visibility culling: Quick check if territory is in camera frustum
+		if not camera.is_position_in_frustum(world_pos):
+			panel.visible = false
+			continue
+		
+		# Project to 2D screen space
+		var screen_pos = camera.unproject_position(world_pos)
+		
+		# Update panel position (centered)
+		panel.position = screen_pos - panel.size / 2
+		
+		# Hide if behind camera
+		var cam_to_pos = world_pos - camera.global_position
+		var is_behind = cam_to_pos.dot(camera.global_transform.basis.z) > 0
+		panel.visible = not is_behind
+
+func calculate_territory_center(territory: Node3D) -> Vector3:
+	"""Calculate the center point of a territory using mesh AABB"""
+	var meshes = find_all_mesh_instances(territory)
+	
+	if meshes.is_empty():
+		return Vector3.ZERO
+	
+	# Get combined AABB of all meshes in territory local space
+	var combined_aabb: AABB
+	var first = true
+	
+	for mesh_instance in meshes:
+		var mesh_aabb = mesh_instance.get_aabb()
+		
+		# Transform mesh AABB to territory local space
+		var mesh_to_territory = territory.global_transform.affine_inverse() * mesh_instance.global_transform
+		
+		# Transform AABB corners to territory space
+		var corners = [
+			mesh_to_territory * (mesh_aabb.position),
+			mesh_to_territory * (mesh_aabb.position + Vector3(mesh_aabb.size.x, 0, 0)),
+			mesh_to_territory * (mesh_aabb.position + Vector3(0, mesh_aabb.size.y, 0)),
+			mesh_to_territory * (mesh_aabb.position + Vector3(0, 0, mesh_aabb.size.z)),
+			mesh_to_territory * (mesh_aabb.position + Vector3(mesh_aabb.size.x, mesh_aabb.size.y, 0)),
+			mesh_to_territory * (mesh_aabb.position + Vector3(mesh_aabb.size.x, 0, mesh_aabb.size.z)),
+			mesh_to_territory * (mesh_aabb.position + Vector3(0, mesh_aabb.size.y, mesh_aabb.size.z)),
+			mesh_to_territory * (mesh_aabb.position + mesh_aabb.size)
+		]
+		
+		# Create AABB from transformed corners
+		var transformed_aabb = AABB(corners[0], Vector3.ZERO)
+		for corner in corners:
+			transformed_aabb = transformed_aabb.expand(corner)
+		
+		if first:
+			combined_aabb = transformed_aabb
+			first = false
+		else:
+			combined_aabb = combined_aabb.merge(transformed_aabb)
+	
+	return combined_aabb.get_center()
+
+func precalculate_territory_centers():
+	"""Pre-calculate territory centers once at startup (PERFORMANCE FIX)"""
+	for territory_name in territories_cache.keys():
+		var territory = territories_cache[territory_name]
+		territory_centers_cache[territory_name] = calculate_territory_center(territory)
+	print("TerritoryColorManager: Pre-calculated centers for %d territories" % territory_centers_cache.size())
+
+func initialize_all_territory_labels():
+	"""Create 2D UI labels for all territories at startup"""
+	for territory_name in territories_cache.keys():
+		update_territory_label(territory_name)
+	print("TerritoryColorManager: Initialized 2D UI labels for %d territories (performance optimized)" % territories_cache.size())
+
+func set_labels_visible(visible: bool):
+	"""Show or hide all territory labels (useful for standalone unit testing)"""
+	if ui_overlay_layer:
+		var label_container = ui_overlay_layer.get_node_or_null("TerritoryLabels")
+		if label_container:
+			label_container.visible = visible

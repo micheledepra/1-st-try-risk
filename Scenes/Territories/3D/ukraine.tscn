@@ -1,7 +1,6 @@
-[gd_scene load_steps=7 format=4 uid="uid://buaa0vd5itot7"]
+[gd_scene load_steps=6 format=4 uid="uid://buaa0vd5itot7"]
 
 [ext_resource type="Material" uid="uid://brghp1o6u4wuj" path="res://materials/Map/territory_material_1.tres" id="1_72x7x"]
-[ext_resource type="Texture2D" uid="uid://c88j3oj0lf6om" path="res://demo/assets/textures/rock023_alb_ht.png" id="2_ihkij"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ut5sv"]
 resource_name = "material_0"
@@ -77,21 +76,9 @@ transform = Transform3D(4.1153607, 0, -4.1153607, 4.1153607, 2.5440025e-07, 4.11
 transform = Transform3D(0.121495984, 0.121496014, 1.9309687e-09, -1.0241348e-08, 7.510548e-09, 0.17182127, -0.121495984, 0.121496014, -1.2552485e-08, -433.68594, 0, 257.66907)
 shape = SubResource("ConcavePolygonShape3D_yjipo")
 
-[node name="Sprite3D" type="Sprite3D" parent="."]
-transform = Transform3D(-3.7469728, 0, 0, 0, 5.0295228e-08, 0.4038973, 0, -1.1506186, 1.7654962e-08, 7.055603, 7.136837, 13.640133)
-transparency = 0.4
-gi_lightmap_texel_scale = 1.8239
-modulate = Color(0.24705882, 0.11764706, 0.007843138, 1)
-billboard = 1
-transparent = false
-texture = ExtResource("2_ihkij")
-region_enabled = true
-region_rect = Rect2(0, 0, 1024, 1024)
+[node name="StaticBody3D" type="StaticBody3D" parent="Mesh"]
+input_ray_pickable = false
 
-[node name="Label3D" type="Label3D" parent="Sprite3D"]
-transform = Transform3D(1.4193374, 0, 0, 0, 4.1349845, -7.1054274e-15, 0, 2.842171e-13, 1.9294354, 0.00020360947, -0.00050258636, 1.0135498)
-billboard = 1
-text = "Ukraine
-"
-font_size = 350
-outline_size = 100
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Mesh/StaticBody3D"]
+transform = Transform3D(0.9999996, 0, 5.9604638e-08, 0, 0.9999998, 0, -5.9604645e-08, 3.5527137e-15, 0.9999997, 0.0009765625, 0, 1.0913936e-11)
+shape = SubResource("ConcavePolygonShape3D_yjipo")

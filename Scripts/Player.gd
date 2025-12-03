@@ -9,6 +9,9 @@ class_name Player
 @export var color: Color = Color.WHITE
 @export var is_eliminated: bool = false
 
+# Unit type: "panther" or "t34"
+var unit_type: String = ""
+
 # Game state
 var army_reserves: int = 0
 var territories_owned: Array[String] = []

@@ -3,10 +3,12 @@
 [ext_resource type="Texture2D" uid="uid://c88j3oj0lf6om" path="res://demo/assets/textures/rock023_alb_ht.png" id="1_mwof3"]
 
 [resource]
-albedo_color = Color(0.790346, 0.0762525, 9.62615e-08, 1)
+blend_mode = 4
+cull_mode = 2
+albedo_color = Color(0.6237762, 0.048768565, 0, 1)
 albedo_texture = ExtResource("1_mwof3")
 metallic = 1.0
 metallic_specular = 1.0
-roughness = 0.32
 roughness_texture_channel = 1
+refraction_scale = 1.0
 texture_filter = 4

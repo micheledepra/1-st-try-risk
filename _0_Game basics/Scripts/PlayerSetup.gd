@@ -1,6 +1,9 @@
 extends Control
 # PlayerSetup.tscn script
 
+# Template material to clone for each player
+const TERRITORY_MATERIAL_TEMPLATE = preload("res://materials/Map/territory_material_1.tres")
+
 var current_player_setup_index: int = 0
 
 @onready var title_label = $VBoxContainer/TitleLabel
@@ -63,6 +66,9 @@ func _on_next_pressed():
 		update_ui()
 
 func start_game():
+	# Pre-create materials for each player using the template
+	create_player_materials()
+	
 	# Distribute territories randomly among players
 	GameManager.distribute_territories_randomly()
 	
@@ -75,3 +81,27 @@ func start_game():
 	
 	# Load the map scene
 	get_tree().change_scene_to_file("res://Scenes/Map.tscn")
+
+func create_player_materials():
+	"""Clone template material for each player color and store in GameManager"""
+	var materials_dict: Dictionary = {}
+	var textures_enabled = SettingsManager.get_territory_textures_enabled()
+	
+	for player in GameManager.players:
+		var material = TERRITORY_MATERIAL_TEMPLATE.duplicate()
+		material.albedo_color = player.color
+		
+		# Remove texture if textures are disabled
+		if not textures_enabled:
+			material.albedo_texture = null
+		
+		# Store by color hash for fast lookup
+		var color_hash = player.color.to_html()
+		materials_dict[color_hash] = material
+		
+		print("PlayerSetup: Created material for %s (color: %s, texture: %s)" % 
+			[player.player_name, color_hash, "enabled" if textures_enabled else "disabled"])
+	
+	# Store in GameManager for TerritoryColorManager to access
+	GameManager.set_meta("territory_materials", materials_dict)
+	print("PlayerSetup: Pre-created %d player materials" % materials_dict.size())

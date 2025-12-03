@@ -1,0 +1,379 @@
+[gd_scene load_steps=2 format=3 uid="uid://hx7q4qm5ul3t"]
+
+[ext_resource type="PackedScene" uid="uid://b5qn3k0c6ky1j" path="res://Scenes/Units/Import/t34/t_34.tscn" id="1_3sama"]
+
+[node name="UnitGroupT3d" type="Node3D"]
+
+[node name="Formation1" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation1" instance=ExtResource("1_3sama")]
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Formation2" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation2" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.19706583, 0, -1.8701982)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit2" parent="Formation2" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.34521103, 0, 2.3258972)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Formation3" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation3" instance=ExtResource("1_3sama")]
+transform = Transform3D(0.8660254, 0, 0.5, 0, 1, 0, -0.5, 0, 0.8660254, 0, 0, -1.563802)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit2" parent="Formation3" instance=ExtResource("1_3sama")]
+transform = Transform3D(0.70710677, 0, -0.70710677, 0, 1, 0, 0.70710677, 0, 0.70710677, -0.47511435, 0, 1.4663477)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit3" parent="Formation3" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.7308817, 0, 0.14611149)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Formation4" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation4" instance=ExtResource("1_3sama")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.1717858, 0, -1.1673803)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit2" parent="Formation4" instance=ExtResource("1_3sama")]
+transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, 1.5009804, 0, -1.6497369)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit3" parent="Formation4" instance=ExtResource("1_3sama")]
+transform = Transform3D(0.8660254, 0, -0.5, 0, 1, 0, 0.5, 0, 0.8660254, -1.3010135, 0, 1.5921621)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit4" parent="Formation4" instance=ExtResource("1_3sama")]
+transform = Transform3D(0.8660254, 0, -0.5, 0, 1, 0, 0.5, 0, 0.8660254, 1.9567461, 0, 1.5490413)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Formation5" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation5" instance=ExtResource("1_3sama")]
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit2" parent="Formation5" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4023433, 0, 0)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit3" parent="Formation5" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0824518, 0, 0)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit4" parent="Formation5" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.5026987)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit5" parent="Formation5" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.251968)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Formation6" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation6" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2013931, 0, -2)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit2" parent="Formation6" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit3" parent="Formation6" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8020954, 0, -2)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit4" parent="Formation6" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.9070091, 0, 2)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit5" parent="Formation6" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit6" parent="Formation6" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 2)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Formation7" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation7" instance=ExtResource("1_3sama")]
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit2" parent="Formation7" instance=ExtResource("1_3sama")]
+transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, -1.9523764, 0, -0.6642728)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit3" parent="Formation7" instance=ExtResource("1_3sama")]
+transform = Transform3D(0.866025, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866025, -2.0288754, 0, 2)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit4" parent="Formation7" instance=ExtResource("1_3sama")]
+transform = Transform3D(0.9659258, 0, -0.25881904, 0, 1, 0, 0.25881904, 0, 0.9659258, 0, 0, 2.6634555)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit5" parent="Formation7" instance=ExtResource("1_3sama")]
+transform = Transform3D(0.99999976, 0, 2.0861626e-07, 0, 1, 0, -2.0861626e-07, 0, 0.99999976, 2.2262888, 0, 2)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit6" parent="Formation7" instance=ExtResource("1_3sama")]
+transform = Transform3D(0.99999976, 0, -2.0861626e-07, 0, 1, 0, 2.0861626e-07, 0, 0.99999976, 1.9327049, 0, -1.783605)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit7" parent="Formation7" instance=ExtResource("1_3sama")]
+transform = Transform3D(-0.25881904, 0, 0.9659258, 0, 1, 0, -0.9659258, 0, -0.25881904, 0, 0, -2.0609572)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Formation8" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation8" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.3531618, 0, 0)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit2" parent="Formation8" instance=ExtResource("1_3sama")]
+transform = Transform3D(-0.9659262, 0, 0.2588191, 0, 1, 0, -0.2588191, 0, -0.9659262, -1.8284416, 0, -2.1143596)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit3" parent="Formation8" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.3952758)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit4" parent="Formation8" instance=ExtResource("1_3sama")]
+transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, 1.9185848, 0, -2.0739722)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit5" parent="Formation8" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8830233, 0, 0)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit6" parent="Formation8" instance=ExtResource("1_3sama")]
+transform = Transform3D(1.0000004, 0, 0, 0, 1, 0, 0, 0, 1.0000004, 1.5899525, 0, 2.378037)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit7" parent="Formation8" instance=ExtResource("1_3sama")]
+transform = Transform3D(0.70710677, 0, -0.70710677, 0, 1, 0, 0.70710677, 0, 0.70710677, 0, 0, 2.352882)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit8" parent="Formation8" instance=ExtResource("1_3sama")]
+transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -3.5, 0, 1.912631)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Formation9" type="Node3D" parent="."]
+
+[node name="Unit1" parent="Formation9" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.7163172, 0, -2.6915786)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit2" parent="Formation9" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.6915786)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit3" parent="Formation9" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6506586, 0, -2.6915786)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit4" parent="Formation9" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.7163172, 0, 0)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit5" parent="Formation9" instance=ExtResource("1_3sama")]
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit6" parent="Formation9" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6506586, 0, 0)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit7" parent="Formation9" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.7163172, 0, 2.5627165)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit8" parent="Formation9" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.5627165)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null
+
+[node name="Unit9" parent="Formation9" instance=ExtResource("1_3sama")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6506586, 0, 2.5627165)
+movement_speed = null
+rotation_speed = null
+mouse_sensitivity = null
+barrel_max_elevation = null
+barrel_max_depression = null

@@ -2,12 +2,21 @@ extends Node
 
 ## FortifyPhase - Handles army movement between connected territories
 
+const TRANSFER_UNITS_UI = preload("res://UI/TransferUnitsUI.tscn")
+
 var game_manager: Node
 var map: Node3D
+var map_ref: Node3D = null  # Reference to Map for UI updates
+var ui_container: CanvasLayer
 
 func _ready():
 	game_manager = get_node("/root/GameManager")
 	map = get_node("/root/Map")
+	
+	# Create UI container for modals
+	ui_container = CanvasLayer.new()
+	ui_container.layer = 100  # Above game UI
+	add_child(ui_container)
 
 func can_fortify(from_territory: String, to_territory: String, army_count: int) -> Dictionary:
 	var result = {"valid": false, "error": ""}
@@ -107,6 +116,38 @@ func get_valid_fortify_destinations(from_territory: String) -> Array[String]:
 			destinations.append(territory_name)
 	
 	return destinations
+
+func handle_fortify_transfer(from_territory: String, to_territory: String):
+	"""Show TransferUnitsUI modal for fortify phase"""
+	var validation = can_fortify(from_territory, to_territory, 1)  # Check with min armies
+	if not validation.valid:
+		print("Cannot fortify: %s" % validation.error)
+		if map_ref and map_ref.game_ui:
+			map_ref.game_ui.set_instruction_text("❌ Cannot fortify: %s" % validation.error)
+		return
+	
+	# Show transfer UI
+	var transfer_ui = TRANSFER_UNITS_UI.instantiate()
+	ui_container.add_child(transfer_ui)
+	
+	var remaining_units = game_manager.get_territory_armies(from_territory)
+	transfer_ui.setup(from_territory, to_territory, remaining_units)
+	transfer_ui.transfer_confirmed.connect(_on_fortify_transfer_confirmed.bind(from_territory, to_territory))
+
+func _on_fortify_transfer_confirmed(units: int, from_territory: String, to_territory: String):
+	"""Handle fortify transfer confirmation from UI"""
+	if execute_fortify(from_territory, to_territory, units):
+		print("Fortified: Moved %d armies from %s to %s" % [units, from_territory, to_territory])
+		if map_ref and map_ref.game_ui:
+			map_ref.game_ui.set_instruction_text("✓ Fortified %s with %d armies" % [to_territory, units])
+			# Reset instruction after brief delay
+			await get_tree().create_timer(1.5).timeout
+			if map_ref and map_ref.game_ui:
+				map_ref.game_ui._update_ui()
+	else:
+		print("Fortify failed")
+		if map_ref and map_ref.game_ui:
+			map_ref.game_ui.set_instruction_text("❌ Fortify failed")
 
 func get_max_armies_to_move(from_territory: String) -> int:
 	var total = game_manager.get_territory_armies(from_territory)

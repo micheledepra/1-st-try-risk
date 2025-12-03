@@ -1,0 +1,160 @@
+[gd_scene load_steps=2 format=3 uid="uid://bkghkfnvr72dj"]
+
+[ext_resource type="Script" uid="uid://b705oj8e4ejny" path="res://UI/AttackResolutionUI.gd" id="1_attack_resolution"]
+
+[node name="AttackResolutionUI" type="Control"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -250.0
+offset_top = -200.0
+offset_right = 250.0
+offset_bottom = 195.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_attack_resolution")
+
+[node name="Background" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "⚔️ BATTLE RESOLUTION ⚔️"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HSeparator1" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="BattleContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 20
+
+[node name="AttackerPanel" type="Panel" parent="MarginContainer/VBoxContainer/BattleContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AttackerVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BattleContainer/AttackerPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="AttackerTitleLabel" type="Label" parent="MarginContainer/VBoxContainer/BattleContainer/AttackerPanel/AttackerVBox"]
+layout_mode = 2
+text = "ATTACKER"
+horizontal_alignment = 1
+
+[node name="AttackerTerritoryLabel" type="Label" parent="MarginContainer/VBoxContainer/BattleContainer/AttackerPanel/AttackerVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Territory Name"
+horizontal_alignment = 1
+
+[node name="AttackerInitialLabel" type="Label" parent="MarginContainer/VBoxContainer/BattleContainer/AttackerPanel/AttackerVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Initial: 0 🪖"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer/BattleContainer/AttackerPanel/AttackerVBox"]
+layout_mode = 2
+
+[node name="RemainingLabel" type="Label" parent="MarginContainer/VBoxContainer/BattleContainer/AttackerPanel/AttackerVBox"]
+layout_mode = 2
+text = "Remaining Units:"
+horizontal_alignment = 1
+
+[node name="AttackerRemainingInput" type="SpinBox" parent="MarginContainer/VBoxContainer/BattleContainer/AttackerPanel/AttackerVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1
+
+[node name="DefenderPanel" type="Panel" parent="MarginContainer/VBoxContainer/BattleContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DefenderVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BattleContainer/DefenderPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="DefenderTitleLabel" type="Label" parent="MarginContainer/VBoxContainer/BattleContainer/DefenderPanel/DefenderVBox"]
+layout_mode = 2
+text = "DEFENDER"
+horizontal_alignment = 1
+
+[node name="DefenderTerritoryLabel" type="Label" parent="MarginContainer/VBoxContainer/BattleContainer/DefenderPanel/DefenderVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Territory Name"
+horizontal_alignment = 1
+
+[node name="DefenderInitialLabel" type="Label" parent="MarginContainer/VBoxContainer/BattleContainer/DefenderPanel/DefenderVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Initial: 0 🪖"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer/BattleContainer/DefenderPanel/DefenderVBox"]
+layout_mode = 2
+
+[node name="RemainingLabel" type="Label" parent="MarginContainer/VBoxContainer/BattleContainer/DefenderPanel/DefenderVBox"]
+layout_mode = 2
+text = "Remaining Units:"
+horizontal_alignment = 1
+
+[node name="DefenderRemainingInput" type="SpinBox" parent="MarginContainer/VBoxContainer/BattleContainer/DefenderPanel/DefenderVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1
+
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="InfoLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Enter remaining units after battle"
+horizontal_alignment = 1
+
+[node name="ConfirmButton" type="Button" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Confirm Results"

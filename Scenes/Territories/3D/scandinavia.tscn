@@ -1,7 +1,6 @@
-[gd_scene load_steps=7 format=4 uid="uid://drce7upeqlqkx"]
+[gd_scene load_steps=6 format=4 uid="uid://drce7upeqlqkx"]
 
 [ext_resource type="Material" uid="uid://brghp1o6u4wuj" path="res://materials/Map/territory_material_1.tres" id="1_acpqt"]
-[ext_resource type="Texture2D" uid="uid://c88j3oj0lf6om" path="res://demo/assets/textures/rock023_alb_ht.png" id="2_r3pcm"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pmr46"]
 resource_name = "material_0"
@@ -77,17 +76,9 @@ transform = Transform3D(2.9698482, 0, -2.9698489, 0, -4.2, 0, 2.9698489, 0, 2.96
 transform = Transform3D(0.16835874, 0, 0.16835877, 0, -0.23809527, 0, -0.16835877, 0, 0.16835874, -438.1516, 151.2373, 437.3098)
 shape = SubResource("ConcavePolygonShape3D_kpner")
 
-[node name="Sprite3D" type="Sprite3D" parent="."]
-transform = Transform3D(-5.5832143, 0, 0, 0, 4.7737664e-08, 0.7038281, 0, -1.0921075, 3.076539e-08, 3.3894405, 8.603327, -0.92198753)
-transparency = 0.4
-modulate = Color(0.24705882, 0.11764706, 0.007843138, 1)
-billboard = 1
-transparent = false
-texture = ExtResource("2_r3pcm")
+[node name="StaticBody3D" type="StaticBody3D" parent="Mesh"]
+input_ray_pickable = false
 
-[node name="Label3D" type="Label3D" parent="Sprite3D"]
-transform = Transform3D(0.93938017, 0, 0, 0, 3.9502697, 3.5527137e-15, 0, 2.842171e-14, 1.9510602, 0, 1.1920929e-07, 0.56583023)
-billboard = 1
-text = "Scandinavia"
-font_size = 350
-outline_size = 100
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Mesh/StaticBody3D"]
+transform = Transform3D(0.99999994, 0, -2.2127095e-08, -5.9604645e-08, 1.0000001, 2.1584297e-08, 3.1292437e-08, -3.5527137e-15, 1, 0, 0, -1.50203705e-05)
+shape = SubResource("ConcavePolygonShape3D_kpner")

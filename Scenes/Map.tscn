@@ -1,63 +1,126 @@
-[gd_scene load_steps=11 format=3 uid="uid://b8p365k1ic0au"]
+[gd_scene load_steps=23 format=3 uid="uid://b8p365k1ic0au"]
 
 [ext_resource type="PackedScene" uid="uid://cpx2k8el5p7vs" path="res://Scenes/Continents/America.tscn" id="1_7yn8b"]
 [ext_resource type="Script" uid="uid://dnxkx2urq1t64" path="res://Scripts/Map/Map.gd" id="1_00287"]
 [ext_resource type="PackedScene" uid="uid://df73lhtidw6ie" path="res://Scenes/Continents/South_America.tscn" id="2_etk83"]
 [ext_resource type="Material" uid="uid://vpgiqott6ecc" path="res://materials/Map/bg_material_1.tres" id="3_etk83"]
+[ext_resource type="PackedScene" uid="uid://dc7k0l3ogfsjd" path="res://UI/GameUI_01.tscn" id="4_xicox"]
 [ext_resource type="PackedScene" uid="uid://batfe7xipb0r1" path="res://Scenes/Continents/Europe.tscn" id="5_ngcqm"]
 [ext_resource type="Script" uid="uid://d15yvagxqyclp" path="res://Scripts/Map/TerritoryColorManager.gd" id="6_ngcqm"]
 [ext_resource type="PackedScene" uid="uid://din3vji4px20w" path="res://Scenes/Continents/Africa.tscn" id="6_xicox"]
 [ext_resource type="Script" uid="uid://chaui2x10bgv3" path="res://Scripts/Map/TerritoryInputManager.gd" id="7_input"]
-[ext_resource type="PackedScene" uid="uid://b8jv7k5qhwq7w" path="res://UI/GameUI.tscn" id="7_ui"]
+[ext_resource type="Script" uid="uid://bycqg2o82pi5a" path="res://Scripts/Map/TerritoryTooltipManager.gd" id="8_tooltip"]
+[ext_resource type="Script" uid="uid://bgmugupd3npct" path="res://Scripts/Map/TerritoryTransparencyManager.gd" id="8_transparency"]
+[ext_resource type="Script" uid="uid://dqjfwaaq55007" path="res://Scripts/Map/TerritoryUnitManager.gd" id="8_units"]
+[ext_resource type="Script" uid="uid://p5bembqexrd8" path="res://Scripts/Map/CameraController.gd" id="9_camera"]
+[ext_resource type="Material" uid="uid://bnahy8ywsmgnc" path="res://materials/Map/water_Bg.tres" id="10_xicox"]
+[ext_resource type="PackedScene" uid="uid://b7t46jsuknb21" path="res://Scenes/Continents/Asia.tscn" id="11_bjq7f"]
+[ext_resource type="PackedScene" uid="uid://d3mn07twamxe0" path="res://Scenes/Continents/Australia.tscn" id="13_46meq"]
+[ext_resource type="Material" uid="uid://bydp8bwhmtiyb" path="res://materials/Map/Label_BG.tres" id="17_6hulr"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_qumfl"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_xicox"]
+size = Vector2(36, 14)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ejakq"]
+
+[sub_resource type="Environment" id="Environment_dms03"]
+background_mode = 2
+background_energy_multiplier = 1.13
+sky_custom_fov = 24.5
+ambient_light_color = Color(0.78352344, 0.7835234, 0.7835234, 1)
+ambient_light_energy = 1.97
+reflected_light_source = 2
+ssao_enabled = true
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.0108
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_6kno7"]
 
 [node name="Map" type="Node3D"]
 script = ExtResource("1_00287")
 
-[node name="Continents" type="Node3D" parent="."]
-transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0.58865356, 0)
-metadata/_edit_group_ = true
-
-[node name="America" parent="Continents" instance=ExtResource("1_7yn8b")]
-transform = Transform3D(0.15, 0, 0, 0, 0.15, 0, 0, 0, 0.15, -41.881294, -7.6293945e-06, -16.85783)
-raise_speed = 4.0
-
-[node name="SouthAmerica" parent="Continents" instance=ExtResource("2_etk83")]
-transform = Transform3D(-0.15, 1.3113415e-08, -2.2649372e-08, 1.3113417e-08, 0.15, -1.3113417e-08, 2.2649369e-08, -1.3113419e-08, -0.15, -28.953, 0, 13.235)
-
-[node name="Europe" parent="Continents" instance=ExtResource("5_ngcqm")]
-transform = Transform3D(0.13, 0, 0, 0, 0.13, 0, 0, 0, 0.13, -2.3560157, 3.8146973e-06, -18.068073)
-
-[node name="Africa" parent="Continents" instance=ExtResource("6_xicox")]
-transform = Transform3D(-0.18, 0, -2.7179246e-08, 0, 0.18, 0, 2.7179246e-08, 0, -0.18, 9.07099, 0, -9.8360815)
-
 [node name="TerritoryInputManager" type="Node3D" parent="."]
 script = ExtResource("7_input")
+drop_distance = 2.0
+animation_duration = 0.1
 
 [node name="TerritoryColorManager" type="Node3D" parent="."]
 script = ExtResource("6_ngcqm")
 
+[node name="TerritoryUnitManager" type="Node3D" parent="."]
+script = ExtResource("8_units")
+
+[node name="TerritoryTransparencyManager" type="Node3D" parent="."]
+script = ExtResource("8_transparency")
+
+[node name="TerritoryTooltipManager" type="Node" parent="."]
+script = ExtResource("8_tooltip")
+
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="GameUI" parent="CanvasLayer" instance=ExtResource("7_ui")]
+[node name="GameUI_01" parent="CanvasLayer" instance=ExtResource("4_xicox")]
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.2181432, -0.87937623, -0.42321515, -3.7911683e-08, -0.43365908, 0.90107703, -0.9759168, -0.19656381, -0.09459981, 24.634842, 6.844, 2.0455513)
-shadow_enabled = true
+transform = Transform3D(-0.60647357, -0.79216015, -0.06835237, -0.14703155, 0.027250687, 0.98875636, -0.7813907, 0.60970455, -0.13299936, 24.634842, 6.844, 2.0455513)
+light_color = Color(0.80812395, 0.7538307, 0.573668, 1)
+light_indirect_energy = 16.0
+light_volumetric_fog_energy = 4.579
+light_specular = 3.105
 
 [node name="SpotLight3D" type="SpotLight3D" parent="."]
 transform = Transform3D(1.1924881e-08, 0.7071068, -0.7071068, 0, 0.7071068, 0.7071068, 1, -8.432164e-09, 8.432164e-09, -18.568493, 5.7614374, -6.3075037)
 visible = false
 
+[node name="BG" type="MeshInstance3D" parent="."]
+transform = Transform3D(40.538, 0, 0, 0, 1, 0, 0, 0, 19, 0, -0.52966034, 0)
+gi_mode = 2
+mesh = SubResource("BoxMesh_qumfl")
+surface_material_override/0 = ExtResource("3_etk83")
+
+[node name="Glass layer" type="MeshInstance3D" parent="BG"]
+transform = Transform3D(0.024668423, 0, 0, 0, 1, 0, 0, 0, 0.054675885, 0, 0.8638164, 0)
+transparency = 0.95
+gi_mode = 2
+mesh = SubResource("PlaneMesh_xicox")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("10_xicox")
+
+[node name="Continents" type="Node3D" parent="."]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, -1.3890619, 0.58865356, 0)
+
+[node name="north_america" parent="Continents" instance=ExtResource("1_7yn8b")]
+transform = Transform3D(0.15, 0, 0, 0, 0.15, 0, 0, 0, 0.15, -41.881294, -7.6293945e-06, -16.85783)
+
+[node name="south_america" parent="Continents" instance=ExtResource("2_etk83")]
+transform = Transform3D(-0.15, 1.3113415e-08, -2.2649372e-08, 1.3113417e-08, 0.15, -1.3113417e-08, 2.2649369e-08, -1.3113419e-08, -0.15, -28.953, 0, 13.235)
+
+[node name="europe" parent="Continents" instance=ExtResource("5_ngcqm")]
+transform = Transform3D(0.13, 0, 0, 0, 0.13, 0, 0, 0, 0.13, -2.3560157, 3.8146973e-06, -18.068073)
+
+[node name="africa" parent="Continents" instance=ExtResource("6_xicox")]
+transform = Transform3D(-0.199, 0, -3.0048167e-08, 0, 0.199, 0, 3.0048167e-08, 0, -0.199, 10.608976, 0, -9.967557)
+
+[node name="asia" parent="Continents" instance=ExtResource("11_bjq7f")]
+transform = Transform3D(-0.25499126, 2.2107622e-08, 0.0021095397, 2.2292808e-08, 0.255, 2.2292808e-08, -0.0021095397, 2.2476467e-08, -0.25499126, 35.881855, 0, -31.200733)
+
+[node name="Australia" parent="Continents" instance=ExtResource("13_46meq")]
+transform = Transform3D(0.19993979, 0, 0.0049073743, 0, 0.20000002, 0, -0.0049073743, 0, 0.19993979, 68.60757, 0, 20.895084)
+
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.3711392e-08, 1, 0, -1, -4.3711392e-08, 0, 11.849057, 0)
 current = true
 fov = 77.333565
-metadata/_edit_group_ = true
+script = ExtResource("9_camera")
 
-[node name="BG" type="MeshInstance3D" parent="."]
-transform = Transform3D(40.537655, 0, 0, 0, 1, 0, 0, 0, 18.2896, 0, 0, 0)
-mesh = SubResource("BoxMesh_qumfl")
-surface_material_override/0 = ExtResource("3_etk83")
-metadata/_edit_group_ = true
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(19.621529, 0, 0, 0, 1, 0, 0, 0, 8.90105, 0, -0.13675976, 0)
+mesh = SubResource("PlaneMesh_ejakq")
+surface_material_override/0 = ExtResource("17_6hulr")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_dms03")
+camera_attributes = SubResource("CameraAttributesPractical_6kno7")

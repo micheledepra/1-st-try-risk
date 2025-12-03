@@ -1,0 +1,123 @@
+[gd_scene load_steps=2 format=3 uid="uid://dc7k0l3ogfsjd"]
+
+[ext_resource type="Script" uid="uid://v6iy558pfcsx" path="res://UI/gameUI_01.gd" id="1_1b0do"]
+
+[node name="GameUI_01" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_1b0do")
+
+[node name="PlayerPanel" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_right = 160.0
+offset_bottom = 80.0
+
+[node name="MarginContainer" type="MarginContainer" parent="PlayerPanel"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PlayerPanel/MarginContainer"]
+layout_mode = 2
+
+[node name="PlayerNameLabel" type="Label" parent="PlayerPanel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Player Name"
+
+[node name="HSeparator" type="HSeparator" parent="PlayerPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PlayerPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="ArmyLabel" type="Label" parent="PlayerPanel/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+text = "🪖: 0"
+
+[node name="TerritoryLabel" type="Label" parent="PlayerPanel/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+text = "⛳: 0"
+
+[node name="ReinforcementsLabel" type="Label" parent="PlayerPanel/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+text = "⏭️: 0"
+
+[node name="PhasePanel" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 984.0
+offset_right = 1144.0
+offset_bottom = 80.0
+
+[node name="MarginContainer" type="MarginContainer" parent="PhasePanel"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PhasePanel/MarginContainer"]
+layout_mode = 2
+
+[node name="TurnNumberLabel" type="Label" parent="PhasePanel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Turn: Turn Number"
+
+[node name="HSeparator" type="HSeparator" parent="PhasePanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="PhaseLabel" type="Label" parent="PhasePanel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "🔁: Phase Name"
+
+[node name="PlayerPositionLabel" type="Label" parent="PhasePanel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+text = "n/x"
+
+[node name="InstructionPanel" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 352.0
+offset_right = 802.0
+offset_bottom = 50.0
+
+[node name="MarginContainer" type="MarginContainer" parent="InstructionPanel"]
+layout_mode = 2
+
+[node name="InstructionLabel" type="Label" parent="InstructionPanel/MarginContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 50)
+layout_mode = 2
+text = "Instruction"
+horizontal_alignment = 1
+autowrap_mode = 1
+
+[node name="ButtonPanel" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 992.0
+offset_top = 592.0
+offset_right = 1142.0
+offset_bottom = 642.0
+
+[node name="MarginContainer" type="MarginContainer" parent="ButtonPanel"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ButtonPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ConfirmButton" type="Button" parent="ButtonPanel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 50)
+layout_mode = 2
+text = "Confirm"
+
+[connection signal="pressed" from="ButtonPanel/MarginContainer/VBoxContainer/ConfirmButton" to="." method="_on_confirm_button_pressed"]
