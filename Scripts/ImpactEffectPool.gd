@@ -25,9 +25,10 @@ func _ready() -> void:
 	
 	print("ImpactEffectPool: Initialized with %d pooled effects" % effect_pool.size())
 
-func spawn_effect(position: Vector3, color := Color.WHITE, enable_light := true) -> void:
+func spawn_effect(position: Vector3, color := Color.WHITE, enable_light := true, effect_scale: float = 1.0) -> void:
 	"""Spawn an impact effect at the given position with the specified color
-	@param enable_light: If true, spawns light effect (for terrain). If false, only particles (for units with glow)"""
+	@param enable_light: If true, spawns light effect (for terrain). If false, only particles (for units with glow)
+	@param effect_scale: Scale multiplier for the effect (default 1.0 for standalone, should match unit scale in map)"""
 	
 	print("[ImpactEffectPool] spawn_effect() called - position: %s, color: %s, enable_light: %s" % [position, color, enable_light])
 	
@@ -52,6 +53,9 @@ func spawn_effect(position: Vector3, color := Color.WHITE, enable_light := true)
 		push_error("ImpactEffectPool: Invalid effect instance!")
 		return
 	
+	# Apply scale to effect
+	effect.scale = Vector3.ONE * effect_scale
+	
 	# Reset and play effect
 	effect.visible = true
 	if effect.has_method("reset_light"):
@@ -72,6 +76,7 @@ func return_effect(effect: GPUParticles3D) -> void:
 	effect.visible = false
 	effect.emitting = false
 	effect.global_position = Vector3.ZERO
+	effect.scale = Vector3.ONE
 	
 	# Ensure particles are fully stopped for clean reuse
 	if effect is GPUParticles3D:

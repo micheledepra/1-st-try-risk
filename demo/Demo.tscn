@@ -1,13 +1,13 @@
 [gd_scene load_steps=13 format=3 uid="uid://chol2xlfbq7cu"]
 
 [ext_resource type="Script" uid="uid://chstoagn42gbr" path="res://demo/src/DemoScene.gd" id="1_k7qca"]
-[ext_resource type="PackedScene" uid="uid://d2jihfohphuue" path="res://demo/components/UI.tscn" id="2_nqak5"]
 [ext_resource type="PackedScene" uid="uid://dwnhqfjq7v1pq" path="res://demo/components/Borders.tscn" id="3_cw38j"]
-[ext_resource type="PackedScene" uid="uid://domhm87hbhbg1" path="res://demo/components/Player.tscn" id="3_ht63y"]
 [ext_resource type="PackedScene" uid="uid://djhl3foqkj4e2" path="res://demo/components/Tunnel.tscn" id="3_kdh0b"]
 [ext_resource type="PackedScene" uid="uid://bb2lp50sjndus" path="res://demo/components/Environment.tscn" id="3_yqldq"]
 [ext_resource type="PackedScene" uid="uid://d3sr0a7dxfkr8" path="res://addons/terrain_3d/extras/particle_example/Terrain3DParticles.tscn" id="8_fwrtk"]
 [ext_resource type="Terrain3DAssets" uid="uid://dal3jhw6241qg" path="res://demo/data/assets.tres" id="8_g2of2"]
+[ext_resource type="PackedScene" uid="uid://b18goaejfsvxq" path="res://Scenes/Units/Import/Fighter/Fighterww_1_ph0_NPC.tscn" id="9_egbwy"]
+[ext_resource type="PackedScene" uid="uid://db2kre5kwdarw" path="res://Scenes/Units/Import/Fighter/FighterWW2/fww2_Mcc.tscn" id="10_jkl3n"]
 
 [sub_resource type="Gradient" id="Gradient_vr1m7"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -26,9 +26,9 @@ domain_warp_fractal_lacunarity = 1.5
 domain_warp_fractal_gain = 1.0
 
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_bov7h"]
-seamless = true
-color_ramp = SubResource("Gradient_vr1m7")
 noise = SubResource("FastNoiseLite_d8lcj")
+color_ramp = SubResource("Gradient_vr1m7")
+seamless = true
 
 [sub_resource type="Terrain3DMaterial" id="Terrain3DMaterial_jrc01"]
 _shader_parameters = {
@@ -74,8 +74,6 @@ dual_scaling = true
 [node name="Demo" type="Node"]
 script = ExtResource("1_k7qca")
 
-[node name="UI" parent="." instance=ExtResource("2_nqak5")]
-
 [node name="Environment" parent="." instance=ExtResource("3_yqldq")]
 
 [node name="Borders" parent="." instance=ExtResource("3_cw38j")]
@@ -83,9 +81,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 512, -3, 512)
 collision_mask = 3
 
 [node name="Tunnel" parent="." instance=ExtResource("3_kdh0b")]
-
-[node name="Player" parent="." instance=ExtResource("3_ht63y")]
-transform = Transform3D(0.176947, 0, -0.98422, 0, 1, 0, 0.98422, 0, 0.176947, 223.143, 105.348, -1833.08)
 
 [node name="Terrain3D" type="Terrain3D" parent="."]
 data_directory = "res://demo/data"
@@ -96,4 +91,26 @@ top_level = true
 metadata/_edit_lock_ = true
 
 [node name="Terrain3DParticles" parent="Terrain3D" node_paths=PackedStringArray("terrain") instance=ExtResource("8_fwrtk")]
+visible = false
 terrain = NodePath("..")
+
+[node name="fighterww1_Phy_NPC" parent="." instance=ExtResource("9_egbwy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 872.7804, 174.36604)
+
+[node name="fighterww1_Phy_NPC2" parent="." instance=ExtResource("9_egbwy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 420.28735, 872.7804, 174.36604)
+
+[node name="fighterww1_Phy_NPC3" parent="." instance=ExtResource("9_egbwy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -456.71265, 872.7804, 174.36604)
+
+[node name="fighterww1_Phy_NPC4" parent="." instance=ExtResource("9_egbwy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 250.16003, 1185.3472, 174.36604)
+
+[node name="fighterww1_Phy_NPC5" parent="." instance=ExtResource("9_egbwy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 670.4474, 1185.3472, 174.36604)
+
+[node name="fighterww1_Phy_NPC6" parent="." instance=ExtResource("9_egbwy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -206.55261, 1185.3472, 174.36604)
+
+[node name="fww2_Mcc" parent="." instance=ExtResource("10_jkl3n")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1157.5117, 0)

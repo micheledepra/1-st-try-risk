@@ -1,0 +1,98 @@
+[gd_scene load_steps=3 format=4]
+
+[ext_resource type="Script" path="res://Scripts/UI/FighterHUD.gd" id="1_xc1ad"]
+[ext_resource type="Script" path="res://Scripts/UI/GyroWidget.gd" id="2_gy20k"]
+
+[node name="FighterHUD" type="CanvasLayer"]
+script = ExtResource("1_xc1ad")
+layer = 20
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+mouse_filter = 2
+
+[node name="ThrottlePanel" type="Panel" parent="Root"]
+anchors_preset = 10
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -118.0
+offset_right = 260.0
+offset_bottom = -24.0
+size_flags_horizontal = 1
+size_flags_vertical = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Root/ThrottlePanel"]
+layout_mode = 2
+anchors_preset = 15
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 8.0
+offset_right = -12.0
+offset_bottom = -12.0
+
+[node name="Label" type="Label" parent="Root/ThrottlePanel/VBoxContainer"]
+layout_mode = 2
+text = "THROTTLE"
+uppercase = true
+
+[node name="Progress" type="ProgressBar" parent="Root/ThrottlePanel/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 22)
+min_value = 0.0
+max_value = 100.0
+value = 0.0
+
+[node name="Percent" type="Label" parent="Root/ThrottlePanel/VBoxContainer"]
+layout_mode = 2
+text = "0%"
+align = 1
+
+[node name="GyroPanel" type="Panel" parent="Root"]
+anchors_preset = 12
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -150.0
+offset_top = -240.0
+offset_right = 150.0
+offset_bottom = -24.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="Margin" type="MarginContainer" parent="Root/GyroPanel"]
+layout_mode = 2
+anchors_preset = 15
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+
+[node name="Gyro" type="Control" parent="Root/GyroPanel/Margin"]
+layout_mode = 2
+anchors_preset = 15
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("2_gy20k")

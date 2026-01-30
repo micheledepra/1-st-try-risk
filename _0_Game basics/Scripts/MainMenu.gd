@@ -26,9 +26,9 @@ func _ready():
 func _on_developer_mode_toggled(toggled_on: bool):
 	SettingsManager.set_developer_mode(toggled_on)
 	if toggled_on:
-		print("MainMenu: Game Mode set to Developer (Manual Battle Resolution)")
+		print("MainMenu: Game Mode set to Developer (Manual Entry)")
 	else:
-		print("MainMenu: Game Mode set to Auto Resolution")
+		print("MainMenu: Game Mode set to Risk Dice Combat")
 
 func _on_texture_toggle_toggled(pressed: bool):
 	SettingsManager.set_territory_textures_enabled(pressed)

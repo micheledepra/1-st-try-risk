@@ -2,7 +2,7 @@ extends Node3D
 
 # Configuration
 @export var raise_height: float = 3  # How much to raise the child
-@export var animation_duration: float = 0.15  # Duration of the raise/lower animation in seconds
+@export var animation_duration: float = 0.5  # Duration of the raise/lower animation in seconds
 @export var use_smooth_animation: bool = true  # Enable smooth animation
 
 # Track which child is currently hovered

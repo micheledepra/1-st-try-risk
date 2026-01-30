@@ -1,0 +1,142 @@
+[gd_scene load_steps=27 format=3 uid="uid://b18goaejfsvxq"]
+
+[ext_resource type="Script" uid="uid://b877an1bj5xbv" path="res://Scripts/FighterNpcAI.gd" id="1_4v0h2"]
+[ext_resource type="PackedScene" uid="uid://bwpwxnufuujve" path="res://Scenes/Units/Import/Fighter/cessna172.tscn" id="2_wqonc"]
+[ext_resource type="Script" uid="uid://cc5dwx5pqkaur" path="res://addons/godot_aerodynamic_physics/components/AeroControlComponent.gd" id="3_jw23p"]
+[ext_resource type="Script" uid="uid://b4xqlunpiyivk" path="res://addons/godot_aerodynamic_physics/utils/pid.gd" id="4_uiet6"]
+[ext_resource type="Script" uid="uid://cdp8dc63ytxx1" path="res://addons/godot_aerodynamic_physics/core/flight_assist.gd" id="5_pr5p6"]
+[ext_resource type="Script" uid="uid://dfbhcpt1rr3ai" path="res://addons/godot_aerodynamic_physics/core/control_configs/aero_control_config_axis.gd" id="6_nytbf"]
+[ext_resource type="Script" uid="uid://cbgqb7g7mmwtu" path="res://addons/godot_aerodynamic_physics/core/control_configs/aero_control_config.gd" id="7_dp8ri"]
+
+[sub_resource type="Resource" id="Resource_7wxqr"]
+script = ExtResource("4_uiet6")
+p = 0.001
+i = 0.0
+d = 0.01
+
+[sub_resource type="Resource" id="Resource_edceb"]
+script = ExtResource("4_uiet6")
+i = 0.05
+d = 0.1
+
+[sub_resource type="Resource" id="Resource_071f6"]
+script = ExtResource("4_uiet6")
+p = 10.0
+i = 0.3
+d = 4.0
+
+[sub_resource type="Resource" id="Resource_oba5f"]
+script = ExtResource("4_uiet6")
+p = 0.8
+i = 0.0
+
+[sub_resource type="Resource" id="Resource_4cxk3"]
+script = ExtResource("4_uiet6")
+p = 25.0
+i = 0.0
+
+[sub_resource type="Resource" id="Resource_iwc1h"]
+script = ExtResource("4_uiet6")
+p = 10.0
+i = 0.0
+
+[sub_resource type="Resource" id="Resource_x72ys"]
+script = ExtResource("4_uiet6")
+p = 10.0
+i = 0.0
+
+[sub_resource type="Resource" id="Resource_eb8ya"]
+script = ExtResource("4_uiet6")
+p = 0.5
+i = 3.0
+clamp_integral = true
+min_integral = -0.2
+max_integral = 0.2
+
+[sub_resource type="Resource" id="Resource_n1mtw"]
+script = ExtResource("4_uiet6")
+p = 0.2
+i = 0.0
+
+[sub_resource type="Resource" id="Resource_6y41m"]
+script = ExtResource("4_uiet6")
+p = 0.0
+i = 0.4
+
+[sub_resource type="Resource" id="Resource_3swy3"]
+script = ExtResource("4_uiet6")
+i = 0.0
+
+[sub_resource type="Resource" id="Resource_6sapg"]
+script = ExtResource("5_pr5p6")
+pitch_assist_pid = SubResource("Resource_eb8ya")
+yaw_assist_pid = SubResource("Resource_3swy3")
+roll_assist_pid = SubResource("Resource_n1mtw")
+min_accounted_airspeed = 35.0
+bank_angle_pid = SubResource("Resource_edceb")
+heading_pid = SubResource("Resource_iwc1h")
+inclination_pid = SubResource("Resource_x72ys")
+enable_speed_hold = true
+speed_target = 45.0
+speed_pid = SubResource("Resource_6y41m")
+enable_altitude_hold = true
+altitude_target = 60.0
+altitude_pid = SubResource("Resource_7wxqr")
+direction_pitch_pid = SubResource("Resource_071f6")
+direction_yaw_pid = SubResource("Resource_4cxk3")
+direction_roll_pid = SubResource("Resource_oba5f")
+metadata/_custom_type_script = "uid://cdp8dc63ytxx1"
+
+[sub_resource type="Resource" id="Resource_t7nv4"]
+resource_name = "pitch"
+script = ExtResource("6_nytbf")
+axis_name = "pitch"
+positive_event = &"ui_up"
+negative_event = &"ui_down"
+
+[sub_resource type="Resource" id="Resource_q0bi6"]
+resource_name = "yaw"
+script = ExtResource("6_nytbf")
+axis_name = "yaw"
+
+[sub_resource type="Resource" id="Resource_vxsns"]
+resource_name = "roll"
+script = ExtResource("6_nytbf")
+axis_name = "roll"
+positive_event = &"ui_left"
+negative_event = &"ui_right"
+
+[sub_resource type="Resource" id="Resource_d5vkq"]
+resource_name = "throttle"
+script = ExtResource("6_nytbf")
+axis_name = "throttle"
+min_limit = 0.0
+positive_event = &"ui_page_up"
+negative_event = &"ui_page_down"
+
+[sub_resource type="Resource" id="Resource_i8ga3"]
+resource_name = "brake"
+script = ExtResource("6_nytbf")
+axis_name = "brake"
+min_limit = 0.0
+
+[sub_resource type="Resource" id="Resource_4f8b3"]
+resource_name = "collective"
+script = ExtResource("6_nytbf")
+axis_name = "collective"
+
+[sub_resource type="Resource" id="Resource_oe3c1"]
+script = ExtResource("7_dp8ri")
+axis_configs = Array[ExtResource("6_nytbf")]([SubResource("Resource_t7nv4"), SubResource("Resource_q0bi6"), SubResource("Resource_vxsns"), SubResource("Resource_d5vkq"), SubResource("Resource_i8ga3"), SubResource("Resource_4f8b3")])
+
+[node name="fighterww1_Phy_NPC" type="Node3D"]
+script = ExtResource("1_4v0h2")
+
+[node name="cessna172" parent="." instance=ExtResource("2_wqonc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 25.536121, -0.029618025)
+
+[node name="AeroControlComponent2" type="Node" parent="cessna172"]
+script = ExtResource("3_jw23p")
+flight_assist = SubResource("Resource_6sapg")
+control_config = SubResource("Resource_oe3c1")
+metadata/_custom_type_script = "uid://cc5dwx5pqkaur"

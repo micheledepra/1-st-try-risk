@@ -25,8 +25,9 @@ func _ready() -> void:
 	
 	print("BlastEffectPool: Initialized with %d pooled effects" % effect_pool.size())
 
-func spawn_effect(position: Vector3, direction: Vector3) -> void:
-	"""Spawn a muzzle blast effect at the given position facing the direction"""
+func spawn_effect(position: Vector3, direction: Vector3, effect_scale: float = 1.0) -> void:
+	"""Spawn a muzzle blast effect at the given position facing the direction
+	@param effect_scale: Scale multiplier for the effect (default 1.0)"""
 	
 	# Check active effect limit - force cleanup oldest effect
 	if active_effects.size() >= MAX_EFFECTS:
@@ -48,6 +49,9 @@ func spawn_effect(position: Vector3, direction: Vector3) -> void:
 		push_error("BlastEffectPool: Invalid effect instance!")
 		return
 	
+	# Apply scale to effect
+	effect.scale = Vector3.ONE * effect_scale
+	
 	# Reset and play effect
 	effect.visible = true
 	if effect.has_method("reset_light"):
@@ -64,6 +68,7 @@ func return_effect(effect: GPUParticles3D) -> void:
 	effect.visible = false
 	effect.emitting = false
 	effect.global_position = Vector3.ZERO
+	effect.scale = Vector3.ONE  # Reset scale for reuse
 	
 	# Ensure particles are fully stopped for clean reuse
 	if effect is GPUParticles3D:

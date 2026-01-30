@@ -3,8 +3,6 @@
 [ext_resource type="Texture2D" uid="uid://c88j3oj0lf6om" path="res://demo/assets/textures/rock023_alb_ht.png" id="1_mwof3"]
 
 [resource]
-blend_mode = 4
-cull_mode = 2
 albedo_color = Color(0.6237762, 0.048768565, 0, 1)
 albedo_texture = ExtResource("1_mwof3")
 metallic = 1.0

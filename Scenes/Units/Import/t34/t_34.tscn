@@ -3835,6 +3835,9 @@ surface_material_override/0 = ExtResource("1_186ai")
 [node name="BarrelTip" type="Marker3D" parent="TurretPivot/turret/BarrellPivot"]
 transform = Transform3D(1, 0, 0, 0, 1, -1.642028e-15, 0, 1.642028e-15, 1, -1.4901161e-08, 2.9802322e-08, -0.20824653)
 
+[node name="Camera3D" type="Camera3D" parent="TurretPivot/turret/BarrellPivot"]
+transform = Transform3D(-0.06666666, -5.828183e-09, 1.2525856e-16, 5.828183e-09, -0.06666666, -5.828184e-09, 7.6003287e-16, -5.828184e-09, 0.06666666, 5.355105e-09, -0.060963422, 0.08718294)
+
 [node name="RigidBody3D" type="RigidBody3D" parent="."]
 input_ray_pickable = false
 

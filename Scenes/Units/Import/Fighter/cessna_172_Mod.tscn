@@ -1,0 +1,680 @@
+[gd_scene load_steps=77 format=4 uid="uid://ddlcemacf7msh"]
+
+[ext_resource type="PackedScene" uid="uid://bxxwpa0sowfbh" path="res://addons/godot_aerodynamic_physics/demo/aircraft_examples/cessna172/cessna172.glb" id="1_1vp57"]
+[ext_resource type="Script" uid="uid://cc5dwx5pqkaur" path="res://addons/godot_aerodynamic_physics/components/AeroControlComponent.gd" id="2_sudms"]
+[ext_resource type="Script" uid="uid://b4xqlunpiyivk" path="res://addons/godot_aerodynamic_physics/utils/pid.gd" id="3_kbygt"]
+[ext_resource type="Script" uid="uid://cdp8dc63ytxx1" path="res://addons/godot_aerodynamic_physics/core/flight_assist.gd" id="4_0g5yd"]
+[ext_resource type="Script" uid="uid://dfbhcpt1rr3ai" path="res://addons/godot_aerodynamic_physics/core/control_configs/aero_control_config_axis.gd" id="5_kue0g"]
+[ext_resource type="Script" uid="uid://cbgqb7g7mmwtu" path="res://addons/godot_aerodynamic_physics/core/control_configs/aero_control_config.gd" id="6_pxwnx"]
+[ext_resource type="PackedScene" uid="uid://bddf1hhmmre47" path="res://addons/godot_aerodynamic_physics/demo/misc_demo_assets/flight_info_label.tscn" id="7_mmr1h"]
+[ext_resource type="Script" uid="uid://bsu5rdrtiqph7" path="res://addons/godot_aerodynamic_physics/core/aero_influencer_3d/aero_mover_3d/aero_propeller_3d.gd" id="8_nq6m4"]
+[ext_resource type="Script" uid="uid://c46td0go5kvp6" path="res://addons/godot_aerodynamic_physics/core/control_configs/aero_influencer_control_axis_config.gd" id="9_gst0v"]
+[ext_resource type="Script" uid="uid://cblxodmmwvpt6" path="res://addons/godot_aerodynamic_physics/core/control_configs/aero_influencer_control_config.gd" id="10_tdstm"]
+[ext_resource type="Script" uid="uid://d1725od371u4a" path="res://addons/godot_aerodynamic_physics/core/aero_influencer_3d/aero_surface_3d/manual_aero_surface_3d/manual_aero_surface_3d.gd" id="11_ldscm"]
+[ext_resource type="Script" uid="uid://ctbwb7xlhft6t" path="res://addons/godot_aerodynamic_physics/core/aero_influencer_3d/aero_surface_3d/manual_aero_surface_3d/manual_aero_surface_config.gd" id="12_k3aiu"]
+[ext_resource type="Script" uid="uid://crkbhmxpjff4o" path="res://addons/godot_aerodynamic_physics/core/aero_influencer_3d/aero_surface_3d/aero_surface_config.gd" id="13_ulsop"]
+[ext_resource type="Texture2D" uid="uid://btcfo2ifdbwft" path="res://Scenes/Units/Import/Fighter/textures/Material_baseColor.png" id="14_4rpws"]
+
+[sub_resource type="Resource" id="Resource_scrto"]
+script = ExtResource("3_kbygt")
+p = 0.001
+i = 0.0
+d = 0.01
+
+[sub_resource type="Resource" id="Resource_iyp87"]
+script = ExtResource("3_kbygt")
+i = 0.05
+d = 0.1
+
+[sub_resource type="Resource" id="Resource_kv3eg"]
+script = ExtResource("3_kbygt")
+p = 10.0
+i = 0.3
+d = 4.0
+
+[sub_resource type="Resource" id="Resource_nx8vk"]
+script = ExtResource("3_kbygt")
+p = 0.8
+i = 0.0
+
+[sub_resource type="Resource" id="Resource_h62yl"]
+script = ExtResource("3_kbygt")
+p = 25.0
+i = 0.0
+
+[sub_resource type="Resource" id="Resource_xyg42"]
+script = ExtResource("3_kbygt")
+p = 10.0
+i = 0.0
+
+[sub_resource type="Resource" id="Resource_ow3dm"]
+script = ExtResource("3_kbygt")
+p = 10.0
+i = 0.0
+
+[sub_resource type="Resource" id="Resource_ttdts"]
+script = ExtResource("3_kbygt")
+i = 10.0
+clamp_integral = true
+min_integral = -0.2
+max_integral = 0.2
+
+[sub_resource type="Resource" id="Resource_sl5fq"]
+script = ExtResource("3_kbygt")
+i = 2.0
+clamp_integral = true
+min_integral = -0.1
+max_integral = 0.1
+
+[sub_resource type="Resource" id="Resource_731wl"]
+script = ExtResource("3_kbygt")
+p = 0.0
+i = 0.4
+
+[sub_resource type="Resource" id="Resource_5m4dg"]
+script = ExtResource("3_kbygt")
+i = 0.0
+
+[sub_resource type="Resource" id="Resource_t1hlr"]
+script = ExtResource("4_0g5yd")
+max_angular_rates = Vector3(1, 1, 2)
+pitch_assist_pid = SubResource("Resource_ttdts")
+yaw_assist_pid = SubResource("Resource_5m4dg")
+roll_assist_pid = SubResource("Resource_sl5fq")
+enable_g_limiter = false
+tuned_airspeed = 40.0
+bank_angle_pid = SubResource("Resource_iyp87")
+heading_pid = SubResource("Resource_xyg42")
+inclination_pid = SubResource("Resource_ow3dm")
+speed_pid = SubResource("Resource_731wl")
+altitude_pid = SubResource("Resource_scrto")
+direction_pitch_pid = SubResource("Resource_kv3eg")
+direction_yaw_pid = SubResource("Resource_h62yl")
+direction_roll_pid = SubResource("Resource_nx8vk")
+metadata/_custom_type_script = "uid://cdp8dc63ytxx1"
+
+[sub_resource type="Resource" id="Resource_34386"]
+resource_name = "pitch"
+script = ExtResource("5_kue0g")
+axis_name = "pitch"
+positive_event = &"pitch_up"
+negative_event = &"pitch_down"
+
+[sub_resource type="Resource" id="Resource_o6rpv"]
+resource_name = "yaw"
+script = ExtResource("5_kue0g")
+axis_name = "yaw"
+positive_event = &"yaw_left"
+negative_event = &"yaw_right"
+
+[sub_resource type="Resource" id="Resource_wtjbh"]
+resource_name = "roll"
+script = ExtResource("5_kue0g")
+axis_name = "roll"
+positive_event = &"roll_left"
+negative_event = &"roll_right"
+
+[sub_resource type="Resource" id="Resource_jsx6i"]
+resource_name = "throttle"
+script = ExtResource("5_kue0g")
+axis_name = "throttle"
+min_limit = 0.0
+cumulative_positive_event = &"throttle_up"
+cumulative_negative_event = &"throttle_down"
+
+[sub_resource type="Resource" id="Resource_b1qmm"]
+resource_name = "brake"
+script = ExtResource("5_kue0g")
+axis_name = "brake"
+min_limit = 0.0
+positive_event = &"brake_up"
+metadata/_custom_type_script = "uid://dfbhcpt1rr3ai"
+
+[sub_resource type="Resource" id="Resource_ey0gl"]
+resource_name = "flaps"
+script = ExtResource("5_kue0g")
+axis_name = "flaps"
+min_limit = 0.0
+cumulative_positive_event = &"flaps_up"
+cumulative_negative_event = &"flaps_down"
+metadata/_custom_type_script = "uid://dfbhcpt1rr3ai"
+
+[sub_resource type="Resource" id="Resource_lo3t1"]
+script = ExtResource("6_pxwnx")
+axis_configs = Array[ExtResource("5_kue0g")]([SubResource("Resource_34386"), SubResource("Resource_o6rpv"), SubResource("Resource_wtjbh"), SubResource("Resource_jsx6i"), SubResource("Resource_b1qmm"), SubResource("Resource_ey0gl")])
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_qu8wf"]
+height = 4.31507
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_kcwys"]
+radius = 0.139
+height = 0.867
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_iyyha"]
+radius = 0.352845
+height = 4.31507
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_5fm2q"]
+size = Vector3(11.1022, 0.346212, 1.6378)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_o4ret"]
+size = Vector3(3.5369, 0.15037, 1.22084)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3cn7l"]
+size = Vector3(1.4997, 0.15037, 0.885215)
+
+[sub_resource type="Resource" id="Resource_afw6h"]
+resource_name = "throttle"
+script = ExtResource("9_gst0v")
+axis_name = "throttle"
+contribution = Vector3(1, 1, 1)
+
+[sub_resource type="Resource" id="Resource_sgq0w"]
+script = ExtResource("10_tdstm")
+axis_configs = Array[ExtResource("9_gst0v")]([SubResource("Resource_afw6h")])
+use_separate_minmax = true
+max_value = Vector3(0, 240, 0)
+
+[sub_resource type="Curve" id="Curve_scrto"]
+bake_resolution = 21
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.25, 1), 0.0, 0.0, 0, 0, Vector2(0.5, 0), 0.0, 0.0, 0, 0, Vector2(0.75, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 5
+
+[sub_resource type="Curve" id="Curve_iyp87"]
+_limits = [0.99, 1.69, 0.0, 1.0]
+bake_resolution = 23
+_data = [Vector2(0.053, 1), 0.0, 0.0, 0, 0, Vector2(0.088, 1.324), 4.057, 4.057, 0, 0, Vector2(0.256, 1), 0.181, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_4yv37"]
+_limits = [-1.0, 1.0, -180.0, 180.0]
+bake_resolution = 36
+_data = [Vector2(-180, 0), 0.0, 0.0, 0, 0, Vector2(-165, 1), 0.0, 0.0, 0, 0, Vector2(-163, 0.7), 0.0, 0.0, 0, 0, Vector2(-17, -0.7), 0.0, 0.0, 0, 0, Vector2(-15, -1), 0.0, 0.0, 0, 0, Vector2(15, 1), 0.0, 0.0, 0, 0, Vector2(17, 0.7), 0.0, 0.0, 0, 0, Vector2(163, -0.7), 0.0, 0.0, 0, 0, Vector2(165, -1), 0.0, 0.0, 0, 0, Vector2(180, 0), 0.0, 0.0, 0, 0]
+point_count = 10
+
+[sub_resource type="Curve" id="Curve_nx8vk"]
+bake_resolution = 4
+_data = [Vector2(0, 1), 0.0, -2.09824, 0, 0, Vector2(0.406542, 0.490909), -0.666575, -0.666575, 0, 0, Vector2(1, 0.290909), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Resource" id="Resource_5oq5f"]
+script = ExtResource("12_k3aiu")
+lift_aoa_curve = SubResource("Curve_4yv37")
+min_drag_coefficient = 0.03
+max_drag_coefficient = 1.0
+drag_aoa_curve = SubResource("Curve_scrto")
+sweep_drag_multiplier_curve = SubResource("Curve_nx8vk")
+drag_at_mach_multiplier_curve = SubResource("Curve_iyp87")
+
+[sub_resource type="Resource" id="Resource_fnaxt"]
+script = ExtResource("13_ulsop")
+chord = 0.1500000340909207
+span = 1.0999997499999716
+area = 0.16499999999999998
+aspect_ratio = 7.333330000000001
+
+[sub_resource type="Resource" id="Resource_gsj65"]
+resource_name = "collective"
+script = ExtResource("9_gst0v")
+axis_name = "collective"
+metadata/_custom_type_script = "uid://c46td0go5kvp6"
+
+[sub_resource type="Resource" id="Resource_03obi"]
+script = ExtResource("10_tdstm")
+axis_configs = Array[ExtResource("9_gst0v")]([SubResource("Resource_gsj65")])
+metadata/_custom_type_script = "uid://cblxodmmwvpt6"
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3o73c"]
+resource_name = "Material"
+cull_mode = 2
+albedo_texture = ExtResource("14_4rpws")
+roughness = 0.4
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_p3kxo"]
+_surfaces = [{
+"aabb": AABB(-1.670581, -0.16531324, -0.09258175, 3.341162, 0.3335185, 0.1916095),
+"format": 34359742465,
+"index_count": 264,
+"index_data": PackedByteArray("AAABACAAAAADAAEAAwAEAAEAAAAhAAMAAwAhAAQAAQAEACIAAQAiACAAIQAHAAQABAAGACIABAAHAAYAIAAiACMAIgAGACQAIgAkACMABgALACQAIAAjAAIABgANAAsABwANAAYAJAALAA4ADgALAA0AIwAkAAoAJAAOAAoAAgAjACUAIwAKACUABQAgAAIAAgAlAAUABQAAACAABQAmAAAABQAlACYAAAAmACEAJQAKAAkAJQAJACYACgAOAA8ACgAPAAkADgANAA8AJgAnACEAJgAJACcAIQAnAAcACQAPAAgACQAIACcADwANAAwABwAMAA0ADwAMAAgAJwAMAAcAJwAIAAwAEAARABIAEgARACgAEAASABMAEgAoABMAEAAWABEAEQApACgAEQAWACkAEwAoABUAKAApACoAKAAqABUAFgAaACkAKQArACoAKQAaACsAFgAZABoAKgArABsAGAAZABYAGAAWABAAGQAsABoAGQAYACwAGgAtACsAGgAsAC0AGAAQABQAGAAUACwAEAATABQAKwAtAB0AKwAdABsALAAuAC0ALAAUAC4AFAATABcAFAAXAC4AEwAVABcALgAXAB8ALQAuAC8ALgAfAC8ALQAvAB0AFwAeAB8AFwAVAB4ALwAfAB4AFQAcAB4ALwAeABwAHQAvABwAHQAcABsAFQAqABwAKgAbABwA"),
+"lods": [0.18762946, PackedByteArray("AAABAAIAAAADAAEAAwAEAAEABQAAAAIAAQAEAAYAAQAGAAIAAwAHAAQABAAHAAYAAAAIAAMAAwAIAAcABQAJAAAAAAAJAAgAAgAKAAUABQAKAAkABgALAAIAAgALAAoACAAMAAcABwANAAYABgANAAsABwAMAA0ACwAOAAoADgALAA0ACgAOAA8ADgANAA8ADwANAAwADwAMAAgACgAPAAkACQAPAAgAEAARABIAEgARABMAEAASABMAEAATABQAEwARABUAEAAWABEAEQAWABUAFAATABcAEwAVABcAGAAQABQAGAAWABAAGAAUABcAGAAZABYAFgAZABoAGQAYABoAFgAaABsAGgAYABsAFgAbABUAFQAbABwAGwAYAB0AHQAcABsAGAAXAB0AFQAcAB4AFwAVAB4AHQAeABwAFwAeAB8AHQAfAB4AFwAfAB0A")],
+"name": "Material",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 48,
+"vertex_data": PackedByteArray("uj3YPcAR8rxAD5m90TvPPZiasD0ASeQ8YRPfPeO2Ab5g0VA98VHQPVyPoj3Q44S95pKnPubPDj5ABDQ9gSngPd28CL4AGyu9wfaDP3AB/jyAb7s9qUiDPwA+LD5AagY9XOrUP+xX4T2Q7YS9ow6EP4AEo7sQKKi9u7yEP/ZREr6A9de8dsXVPwwhgL2gbpA9OdrUP2qNBD5ARZ082E/VP+i5HT2gp4E9mdXVP/jjp72Agl68+l/VP8BzJzygglm9qj3YvcAR8rxAD5m9wzvPvZiasD0ASeQ841HQvVyPoj3Q44S9avKnvmwEAT6QL6q9yKqqvtBYv7ygOLO9qUiDv/49LD4AagY9iyfXvRj6l7zAsVw9i2CDvz4zEz6Am729cyngvd28CL4AGyu9UxPfveO2Ab5g0VA9ogOtvnJ4G77QGq49dsXVvxAhgL1wbpA92E/Vv+C5HT1gp4E9mdXVv/zjp70AhF68OdrUv2iNBD6ARJ08XOrUv+hX4T3A7YS9mSfXPRj6l7zAsVw9bvKnPmwEAT6AL6q9RkuqPgDFKrvQbrU9pgOtPnJ4G77QGq492aSEPzaD8r0Qz8o9KmOtPuBHKb4AKSy9zKqqPtBYv7ygOLO9i2CDP0AzEz5gm7294pKnvubPDj4gBDQ9QkuqvgDFKrvQbrU9wfaDv3AB/jxwb7s92aSEvziD8r3wzso9JmOtvuBHKb4gKSy9u7yEv/dREr4A9te8ow6Ev4AEo7swKKi9+l/Vv4BzJzwAg1m9")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_op60t"]
+resource_name = "Sketchfab_Scene_Object_1"
+_surfaces = [{
+"aabb": AABB(-1.670581, -0.16531324, -0.09258175, 3.341162, 0.3335185, 0.1916095),
+"attribute_data": PackedByteArray("XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz9cyE0/wN8PP1zITT/A3w8/XMhNP8DfDz8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPyz9TD9QjgU/LP1MP1COBT8s/Uw/UI4FPw=="),
+"format": 34359742487,
+"index_count": 264,
+"index_data": PackedByteArray("AAABAFQAAAADAAEAVQBWAFcAVQAFAFYAHwBYACEAHwBZAFgAWgBbAAcAWgBcAFsADwAQABEADwBdABAAFQBeABcAFQBfAF4AYAAUAGEAYAATABQAYgASAGMAYgBkABIAZQBmAGcAZQAYAGYAaAAgAGkAaABqACAAJAAlACYAJAAnACUAawAWAGwAawAZABYAbQAjAG4AbQAiACMAbwAGAHAAbwAIAAYAcQAMAA0AcQAOAAwAcgBzAB0AcgAeAHMAKAB0AHUAKAApAHQAdgB3AHgAdgAcAHcAGgB5ABsAGgB6AHkACQB7AHwACQAKAHsAfQB+AH8AfQALAH4ABACAAAIABACBAIAAggArACwAggCDACsAhACFAIYAhAA0AIUAOQCHAIgAOQA6AIcAiQCKAIsAiQA1AIoAPgCMAI0APgA/AIwARQCOAEcARQBIAI4AQgBDAEQAQgBBAEMAQACPAJAAQACRAI8AkgCTAJQAkgBGAJMAOwCVAJYAOwCXAJUAmABQAJkAmABSAFAAmgBOAJsAmgBKAE4AnAA9ADwAnACdAD0AngAxADMAngCfADEAMgA3ADgAMgCgADcAoQCiAE0AoQCjAKIATwBRAFMATwCkAFEApQCmAKcApQBJAKYASwCoAKkASwBMAKgANgCqAKsANgAwAKoArACtAK4ArACvAK0ALgAtACoALgAvAC0A"),
+"lods": [0.18762946, PackedByteArray("AAABAAIAAAADAAEABAAAAAIABQAGAAcABQAIAAYACQAFAAcACQAKAAUACgALAAUACwAMAA0ACwAOAAwADwAQABEADwASABAADwATABIAEwAUABIAFQAWABcAFQAYABYAGAAZABYAGgAYABsAGgAcABgAHAAZAB0AHAAeABkAHwAgACEAHwAiACAAIgAjACAAJAAlACYAJAAnACUAKAAnACQAKAApACcAKgArACwAKgAtACsALgAtACoALgAvAC0AMAAxADIAMgAxADMAMAA0ADEAMAA1ADQANgAwADIAMgA3ADgAOQA6ADsAOwA6ADwAPAA6AD0APgA/AEAAQAA/AEEAQABBAEIAQgBBAEMAQgBDAEQARQBGAEcARQBIAEYASQBGAEoASwBJAEoASwBMAEkASwBKAE0ASgBOAE0ATwBQAFEATwBSAFAATwBRAFMA")],
+"material": SubResource("StandardMaterial3D_3o73c"),
+"name": "Material",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 176,
+"vertex_data": PackedByteArray("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2aSEvziD8r3wzso9JmOtvuBHKb4gKSy9+l/Vv4BzJzwAg1m92E/Vv+C5HT1gp4E9ow6Ev4AEo7swKKi9+l/Vv4BzJzwAg1m92aSEvziD8r3wzso9u7yEv/dREr4A9te8wfaDv3AB/jxwb7s92aSEvziD8r3wzso9wfaDv3AB/jxwb7s9u7yEv/dREr4A9te8+l/Vv4BzJzwAg1m9ow6Ev4AEo7swKKi9+l/Vv4BzJzwAg1m9JmOtvuBHKb4gKSy9ow6Ev4AEo7swKKi9u7yEv/dREr4A9te8yKqqvtBYv7ygOLO9JmOtvuBHKb4gKSy9QkuqvgDFKrvQbrU94pKnvubPDj4gBDQ94pKnvubPDj4gBDQ9wfaDv3AB/jxwb7s9qUiDv/49LD4AagY9QkuqvgDFKrvQbrU9egRJe////796BEl7////v4YEPnv///+/egRJe////7+GBD57////v2h+lYH///8/1oT/hv///z+fb698////P9aE/4b///8/MnICmf///z8ycgKZ////PwN/RqL///8/woOxpv///z/Cg7Gm////P8KDsab///8/WGF36v///79YYXfq////v1hhd+r///+/7Wsp/P///78SmwX6////vxKbBfr///+/+AWM9////78H9uUE////v/gFjPf///+/jgJMAP///78H9uUE////vwUeWQT///+/BR5ZBP///7+x3l0C////vyDcBQX///+/INwFBf///79IclMX////P/aDMhT///8/SHJTF////z9KieYd////P0qJ5h3///8/gPv1hP///7+A+/WE////v4D79YT///+/gPv1hP///7+I++qE////v4j76oT///+/ePs+e////7+E+0l7////v4T7SXv///+/ePs+e////794+z57////v3j7Pnv///+/zI0Cmf///z8oe/+G////Pzx8sab///8/KHv/hv///z+WgZWB////P1+Qr3z///8/zI0Cmf///z88fLGm////Pzx8sab///8/to1TF////z+2jVMX////Pwh8MhT///8/tHbmHf///z+0duYd////P6aed+r///+/pp536v///78RlCn8////v+xkBfr///+/7GQF+v///7/sZAX6////v+xkBfr///+/BvqM9////79w/UwA////vwb6jPf///+/BvqM9////79NIV0C////v/cJ5QT///+/+eFZBP///7/54VkE////v94jBQX///+/9wnlBP///792BOqE////v34E9YT///+/dgTqhP///79+BPWE////v3YE6oT///+/egRJe////79ofpWB////P2h+lYH///8/aH6Vgf///z9IclMX////P0hyUxf///8/n2+vfP///z+fb698////P59vr3z///8/WGF36v///7/4BYz3////v/gFjPf///+/EpsF+v///78SmwX6////v+1rKfz///+/7Wsp/P///7/tayn8////v44CTAD///+/jgJMAP///7+OAkwA////v/aDMhT///8/9oMyFP///z/2gzIU////Pwf25QT///+/B/blBP///79KieYd////P0qJ5h3///8/1oT/hv///z/WhP+G////P8KDsab///8/INwFBf///78g3AUF////v4j76oT///+/iPvqhP///7+x3l0C////v7HeXQL///+/sd5dAv///78FHlkE////vwUeWQT///+/MnICmf///z8ycgKZ////PwN/RqL///8/A39Gov///z8Df0ai////P4YEPnv///+/hgQ+e////7+E+0l7////v4T7SXv///+/loGVgf///z+WgZWB////P5aBlYH///8/to1TF////z+2jVMX////P1+Qr3z///8/X5CvfP///z9fkK98////P6aed+r///+/pp536v///78G+oz3////vxGUKfz///+/EZQp/P///78RlCn8////v3D9TAD///+/cP1MAP///79w/UwA////vwh8MhT///8/CHwyFP///z8IfDIU////P34E9YT///+/fgT1hP///7/3CeUE////v/cJ5QT///+/tHbmHf///z+0duYd////Pyh7/4b///8/KHv/hv///z88fLGm////P94jBQX///+/3iMFBf///7/eIwUF////v3YE6oT///+/TSFdAv///79NIV0C////v00hXQL///+/+eFZBP///7/54VkE////v8yNApn///8/zI0Cmf///z/7gEai////P/uARqL///8/+4BGov///z/7gEai////Pw==")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_p3kxo")
+
+[sub_resource type="Resource" id="Resource_4u4b6"]
+script = ExtResource("13_ulsop")
+chord = 1.1950000597500046
+span = 1.9999998999999975
+area = 2.39
+aspect_ratio = 1.6736399999999998
+
+[sub_resource type="Resource" id="Resource_snyt3"]
+script = ExtResource("13_ulsop")
+chord = 0.5
+area = 1.0
+aspect_ratio = 4.0
+
+[sub_resource type="Resource" id="Resource_op60t"]
+resource_name = "flaps"
+script = ExtResource("9_gst0v")
+axis_name = "flaps"
+contribution = Vector3(1, 0, 0)
+metadata/_custom_type_script = "uid://c46td0go5kvp6"
+
+[sub_resource type="Resource" id="Resource_cp2h5"]
+script = ExtResource("10_tdstm")
+axis_configs = Array[ExtResource("9_gst0v")]([SubResource("Resource_op60t")])
+use_separate_minmax = true
+max_value = Vector3(0.7, 0, 0)
+min_value = Vector3(-0.7, 0, 0)
+metadata/_custom_type_script = "uid://cblxodmmwvpt6"
+
+[sub_resource type="Resource" id="Resource_i3e03"]
+script = ExtResource("13_ulsop")
+chord = 1.1969991482893705
+span = 2.860002034999276
+area = 3.4234199999999997
+aspect_ratio = 2.38931
+
+[sub_resource type="Resource" id="Resource_keinb"]
+script = ExtResource("13_ulsop")
+chord = 0.39999999999999997
+span = 2.869999999999999
+area = 1.1479999999999997
+aspect_ratio = 7.174999999999999
+
+[sub_resource type="Resource" id="Resource_1hx5l"]
+resource_name = "roll"
+script = ExtResource("9_gst0v")
+axis_name = "roll"
+contribution = Vector3(1, 0, 0)
+axis_flip_x = 1
+metadata/_custom_type_script = "uid://c46td0go5kvp6"
+
+[sub_resource type="Resource" id="Resource_4mn0n"]
+script = ExtResource("10_tdstm")
+axis_configs = Array[ExtResource("9_gst0v")]([SubResource("Resource_1hx5l")])
+max_value = Vector3(0.4, 0, 0)
+min_value = Vector3(-0.4, 0, 0)
+metadata/_custom_type_script = "uid://cblxodmmwvpt6"
+
+[sub_resource type="Resource" id="Resource_g185g"]
+script = ExtResource("13_ulsop")
+chord = 0.669000035118113
+span = 3.4289998199999956
+area = 2.294001
+aspect_ratio = 5.12556
+
+[sub_resource type="Resource" id="Resource_2trr8"]
+script = ExtResource("13_ulsop")
+chord = 0.4470000273753307
+span = 3.428999789999994
+area = 1.5327630000000005
+aspect_ratio = 7.671139999999999
+
+[sub_resource type="Resource" id="Resource_3s2tp"]
+resource_name = "pitch"
+script = ExtResource("9_gst0v")
+axis_name = "pitch"
+contribution = Vector3(-1, 0, 0)
+metadata/_custom_type_script = "uid://c46td0go5kvp6"
+
+[sub_resource type="Resource" id="Resource_qhb2b"]
+script = ExtResource("10_tdstm")
+axis_configs = Array[ExtResource("9_gst0v")]([SubResource("Resource_3s2tp")])
+max_value = Vector3(0.8, 0, 0)
+min_value = Vector3(-0.8, 0, 0)
+metadata/_custom_type_script = "uid://cblxodmmwvpt6"
+
+[sub_resource type="Resource" id="Resource_3wa4j"]
+script = ExtResource("13_ulsop")
+chord = 0.7669993466933126
+span = 1.8080015399993443
+area = 1.3867360000000002
+aspect_ratio = 2.35724
+
+[sub_resource type="Resource" id="Resource_uei0l"]
+script = ExtResource("13_ulsop")
+chord = 0.3519999644219889
+span = 1.5830001599999917
+area = 0.5572159999999998
+aspect_ratio = 4.49716
+
+[sub_resource type="Resource" id="Resource_f4i16"]
+resource_name = "yaw"
+script = ExtResource("9_gst0v")
+axis_name = "yaw"
+contribution = Vector3(1, 0, 0)
+metadata/_custom_type_script = "uid://c46td0go5kvp6"
+
+[sub_resource type="Resource" id="Resource_dufvg"]
+script = ExtResource("10_tdstm")
+axis_configs = Array[ExtResource("9_gst0v")]([SubResource("Resource_f4i16")])
+max_value = Vector3(0.5, 0, 0)
+min_value = Vector3(-0.5, 0, 0)
+metadata/_custom_type_script = "uid://cblxodmmwvpt6"
+
+[sub_resource type="Curve" id="Curve_ey0gl"]
+bake_resolution = 21
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.25, 1), 0.0, 0.0, 0, 0, Vector2(0.5, 0), 0.0, 0.0, 0, 0, Vector2(0.75, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 5
+
+[sub_resource type="Curve" id="Curve_lo3t1"]
+_limits = [0.99, 1.69, 0.0, 1.0]
+bake_resolution = 23
+_data = [Vector2(0.053, 1), 0.0, 0.0, 0, 0, Vector2(0.088, 1.324), 4.057, 4.057, 0, 0, Vector2(0.256, 1), 0.181, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_op60t"]
+_limits = [-1.0, 1.0, -180.0, 180.0]
+bake_resolution = 36
+_data = [Vector2(-180, 0), 0.0, 0.0, 0, 0, Vector2(-165, 1), 0.0, 0.0, 0, 0, Vector2(-163, 0.7), 0.0, 0.0, 0, 0, Vector2(-17, -0.7), 0.0, 0.0, 0, 0, Vector2(-15, -1), 0.0, 0.0, 0, 0, Vector2(15, 1), 0.0, 0.0, 0, 0, Vector2(17, 0.7), 0.0, 0.0, 0, 0, Vector2(163, -0.7), 0.0, 0.0, 0, 0, Vector2(165, -1), 0.0, 0.0, 0, 0, Vector2(180, 0), 0.0, 0.0, 0, 0]
+point_count = 10
+
+[sub_resource type="Curve" id="Curve_i32vb"]
+bake_resolution = 4
+_data = [Vector2(0, 1), 0.0, -2.09824, 0, 0, Vector2(0.406542, 0.490909), -0.666575, -0.666575, 0, 0, Vector2(1, 0.290909), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Resource" id="Resource_6kba8"]
+script = ExtResource("12_k3aiu")
+min_lift_coefficient = -0.5
+max_lift_coefficient = 0.5
+lift_aoa_curve = SubResource("Curve_op60t")
+min_drag_coefficient = 0.08
+max_drag_coefficient = 1.0
+drag_aoa_curve = SubResource("Curve_ey0gl")
+sweep_drag_multiplier_curve = SubResource("Curve_i32vb")
+drag_at_mach_multiplier_curve = SubResource("Curve_lo3t1")
+
+[sub_resource type="Resource" id="Resource_k8v0t"]
+script = ExtResource("13_ulsop")
+chord = 2.4299992387955385
+span = 0.8300002599999593
+area = 2.0169
+aspect_ratio = 0.341564
+
+[sub_resource type="Resource" id="Resource_o4ret"]
+script = ExtResource("10_tdstm")
+metadata/_custom_type_script = "uid://cblxodmmwvpt6"
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4tt3o"]
+albedo_color = Color(0.137255, 0.156863, 0.180392, 1)
+roughness = 0.8
+
+[node name="cessna172" instance=ExtResource("1_1vp57")]
+mass = 1111.0
+center_of_mass = Vector3(0, 0.01, -1.59)
+can_sleep = false
+
+[node name="AeroControlComponent" type="Node" parent="." index="0"]
+script = ExtResource("2_sudms")
+flight_assist = SubResource("Resource_t1hlr")
+control_config = SubResource("Resource_lo3t1")
+metadata/_custom_type_script = "uid://cc5dwx5pqkaur"
+
+[node name="Camera3D" type="Node3D" parent="." index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.52, 8.221)
+visible = false
+
+[node name="Label3D" type="Label3D" parent="Camera3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.11, 1.57529, -2.9862)
+visible = false
+text = "Controls:
+Pitch: W/A
+Yaw: Q/E
+Roll: A/D
+Throttle: Shift/Ctrl
+Flaps: T/G"
+
+[node name="FlightInfoLabel" parent="Camera3D" index="1" instance=ExtResource("7_mmr1h")]
+visible = false
+
+[node name="Fueslage" parent="." index="2"]
+visible = false
+
+[node name="Rudder" parent="." index="3"]
+visible = false
+
+[node name="Wing" parent="." index="4"]
+visible = false
+
+[node name="WingStruts" parent="." index="5"]
+visible = false
+
+[node name="HorizontalStabilizer" parent="." index="6"]
+visible = false
+
+[node name="Elevator" parent="." index="7"]
+visible = false
+
+[node name="RearWheels" parent="." index="8"]
+visible = false
+
+[node name="FrontWheel" parent="." index="9"]
+visible = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." index="10"]
+transform = Transform3D(1, 0, 0, 0, 6.12303e-17, 1, 0, -1, 6.12303e-17, 0, -0.208549, -1.64491)
+visible = false
+shape = SubResource("CapsuleShape3D_qu8wf")
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="." index="11"]
+transform = Transform3D(1, 0, 0, 0, 6.12303e-17, 1, 0, -1, 6.12303e-17, 1.19618, -0.996901, -1.27856)
+visible = false
+shape = SubResource("CapsuleShape3D_kcwys")
+
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="." index="12"]
+transform = Transform3D(1, 0, 0, 0, 6.12303e-17, 1, 0, -1, 6.12303e-17, -1.196, -0.997, -1.279)
+visible = false
+shape = SubResource("CapsuleShape3D_kcwys")
+
+[node name="CollisionShape3D5" type="CollisionShape3D" parent="." index="13"]
+transform = Transform3D(1, 0, 0, 0, 6.12303e-17, 1, 0, -1, 6.12303e-17, 0, -1.1106, -2.92699)
+visible = false
+shape = SubResource("CapsuleShape3D_kcwys")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="." index="14"]
+transform = Transform3D(1, 0, 0, 0, -0.130665, 0.991427, 0, -0.991427, -0.130665, 0, 0.0210909, 1.56669)
+visible = false
+shape = SubResource("CapsuleShape3D_iyyha")
+
+[node name="CollisionShape3D6" type="CollisionShape3D" parent="." index="15"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.727993, -1.30223)
+visible = false
+shape = SubResource("BoxShape3D_5fm2q")
+
+[node name="CollisionShape3D7" type="CollisionShape3D" parent="." index="16"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.140415, 3.02324)
+visible = false
+shape = SubResource("BoxShape3D_o4ret")
+
+[node name="CollisionShape3D8" type="CollisionShape3D" parent="." index="17"]
+transform = Transform3D(5.69823e-17, 1, 2.24092e-17, -0.930622, 6.12303e-17, -0.365982, -0.365982, 0, 0.930622, -3.5564e-17, 0.721239, 3.35956)
+visible = false
+shape = SubResource("BoxShape3D_3cn7l")
+
+[node name="AeroPropeller3D" type="Node3D" parent="." index="18" node_paths=PackedStringArray("propeller_blade")]
+transform = Transform3D(1, 0, 6.123032e-17, -6.123032e-17, 3.7491518e-33, 1, 0, -1, 3.7491518e-33, 0, 0, -3.82947)
+script = ExtResource("8_nq6m4")
+propeller_blade = NodePath("ManualAeroSurface3D")
+propeller_speed_control_config = SubResource("Resource_sgq0w")
+show_torque = true
+show_lift = false
+show_thrust = true
+metadata/_custom_type_script = "uid://bsu5rdrtiqph7"
+
+[node name="ManualAeroSurface3D" type="Node3D" parent="AeroPropeller3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 0.766044, -0.642787, 0, 0.642787, 0.766044, 0.555826, 0, 0)
+script = ExtResource("11_ldscm")
+manual_config = SubResource("Resource_5oq5f")
+wing_config = SubResource("Resource_fnaxt")
+actuation_config = SubResource("Resource_03obi")
+show_force = false
+show_lift = false
+metadata/_custom_type_script = "uid://d1725od371u4a"
+
+[node name="CSGBox3D" type="CSGBox3D" parent="AeroPropeller3D/ManualAeroSurface3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.88178e-16, 0.034494)
+size = Vector3(1.09857, 0.0454879, 0.144012)
+
+[node name="Object_6" type="MeshInstance3D" parent="AeroPropeller3D/ManualAeroSurface3D/CSGBox3D" index="0"]
+transform = Transform3D(-0.99848264, 0.054998886, -0.0027683983, -0.03683373, -0.70438576, -0.70886034, -0.040935993, -0.7076834, 0.7053422, -0.54857945, 0, 0)
+mesh = SubResource("ArrayMesh_op60t")
+skeleton = NodePath("")
+
+[node name="WingR1" type="Node3D" parent="." index="19"]
+transform = Transform3D(0.999858, -0.0168242, 0, 0.0168242, 0.999858, 0, 0, 0, 1, 1.50973, 0.675157, -1.85714)
+visible = false
+script = ExtResource("11_ldscm")
+manual_config = SubResource("Resource_5oq5f")
+wing_config = SubResource("Resource_4u4b6")
+mirror_axis = 1
+metadata/_custom_type_script = "uid://d1725od371u4a"
+
+[node name="FlapR" type="Node3D" parent="WingR1" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.01053)
+script = ExtResource("11_ldscm")
+manual_config = SubResource("Resource_5oq5f")
+wing_config = SubResource("Resource_snyt3")
+actuation_config = SubResource("Resource_cp2h5")
+metadata/_custom_type_script = "uid://d1725od371u4a"
+
+[node name="CSGBox3D" type="CSGBox3D" parent="WingR1/FlapR" index="0"]
+transform = Transform3D(1, -5.55112e-16, 0, 5.55112e-16, 1, 0, 0, 0, 1, 0, 8.88178e-16, 0.127996)
+size = Vector3(1.99478, 0.0454879, 0.510548)
+
+[node name="WingR2" type="Node3D" parent="WingR1" index="1"]
+transform = Transform3D(0.99893594, -0.04613015, 0, 0.04613015, 0.99893594, 0, 0, 0, 1, 2.470497, 0.07584864, 0.04244418)
+script = ExtResource("11_ldscm")
+manual_config = SubResource("Resource_5oq5f")
+wing_config = SubResource("Resource_i3e03")
+metadata/_custom_type_script = "uid://d1725od371u4a"
+
+[node name="AileronR" type="Node3D" parent="WingR1/WingR2" index="0"]
+transform = Transform3D(0.989364, 0, 0.145461, 0, 1, -1.7347235e-18, -0.145461, 0, 0.989364, -0.0750582, -1.110223e-16, 0.8491648)
+script = ExtResource("11_ldscm")
+manual_config = SubResource("Resource_5oq5f")
+wing_config = SubResource("Resource_keinb")
+actuation_config = SubResource("Resource_4mn0n")
+metadata/_custom_type_script = "uid://d1725od371u4a"
+
+[node name="CSGBox3D" type="CSGBox3D" parent="WingR1/WingR2/AileronR" index="0"]
+transform = Transform3D(1, 5.50469e-16, 2.38698e-15, -2.47025e-15, 1, -7.1991e-16, 1.58207e-15, 1.69806e-17, 1, 0, 0, 0.0906042)
+size = Vector3(2.83724, 0.146557, 0.400159)
+
+[node name="HorizontalStab" type="Node3D" parent="." index="20"]
+transform = Transform3D(1, 0, 0, 0, 0.99889, 0.0471065, 0, -0.0471065, 0.99889, 0, 0.210207, 2.68076)
+visible = false
+script = ExtResource("11_ldscm")
+manual_config = SubResource("Resource_5oq5f")
+wing_config = SubResource("Resource_g185g")
+metadata/_custom_type_script = "uid://d1725od371u4a"
+
+[node name="Elevator2" type="Node3D" parent="." index="21"]
+transform = Transform3D(1, 0, 0, 0, 0.99889, 0.0471065, 0, -0.0471065, 0.99889, 0, 0.23602, 3.22812)
+visible = false
+script = ExtResource("11_ldscm")
+manual_config = SubResource("Resource_5oq5f")
+wing_config = SubResource("Resource_2trr8")
+actuation_config = SubResource("Resource_qhb2b")
+metadata/_custom_type_script = "uid://d1725od371u4a"
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Elevator2" index="0"]
+transform = Transform3D(1, -5.55112e-16, 0, 5.55112e-16, 1, -4.92661e-16, 0, 4.92661e-16, 1, 0, 8.88178e-16, 0.127996)
+size = Vector3(3.43267, 0.0454879, 0.510548)
+
+[node name="VerticalStab" type="Node3D" parent="." index="22"]
+transform = Transform3D(3.70173e-17, 1, 3.94809e-17, -0.762205, 6.15827e-17, -0.647335, -0.647335, -1.38778e-17, 0.762205, 0, 0.727, 2.911)
+visible = false
+script = ExtResource("11_ldscm")
+manual_config = SubResource("Resource_5oq5f")
+wing_config = SubResource("Resource_3wa4j")
+metadata/_custom_type_script = "uid://d1725od371u4a"
+
+[node name="Rudder" type="Node3D" parent="VerticalStab" index="0"]
+transform = Transform3D(0.908829, 1.54074e-33, -0.417169, 4.24757e-33, 1, 1.69407e-33, 0.417169, 3.08149e-33, 0.908829, -0.52477, -2.95013e-19, 0.499497)
+script = ExtResource("11_ldscm")
+manual_config = SubResource("Resource_5oq5f")
+wing_config = SubResource("Resource_uei0l")
+actuation_config = SubResource("Resource_dufvg")
+metadata/_custom_type_script = "uid://d1725od371u4a"
+
+[node name="CSGBox3D" type="CSGBox3D" parent="VerticalStab/Rudder" index="0"]
+transform = Transform3D(1, -5.55112e-16, 0, 5.55112e-16, 1, -2.42667e-31, -3.88578e-16, 8.13513e-31, 1, -2.22045e-16, 8.88178e-16, 0.0855698)
+size = Vector3(1.57572, 0.0454879, 0.389499)
+
+[node name="Body" type="Node3D" parent="." index="23"]
+transform = Transform3D(6.12303e-17, 1, 0, -1, 6.12303e-17, 0, 0, 0, 1, 1.28712e-17, -0.210209, -1.16851)
+visible = false
+script = ExtResource("11_ldscm")
+manual_config = SubResource("Resource_6kba8")
+wing_config = SubResource("Resource_k8v0t")
+actuation_config = SubResource("Resource_o4ret")
+metadata/_custom_type_script = "uid://d1725od371u4a"
+
+[node name="VehicleWheel3D" type="VehicleWheel3D" parent="." index="24"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.16734, -2.95022)
+wheel_radius = 0.155
+suspension_travel = 0.1
+suspension_stiffness = 50.0
+damping_compression = 2.0
+damping_relaxation = 2.0
+
+[node name="CSGCylinder3D3" type="CSGCylinder3D" parent="VehicleWheel3D" index="0"]
+transform = Transform3D(-4.37114e-08, 1, -8.74228e-08, -1, -4.37114e-08, -8.74228e-08, -8.74228e-08, 8.74228e-08, 1, 0, 0, 0)
+radius = 0.147615
+height = 0.107076
+sides = 16
+material = SubResource("StandardMaterial3D_4tt3o")
+
+[node name="VehicleWheel3D2" type="VehicleWheel3D" parent="." index="25"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.20138, -1.10981, -1.25764)
+wheel_radius = 0.155
+suspension_travel = 0.15
+suspension_stiffness = 75.0
+damping_compression = 3.0
+
+[node name="CSGCylinder3D3" type="CSGCylinder3D" parent="VehicleWheel3D2" index="0"]
+transform = Transform3D(-4.37114e-08, 1, -8.74228e-08, -1, -4.37114e-08, -8.74228e-08, -8.74228e-08, 8.74228e-08, 1, 0, 0, 0)
+radius = 0.147615
+height = 0.107076
+sides = 16
+material = SubResource("StandardMaterial3D_4tt3o")
+
+[node name="VehicleWheel3D3" type="VehicleWheel3D" parent="." index="26"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.201, -1.11, -1.25776)
+wheel_radius = 0.155
+suspension_travel = 0.15
+suspension_stiffness = 75.0
+damping_compression = 3.0
+
+[node name="CSGCylinder3D3" type="CSGCylinder3D" parent="VehicleWheel3D3" index="0"]
+transform = Transform3D(-4.37114e-08, 1, -8.74228e-08, -1, -4.37114e-08, -8.74228e-08, -8.74228e-08, 8.74228e-08, 1, 0, 0, 0)
+radius = 0.147615
+height = 0.107076
+sides = 16
+material = SubResource("StandardMaterial3D_4tt3o")

@@ -1,15 +1,18 @@
 extends Node3D
 
 # Export variables for user configuration
-@export var movement_speed: float = 2
+@export var movement_speed: float = 3
 @export var rotation_speed: float = 1.1
 @export var mouse_sensitivity: float = 0.002
 @export var barrel_max_elevation: float = 20.0  # degrees upward
 @export var barrel_max_depression: float = -10.0  # degrees downward
 
 # Shooting configuration
-@export var projectile_speed: float = 15.0
+@export var projectile_speed: float = 150.0
 @export var fire_rate: float = 0.2  # seconds between shots
+
+# Effect scaling (automatically detected from unit scale)
+var effect_scale_multiplier: float = 1.0
 
 # Node references
 @onready var body_pivot: Node3D = $BodyPivot
@@ -32,7 +35,12 @@ func _ready() -> void:
 	# Detect standalone mode (playing from unit scene directly)
 	if _is_standalone_mode():
 		_hide_territory_labels()
+		effect_scale_multiplier = 1.0
 		print("TankController: Running in standalone mode - territory labels hidden")
+	else:
+		await get_tree().process_frame
+		effect_scale_multiplier = global_transform.basis.get_scale().x
+		print("TankController: Effect scale multiplier set to %.2f" % effect_scale_multiplier)
 
 func _input(event: InputEvent) -> void:
 	# Handle mouse motion for turret rotation
@@ -108,8 +116,8 @@ func fire_projectile() -> void:
 	var spawn_pos = barrel_tip.global_position
 	var direction = -barrel_tip.global_transform.basis.z
 	
-	# Spawn muzzle blast effect (autoload - call directly)
-	BlastEffectPool.spawn_effect(spawn_pos, direction)
+	# Spawn muzzle blast effect with scale (autoload - call directly)
+	BlastEffectPool.spawn_effect(spawn_pos, direction, effect_scale_multiplier)
 	
 	# Spawn projectile through pool or fallback
 	if has_node("/root/ProjectilePool"):

@@ -1,0 +1,92 @@
+[gd_scene load_steps=2 format=3 uid="uid://b8jv7k5qhwq7w"]
+
+[ext_resource type="Script" path="res://UI/GameUI.gd" id="1_3rjxk"]
+
+[node name="GameUI" type="PanelContainer"]
+custom_minimum_size = Vector2(400, 0)
+offset_right = 400.0
+offset_bottom = 300.0
+script = ExtResource("1_3rjxk")
+
+[node name="MainContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+
+[node name="ContentVBox" type="VBoxContainer" parent="MainContainer"]
+layout_mode = 2
+
+[node name="PlayerInfoSection" type="PanelContainer" parent="MainContainer/ContentVBox"]
+layout_mode = 2
+
+[node name="PlayerMargin" type="MarginContainer" parent="MainContainer/ContentVBox/PlayerInfoSection"]
+layout_mode = 2
+
+[node name="PlayerVBox" type="VBoxContainer" parent="MainContainer/ContentVBox/PlayerInfoSection/PlayerMargin"]
+layout_mode = 2
+
+[node name="PlayerNameLabel" type="Label" parent="MainContainer/ContentVBox/PlayerInfoSection/PlayerMargin/PlayerVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Player 1"
+
+[node name="PlayerStatsHBox" type="HBoxContainer" parent="MainContainer/ContentVBox/PlayerInfoSection/PlayerMargin/PlayerVBox"]
+layout_mode = 2
+
+[node name="ArmyReservesLabel" type="Label" parent="MainContainer/ContentVBox/PlayerInfoSection/PlayerMargin/PlayerVBox/PlayerStatsHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Armies: 0"
+
+[node name="TerritoryCountLabel" type="Label" parent="MainContainer/ContentVBox/PlayerInfoSection/PlayerMargin/PlayerVBox/PlayerStatsHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Territories: 0"
+
+[node name="PhaseInfoSection" type="PanelContainer" parent="MainContainer/ContentVBox"]
+layout_mode = 2
+
+[node name="PhaseMargin" type="MarginContainer" parent="MainContainer/ContentVBox/PhaseInfoSection"]
+layout_mode = 2
+
+[node name="PhaseVBox" type="VBoxContainer" parent="MainContainer/ContentVBox/PhaseInfoSection/PhaseMargin"]
+layout_mode = 2
+
+[node name="TurnNumberLabel" type="Label" parent="MainContainer/ContentVBox/PhaseInfoSection/PhaseMargin/PhaseVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Turn: 1"
+horizontal_alignment = 1
+
+[node name="PhaseLabel" type="Label" parent="MainContainer/ContentVBox/PhaseInfoSection/PhaseMargin/PhaseVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "REINFORCEMENT"
+horizontal_alignment = 1
+
+[node name="ActionInfoSection" type="PanelContainer" parent="MainContainer/ContentVBox"]
+layout_mode = 2
+
+[node name="ActionMargin" type="MarginContainer" parent="MainContainer/ContentVBox/ActionInfoSection"]
+layout_mode = 2
+
+[node name="ActionInfoLabel" type="Label" parent="MainContainer/ContentVBox/ActionInfoSection/ActionMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Click a territory to place armies"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="ButtonSection" type="HBoxContainer" parent="MainContainer/ContentVBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="AdvancePhaseButton" type="Button" parent="MainContainer/ContentVBox/ButtonSection"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Advance Phase"
+
+[node name="EndTurnButton" type="Button" parent="MainContainer/ContentVBox/ButtonSection"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "End Turn"

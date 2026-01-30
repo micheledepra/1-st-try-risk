@@ -44,18 +44,24 @@ const POOL_SIZE = 150  # Increased pool size for multiple territories
 # Material pooling per player color - eliminates per-unit material duplication
 var material_pools: Dictionary = {}  # player_color_hash -> Array[StandardMaterial3D] (one per surface)
 
+# Global scale multiplier applied during fighter mode (shrinks ground units)
+var fighter_scale_multiplier: float = 1.0
+
+# Track controllable units for scale adjustments
+var controllable_units: Array[Node3D] = []
+
 # Configuration
-@export var unit_scale: float = 0.07  # Fixed scale for all units
-@export var formation_scale_panther: float = 1.8  # Scale factor for Panther formation spacing (1.0 = original design)
-@export var formation_scale_t34: float = 2.5  # Scale factor for T34 formation spacing (1.0 = original design)
-@export var unit_height_offset: float = 1  # Y offset above territory surface
+@export var unit_scale: float = 2.0  # Fixed scale for all units
+@export var formation_scale_panther: float = 3  # Scale factor for Panther formation spacing (1.0 = original design)
+@export var formation_scale_t34: float = 4  # Scale factor for T34 formation spacing (1.0 = original design)
+@export var unit_height_offset: float = 0.5  # Y offset above territory surface
 
 # Unit type scale multipliers (based on collision shape sizes)
 # Panther collision: Vector3(2.48, 2.12, 5.46) - length ~5.46
 # T34 collision: Vector3(0.41, 0.18, 0.21) - length ~0.41
 # Ratio: 5.46 / 0.41 = 13.3x difference
-const PANTHER_SCALE_MULTIPLIER: float = 1.0  # Panther is reference size
-const T34_SCALE_MULTIPLIER: float = 1.0  # Scale T34 up to match Panther size
+const PANTHER_SCALE_MULTIPLIER: float = 2.0  # Panther is reference size
+const T34_SCALE_MULTIPLIER: float = 2.0  # Scale T34 up to match Panther size
 
 func _ready():
 	call_deferred("setup_unit_manager")
@@ -263,6 +269,10 @@ func spawn_territory_units(territory_name: String, army_count: int, owner):
 		var final_scale = (unit_scale * type_scale_multiplier) / territory_global_scale.x  # Assuming uniform scale
 		unit.scale = Vector3(final_scale, final_scale, final_scale)
 		
+		# Store effect scale metadata for projectile impact scaling
+		var global_scale = final_scale * territory_global_scale.x
+		unit.set_meta("effect_scale", global_scale)
+		
 		# Make visible
 		unit.visible = true
 		
@@ -358,13 +368,16 @@ func calculate_territory_center(territory: Node3D) -> Vector3:
 func apply_player_color(unit: Node3D, player_color: Color):
 	"""Apply player color using pooled materials - zero duplication overhead
 	Also sets player_color meta for projectile hit detection"""
-	# Set meta on unit root for hit detection by projectiles
-	unit.set_meta("player_color", player_color)
+	# Apply a slightly darker tint for the unit and reuse it for glow hit feedback
+	var tinted_player_color := Color(player_color.r * 0.75, player_color.g * 0.75, player_color.b * 0.75, player_color.a)
+
+	# Set meta on unit root for hit detection by projectiles (glow uses this color)
+	unit.set_meta("player_color", tinted_player_color)
 	
 	var mesh_instances = find_all_mesh_instances_recursive(unit)
 	
 	# Get or create material pool for this player color
-	var color_hash = player_color.to_html()
+	var color_hash = tinted_player_color.to_html()
 	var materials = material_pools.get(color_hash)
 	
 	if not materials:
@@ -393,9 +406,9 @@ func apply_player_color(unit: Node3D, player_color: Color):
 					if base_material.albedo_texture:
 						material.albedo_texture = base_material.albedo_texture
 			
-			# Apply player color tint (multiply with base color)
+			# Apply player color tint (multiply with base color) using the darkened color
 			var tinted_material = material.duplicate()  # Minimal duplication - only when applying tint
-			tinted_material.albedo_color = material.albedo_color * player_color
+			tinted_material.albedo_color = material.albedo_color * tinted_player_color
 			
 			mesh_instance.set_surface_override_material(surface_idx, tinted_material)
 
@@ -418,6 +431,41 @@ func find_all_mesh_instances_recursive(node: Node) -> Array[MeshInstance3D]:
 		meshes.append_array(find_all_mesh_instances_recursive(child))
 	
 	return meshes
+
+# =============================================================================
+# GLOBAL SCALE ADJUSTMENT (e.g., fighter mode shrink)
+# =============================================================================
+
+func set_fighter_scale_active(active: bool) -> void:
+	"""Toggle fighter-mode scaling for all ground units (decorative + controllable)"""
+	fighter_scale_multiplier = 0.5 if active else 1.0
+	_apply_scale_multiplier_to_active_units()
+
+func _apply_scale_multiplier_to_active_units() -> void:
+	"""Re-apply the current scale multiplier to every tracked unit"""
+	for territory_units in spawned_units.values():
+		for unit in territory_units:
+			_apply_scale_multiplier_to_unit(unit)
+
+	for unit in controllable_units:
+		_apply_scale_multiplier_to_unit(unit)
+
+func _apply_scale_multiplier_to_unit(unit: Node3D, base_scale: float = -1.0) -> void:
+	"""Scale a unit based on stored base scale and the active multiplier"""
+	if not unit or not is_instance_valid(unit):
+		return
+
+	var resolved_base_scale = base_scale
+	if resolved_base_scale <= 0.0:
+		if unit.has_meta("base_scale"):
+			resolved_base_scale = unit.get_meta("base_scale")
+		else:
+			# Fallback for legacy instances: derive base from current visible scale
+			resolved_base_scale = unit.scale.x / max(fighter_scale_multiplier, 0.0001)
+
+	unit.set_meta("base_scale", resolved_base_scale)
+	var target_scale = resolved_base_scale * fighter_scale_multiplier
+	unit.scale = Vector3(target_scale, target_scale, target_scale)
 
 # =============================================================================
 # TACTICAL MODE SUPPORT - Controllable unit spawning
@@ -457,8 +505,12 @@ func spawn_controllable_unit(territory_name: String, owner) -> Dictionary:
 	# Set scale with counteraction for parent territory scale and unit type normalization
 	var territory_global_scale = territory.global_transform.basis.get_scale()
 	var type_scale_multiplier = PANTHER_SCALE_MULTIPLIER if unit_type == "panther" else T34_SCALE_MULTIPLIER
-	var final_scale = (unit_scale * type_scale_multiplier) / territory_global_scale.x  # Assuming uniform scale
-	unit.scale = Vector3(final_scale, final_scale, final_scale)
+	var base_scale = (unit_scale * type_scale_multiplier) / territory_global_scale.x  # Assuming uniform scale
+	_apply_scale_multiplier_to_unit(unit, base_scale)
+	
+	# Store effect scale metadata for projectile impact scaling
+	var global_scale = base_scale * territory_global_scale.x
+	unit.set_meta("effect_scale", global_scale)
 	
 	# Apply player color
 	apply_player_color(unit, owner.color)
@@ -472,6 +524,9 @@ func spawn_controllable_unit(territory_name: String, owner) -> Dictionary:
 	
 	# Hide one decorative unit to compensate
 	hide_one_decorative_unit(territory_name)
+
+	# Track controllable units for fighter-mode scaling
+	controllable_units.append(unit)
 	
 	print("TerritoryUnitManager: Spawned controllable %s on %s" % [owner.unit_type, territory_name])
 	
@@ -484,6 +539,9 @@ func despawn_controllable_unit(unit: Node3D, territory_name: String):
 	"""Remove controllable unit and restore decorative unit"""
 	if unit and is_instance_valid(unit):
 		unit.queue_free()
+
+	# Remove from controllable tracking
+	controllable_units.erase(unit)
 	
 	# Restore one decorative unit
 	restore_one_decorative_unit(territory_name)

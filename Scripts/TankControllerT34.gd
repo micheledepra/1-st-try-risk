@@ -8,8 +8,11 @@ extends Node3D
 @export var barrel_max_depression: float = 70.0  # degrees downward
 
 # Shooting configuration
-@export var projectile_speed: float = 15.0
+@export var projectile_speed: float = 150.0
 @export var fire_rate: float = 0.2  # seconds between shots
+
+# Effect scaling (automatically detected from unit scale)
+var effect_scale_multiplier: float = 1.0
 
 # Node references
 @onready var body_pivot: Node3D = $BodyPivot
@@ -36,7 +39,12 @@ func _ready() -> void:
 	# Detect standalone mode (playing from unit scene directly)
 	if _is_standalone_mode():
 		_hide_territory_labels()
+		effect_scale_multiplier = 1.0
 		print("TankControllerT34: Running in standalone mode - territory labels hidden")
+	else:
+		await get_tree().process_frame
+		effect_scale_multiplier = global_transform.basis.get_scale().x
+		print("TankControllerT34: Effect scale multiplier set to %.2f" % effect_scale_multiplier)
 	
 	# Store initial positions and reset only rotations of children
 	if has_node("TurretPivot/BarrellPivot/Cylinder001"):
@@ -124,6 +132,9 @@ func fire_projectile() -> void:
 	# Get spawn position and direction
 	var spawn_pos = barrel_tip.global_position
 	var direction = -barrel_tip.global_transform.basis.z
+	
+	# Spawn muzzle blast effect with scale (autoload - call directly)
+	BlastEffectPool.spawn_effect(spawn_pos, direction, effect_scale_multiplier)
 	
 	# Spawn projectile through pool or fallback
 	if has_node("/root/ProjectilePool"):

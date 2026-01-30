@@ -3,6 +3,7 @@ extends Node
 ## AttackPhase - Handles combat mechanics and territory conquest
 
 const ATTACK_RESOLUTION_UI = preload("res://UI/AttackResolutionUI.tscn")
+const RISK_COMBAT_UI = preload("res://UI/RiskCombatUI.tscn")
 const TRANSFER_UNITS_UI = preload("res://UI/TransferUnitsUI.tscn")
 
 var game_manager: Node
@@ -51,100 +52,6 @@ func can_attack(from_territory: String, to_territory: String) -> bool:
 		return false
 	
 	return true
-
-func execute_attack(from_territory: String, to_territory: String, attacker_dice_count: int = 3) -> Dictionary:
-	if not can_attack(from_territory, to_territory):
-		return {"success": false, "error": "Invalid attack"}
-	
-	var current_player = game_manager.get_current_player()
-	var defender = game_manager.get_territory_owner(to_territory)
-	
-	# Get initial army counts
-	var attacker_armies = game_manager.get_territory_armies(from_territory)
-	var defender_armies = game_manager.get_territory_armies(to_territory)
-	
-	var attacker_losses = 0
-	var defender_losses = 0
-	var attacker_rolls = []
-	var defender_rolls = []
-	
-	if game_manager.developer_mode:
-		# Developer mode: Use UI modals for manual battle resolution
-		# This is handled by handle_territory_clicked() method
-		print("ERROR: execute_attack() should not be called in developer mode!")
-		print("Use handle_territory_clicked() for UI-based attacks")
-		return {"success": false, "error": "Use UI modals in developer mode"}
-	else:
-		# Normal mode: Use dice rolls
-		# Determine actual dice counts
-		attacker_dice_count = min(attacker_dice_count, min(3, attacker_armies - 1))  # Max 3, must leave 1
-		var defender_dice_count = min(2, defender_armies)  # Defender gets max 2 dice
-		
-		# Roll dice
-		attacker_rolls = roll_dice(attacker_dice_count)
-		defender_rolls = roll_dice(defender_dice_count)
-		
-		# Sort in descending order
-		attacker_rolls.sort()
-		attacker_rolls.reverse()
-		defender_rolls.sort()
-		defender_rolls.reverse()
-		
-		# Compare dice
-		var comparisons = min(attacker_rolls.size(), defender_rolls.size())
-		
-		for i in range(comparisons):
-			if attacker_rolls[i] > defender_rolls[i]:
-				defender_losses += 1
-			else:
-				attacker_losses += 1
-	
-	# Apply losses
-	game_manager.add_armies_to_territory(from_territory, -attacker_losses)
-	game_manager.add_armies_to_territory(to_territory, -defender_losses)
-	
-	# Update visuals
-	if map and map.color_manager:
-		map.color_manager.set_territory_armies(from_territory, game_manager.get_territory_armies(from_territory))
-		map.color_manager.set_territory_armies(to_territory, game_manager.get_territory_armies(to_territory))
-	
-	# Check if territory was conquered
-	var conquered = false
-	if game_manager.get_territory_armies(to_territory) == 0:
-		conquered = true
-		conquer_territory(from_territory, to_territory, current_player, defender)
-	
-	# Record battle statistics
-	game_manager.record_battle(
-		current_player.id,
-		defender.id,
-		from_territory,
-		to_territory,
-		attacker_armies,
-		defender_armies,
-		attacker_losses,
-		defender_losses,
-		conquered
-	)
-	
-	var result = {
-		"success": true,
-		"attacker_rolls": attacker_rolls,
-		"defender_rolls": defender_rolls,
-		"attacker_losses": attacker_losses,
-		"defender_losses": defender_losses,
-		"conquered": conquered,
-		"from_territory": from_territory,
-		"to_territory": to_territory
-	}
-	
-	print("Attack: %s (%d) -> %s (%d)" % [from_territory, attacker_armies, to_territory, defender_armies])
-	print("Rolls - Attacker: %s, Defender: %s" % [str(attacker_rolls), str(defender_rolls)])
-	print("Losses - Attacker: %d, Defender: %d" % [attacker_losses, defender_losses])
-	if conquered:
-		print("Territory conquered!")
-	
-	return result
 
 func handle_territory_clicked(territory_name: String):
 	"""Handle territory clicks during attack phase for UI-based attacks"""
@@ -204,9 +111,6 @@ func handle_territory_clicked(territory_name: String):
 		_show_attack_resolution_ui()
 
 func _show_attack_resolution_ui():
-	var resolution_ui = ATTACK_RESOLUTION_UI.instantiate()
-	ui_container.add_child(resolution_ui)
-	
 	var attacker_color = game_manager.get_current_player().color
 	var defender_owner = game_manager.get_territory_owner(selected_defender)
 	var defender_color = defender_owner.color if defender_owner else Color.GRAY
@@ -214,16 +118,24 @@ func _show_attack_resolution_ui():
 	var attacker_units = game_manager.get_territory_armies(selected_attacker)
 	var defender_units = game_manager.get_territory_armies(selected_defender)
 	
-	resolution_ui.setup(
-		selected_attacker,
-		attacker_units,
-		attacker_color,
-		selected_defender,
-		defender_units,
-		defender_color
-	)
-	
-	resolution_ui.resolution_confirmed.connect(_on_attack_resolved)
+	if game_manager.developer_mode:
+		# Developer mode: Manual battle resolution UI
+		var resolution_ui = ATTACK_RESOLUTION_UI.instantiate()
+		ui_container.add_child(resolution_ui)
+		resolution_ui.setup(
+			selected_attacker, attacker_units, attacker_color,
+			selected_defender, defender_units, defender_color
+		)
+		resolution_ui.resolution_confirmed.connect(_on_attack_resolved)
+	else:
+		# Standard mode: Risk dice combat UI
+		var combat_ui = RISK_COMBAT_UI.instantiate()
+		ui_container.add_child(combat_ui)
+		combat_ui.setup(
+			selected_attacker, attacker_units, attacker_color,
+			selected_defender, defender_units, defender_color
+		)
+		combat_ui.combat_resolved.connect(_on_attack_resolved)
 
 func _on_attack_resolved(attacker_remaining: int, defender_remaining: int):
 	var attacker_initial = game_manager.get_territory_armies(selected_attacker)
@@ -283,13 +195,11 @@ func _handle_conquest(attacker_remaining: int):
 		old_owner.remove_territory(selected_defender)
 	new_owner.add_territory(selected_defender)
 	
-	# Update map ownership
+	# Update map ownership and color
 	if map:
 		map.set_territory_owner(selected_defender, new_owner.id)
-	
-	# Update color on map
 	if map and map.color_manager:
-		map.color_manager.update_territory_color(selected_defender, new_owner.color)
+		map.color_manager.set_territory_owner(selected_defender, new_owner.id)
 	
 	# Show transfer UI
 	_show_transfer_ui(attacker_remaining)
@@ -320,7 +230,7 @@ func _on_transfer_confirmed(units: int):
 		game_manager.eliminate_player(old_owner)
 	
 	# Check for victory
-	game_manager.check_victory()
+	game_manager.check_win_condition()
 	
 	_reset_selection()
 
@@ -334,12 +244,6 @@ func _reset_selection():
 	
 	if map_ref and map_ref.game_ui:
 		map_ref.game_ui.set_instruction_text("Click your territory with 2+ armies to attack")
-
-func roll_dice(count: int) -> Array[int]:
-	var rolls: Array[int] = []
-	for i in range(count):
-		rolls.append(randi() % 6 + 1)
-	return rolls
 
 func conquer_territory(from_territory: String, to_territory: String, attacker: Player, defender: Player):
 	# Transfer ownership

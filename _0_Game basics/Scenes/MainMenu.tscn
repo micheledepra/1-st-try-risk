@@ -119,8 +119,8 @@ layout_mode = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 button_pressed = false
-text = "Developer Mode (Manual Battles)"
-tooltip_text = "Enable manual battle resolution instead of automatic"
+text = "Developer Mode (Manual Entry)"
+tooltip_text = "OFF: Risk Dice Combat with UI | ON: Manual battle entry for testing"
 
 [node name="CategorySeparator1" type="HSeparator" parent="SettingsContainer/SettingsVBox"]
 layout_mode = 2

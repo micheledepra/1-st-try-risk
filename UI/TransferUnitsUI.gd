@@ -48,7 +48,7 @@ func setup(from_territory: String, to_territory: String, remaining_units: int):
 	# Setup input
 	units_input.min_value = min_units
 	units_input.max_value = max_units
-	units_input.value = min_units
+	units_input.value = max_units
 	units_input.step = 1
 	units_input.allow_greater = false
 	units_input.allow_lesser = false

@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://b8qm5x2oap4kj"]
 
-[ext_resource type="Script" uid="uid://coosdbtlwxoap" path="res://Scripts/ImpactEffect.gd" id="1"]
+[ext_resource type="Script" uid="uid://coosdbtlwxoap" path="res://Scripts/ImpactEffect.gd" id="1_6132x"]
 [ext_resource type="PackedScene" uid="uid://c0qnw8skl8ej8" path="res://Scenes/Effects/BlastEffect.tscn" id="2_6132x"]
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_1"]
@@ -34,9 +34,9 @@ seed = 3415667155
 trail_lifetime = 0.01
 process_material = SubResource("ParticleProcessMaterial_1")
 draw_pass_1 = SubResource("SphereMesh_1")
-script = ExtResource("1")
+script = ExtResource("1_6132x")
 
 [node name="BlastEffect" parent="." instance=ExtResource("2_6132x")]
 amount = 35
-lifetime = 0.12
+lifetime = 0.19
 script = null

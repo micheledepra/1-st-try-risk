@@ -1,0 +1,208 @@
+[gd_scene load_steps=2 format=3 uid="uid://d2x5nht6w1k3y"]
+
+[ext_resource type="Script" uid="uid://byeemoshhg22x" path="res://UI/RiskCombatUI.gd" id="1_risk_combat"]
+
+[node name="RiskCombatUI" type="Control"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -250.0
+offset_right = 300.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_risk_combat")
+
+[node name="Background" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "🎲 DICE COMBAT 🎲"
+horizontal_alignment = 1
+
+[node name="HSeparator1" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="BattleContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="AttackerPanel" type="Panel" parent="MarginContainer/VBoxContainer/BattleContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BattleContainer/AttackerPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 5
+
+[node name="Title" type="Label" parent="MarginContainer/VBoxContainer/BattleContainer/AttackerPanel/VBox"]
+layout_mode = 2
+text = "⚔️ ATTACKER"
+horizontal_alignment = 1
+
+[node name="AttackerTerritoryLabel" type="Label" parent="MarginContainer/VBoxContainer/BattleContainer/AttackerPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Territory"
+horizontal_alignment = 1
+
+[node name="AttackerUnitsLabel" type="Label" parent="MarginContainer/VBoxContainer/BattleContainer/AttackerPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Units: 0"
+horizontal_alignment = 1
+
+[node name="HSep" type="HSeparator" parent="MarginContainer/VBoxContainer/BattleContainer/AttackerPanel/VBox"]
+layout_mode = 2
+
+[node name="AttackerDiceContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BattleContainer/AttackerPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 1
+
+[node name="DefenderPanel" type="Panel" parent="MarginContainer/VBoxContainer/BattleContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BattleContainer/DefenderPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 5
+
+[node name="Title" type="Label" parent="MarginContainer/VBoxContainer/BattleContainer/DefenderPanel/VBox"]
+layout_mode = 2
+text = "🛡️ DEFENDER"
+horizontal_alignment = 1
+
+[node name="DefenderTerritoryLabel" type="Label" parent="MarginContainer/VBoxContainer/BattleContainer/DefenderPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Territory"
+horizontal_alignment = 1
+
+[node name="DefenderUnitsLabel" type="Label" parent="MarginContainer/VBoxContainer/BattleContainer/DefenderPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Units: 0"
+horizontal_alignment = 1
+
+[node name="HSep" type="HSeparator" parent="MarginContainer/VBoxContainer/BattleContainer/DefenderPanel/VBox"]
+layout_mode = 2
+
+[node name="DefenderDiceContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BattleContainer/DefenderPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 1
+
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ControlsContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DiceSelectRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer/ControlsContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/ControlsContainer/DiceSelectRow"]
+layout_mode = 2
+text = "Dice to roll:"
+
+[node name="DiceCountSelector" type="SpinBox" parent="MarginContainer/VBoxContainer/ControlsContainer/DiceSelectRow"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 3.0
+value = 1.0
+
+[node name="SequentialCheck" type="CheckBox" parent="MarginContainer/VBoxContainer/ControlsContainer/DiceSelectRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Sequential"
+
+[node name="RollButtonsRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer/ControlsContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="AttackerRollBtn" type="Button" parent="MarginContainer/VBoxContainer/ControlsContainer/RollButtonsRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Roll Dice"
+
+[node name="DefenderRollBtn" type="Button" parent="MarginContainer/VBoxContainer/ControlsContainer/RollButtonsRow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "Roll Dice"
+
+[node name="StatusLabel" type="Label" parent="MarginContainer/VBoxContainer/ControlsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Choose dice count and roll method"
+horizontal_alignment = 1
+
+[node name="HSeparator3" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ResultLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+
+[node name="ActionButtonsRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="ContinueBtn" type="Button" parent="MarginContainer/VBoxContainer/ActionButtonsRow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "Continue Attack"
+
+[node name="RetreatBtn" type="Button" parent="MarginContainer/VBoxContainer/ActionButtonsRow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "Retreat"

@@ -7,7 +7,8 @@ extends Node
 
 enum GameMode {
 	STRATEGIC,  # Territory management mode (default)
-	TACTICAL    # Direct unit control mode
+	TACTICAL,   # Direct unit control mode
+	FIGHTER     # Fighter plane control mode
 }
 
 signal mode_changed(new_mode: GameMode)
@@ -16,6 +17,8 @@ var current_mode: GameMode = GameMode.STRATEGIC
 var active_unit: Node3D = null
 var active_unit_camera: Camera3D = null
 var stored_territory: String = ""  # Territory where controllable unit was spawned
+var active_fighter: Node3D = null  # Active fighter plane
+var active_fighter_camera: Camera3D = null  # Fighter's camera
 
 func enter_tactical_mode(unit: Node3D, camera: Camera3D, territory_name: String):
 	"""Enter tactical mode with the specified unit and camera"""
@@ -65,6 +68,46 @@ func get_active_unit() -> Node3D:
 
 func get_stored_territory() -> String:
 	return stored_territory
+
+func enter_fighter_mode(fighter: Node3D, camera: Camera3D):
+	"""Enter fighter mode with the specified fighter and camera"""
+	if current_mode == GameMode.FIGHTER:
+		push_warning("ModeManager: Already in fighter mode")
+		return
+	
+	active_fighter = fighter
+	active_fighter_camera = camera
+	current_mode = GameMode.FIGHTER
+	
+	# Hide territory labels when entering fighter mode
+	_set_territory_labels_visible(false)
+	
+	mode_changed.emit(GameMode.FIGHTER)
+	print("ModeManager: Entered FIGHTER mode")
+
+func exit_fighter_mode():
+	"""Exit fighter mode and return to strategic mode"""
+	if current_mode != GameMode.FIGHTER:
+		push_warning("ModeManager: Not in fighter mode")
+		return
+	
+	# Clear references
+	active_fighter = null
+	active_fighter_camera = null
+	
+	current_mode = GameMode.STRATEGIC
+	
+	# Show territory labels when exiting fighter mode
+	_set_territory_labels_visible(true)
+	
+	mode_changed.emit(GameMode.STRATEGIC)
+	print("ModeManager: Exited FIGHTER mode, returned to STRATEGIC")
+
+func is_fighter_mode() -> bool:
+	return current_mode == GameMode.FIGHTER
+
+func get_active_fighter() -> Node3D:
+	return active_fighter
 
 func _set_territory_labels_visible(visible: bool):
 	"""Helper to show/hide territory labels via TerritoryColorManager"""

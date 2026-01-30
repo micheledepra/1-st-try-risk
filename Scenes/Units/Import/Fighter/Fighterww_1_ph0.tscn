@@ -1,0 +1,35 @@
+[gd_scene load_steps=5 format=3 uid="uid://bkuwjykjeej00"]
+
+[ext_resource type="Script" uid="uid://b7t1aoudmtvba" path="res://Scripts/FighterPhysicsController.gd" id="2_fighter"]
+[ext_resource type="PackedScene" uid="uid://bwpwxnufuujve" path="res://Scenes/Units/Import/Fighter/cessna172.tscn" id="2_wqonc"]
+[ext_resource type="Script" uid="uid://daqecq7txfj5v" path="res://Scripts/CameraZoomOnRMB.gd" id="3_t0ehy"]
+[ext_resource type="Script" uid="uid://cup1h6shx4iqp" path="res://Scenes/Units/units_camera_3d.gd" id="3_tltar"]
+
+[node name="fighterww1_Phy" type="Node3D"]
+script = ExtResource("2_fighter")
+
+[node name="cessna172" parent="." instance=ExtResource("2_wqonc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 25.536121, -0.029618025)
+mass = 600.0
+
+[node name="Muzzle1" type="Node3D" parent="cessna172"]
+transform = Transform3D(-0.9999756, -0.00024364132, 0.006976975, 0, 0.9993907, 0.03489949, -0.0069812285, 0.034898642, -0.9993664, -0.26341558, 1.202137, -3.0986824)
+
+[node name="Muzzle2" type="Node3D" parent="cessna172"]
+transform = Transform3D(-0.9999756, 0.00024364132, -0.006976975, 0, 0.9993907, 0.03489949, 0.0069812285, 0.034898642, -0.9993664, 0.26487184, 1.202137, -3.0986824)
+
+[node name="Camera3D4" type="Camera3D" parent="cessna172"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0023981333, 2.544978, 8.146853)
+script = ExtResource("3_tltar")
+rotate_speed_deg = 25.0
+return_delay_sec = 0.5
+
+[node name="Camera3D5" type="Camera3D" parent="cessna172"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0023981333, 1.5696948, -0.39469194)
+fov = 90.0
+script = ExtResource("3_tltar")
+
+[node name="Camera3D6" type="Camera3D" parent="cessna172"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0023981333, 1.7545769, -1.2810407)
+fov = 60.0
+script = ExtResource("3_t0ehy")

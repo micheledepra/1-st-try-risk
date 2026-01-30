@@ -9,9 +9,9 @@ extends Area3D
 ## - Layer 4: Projectiles (this)
 ## - Projectile mask = 3 (detects layers 1 + 2)
 
-@export var speed: float = 25.0
+@export var speed: float = 100000.0
 @export var max_distance: float = 40464.0  # Max XZ-plane distance before despawn (matches map size)
-@export var bullet_drop_gravity: float = 4.6  # Gravity strength for bullet drop
+@export var bullet_drop_gravity: float = 9.81  # Gravity strength for bullet drop
 
 var velocity: Vector3 = Vector3.ZERO
 var time_alive: float = 0.0
@@ -25,7 +25,7 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	area_entered.connect(_on_area_entered)
 
-func initialize(spawn_position: Vector3, direction: Vector3, projectile_speed: float = 25.0) -> void:
+func initialize(spawn_position: Vector3, direction: Vector3, projectile_speed: float = 100000.0) -> void:
 	"""Initialize projectile position and launch it - called by ProjectilePool"""
 	global_position = spawn_position
 	show()  # Ensure projectile is visible when spawned from pool
@@ -38,7 +38,7 @@ func initialize(spawn_position: Vector3, direction: Vector3, projectile_speed: f
 	
 	launch(direction, projectile_speed)
 
-func launch(direction: Vector3, projectile_speed: float = 25.0) -> void:
+func launch(direction: Vector3, projectile_speed: float = 100000.0) -> void:
 	"""Launch projectile in given direction with speed"""
 	velocity = direction.normalized() * projectile_speed
 	is_active = true
@@ -71,8 +71,8 @@ func _on_body_entered(_body: Node) -> void:
 	if not is_active or time_alive < spawn_grace_period:
 		return
 	
-	# Terrain hit - brown impact with light effect
-	ImpactEffectPool.spawn_effect(global_position, Color.SADDLE_BROWN, true)
+	# Terrain hit - brown impact with light effect (world scale)
+	ImpactEffectPool.spawn_effect(global_position, Color.SADDLE_BROWN, true, 1.0)
 	ProjectilePool.return_projectile.call_deferred(self)
 
 func _on_area_entered(area: Node) -> void:
@@ -89,12 +89,14 @@ func _on_area_entered(area: Node) -> void:
 		hit_unit = area.get_parent()
 	
 	# Spawn impact effect (no light for units - they get glow instead)
-	ImpactEffectPool.spawn_effect(global_position, impact_color, hit_unit == null)
+	var impact_scale = 1.0
+	if hit_unit and hit_unit.has_meta("effect_scale"):
+		impact_scale = hit_unit.get_meta("effect_scale")
+	ImpactEffectPool.spawn_effect(global_position, impact_color, hit_unit == null, impact_scale)
 	
 	# Apply glow effect to unit if hit
 	if hit_unit:
 		UnitGlowEffect.apply_glow(hit_unit, impact_color, 5.0)
 	
-	ProjectilePool.return_projectile.call_deferred(self)
 	# Return projectile to pool (deferred to avoid physics callback error)
 	ProjectilePool.return_projectile.call_deferred(self)

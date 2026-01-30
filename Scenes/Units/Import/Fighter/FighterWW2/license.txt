@@ -1,0 +1,11 @@
+Model Information:
+* title:	Italian Macchi C.202 Folgore
+* source:	https://sketchfab.com/3d-models/italian-macchi-c202-folgore-940a914ac88b4bc38e77110735fbb285
+* author:	42manako (https://sketchfab.com/42manako)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Italian Macchi C.202 Folgore" (https://sketchfab.com/3d-models/italian-macchi-c202-folgore-940a914ac88b4bc38e77110735fbb285) by 42manako (https://sketchfab.com/42manako) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

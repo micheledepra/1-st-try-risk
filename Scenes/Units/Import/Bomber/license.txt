@@ -1,0 +1,11 @@
+Model Information:
+* title:	He111 low poly
+* source:	https://sketchfab.com/3d-models/he111-low-poly-7fde0575493d41df913eff0cfc6ae74a
+* author:	pasquill (https://sketchfab.com/pasquill)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "He111 low poly" (https://sketchfab.com/3d-models/he111-low-poly-7fde0575493d41df913eff0cfc6ae74a) by pasquill (https://sketchfab.com/pasquill) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

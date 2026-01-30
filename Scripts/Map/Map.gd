@@ -14,6 +14,13 @@ var initial_camera_transform: Transform3D
 var initial_camera_fov: float
 var awaiting_territory_selection: bool = false
 var camera_transition_tween: Tween
+var fighter_hud_scene: PackedScene = preload("res://Scenes/UI/FighterHUD.tscn")
+var fighter_hud: FighterHUD = null
+@export_enum("WW1", "WW2") var fighter_plane_type: String = "WW1"
+const FIGHTER_WW1_SCENE := preload("res://Scenes/Units/Import/Fighter/Fighterww_1_ph0.tscn")
+const FIGHTER_WW2_SCENE := preload("res://Scenes/Units/Import/Fighter/FighterWW2/fww2_Mcc.tscn")
+const FIGHTER_WW1_CAMERA_PATH := "cessna172/Camera3D5"
+const FIGHTER_WW2_CAMERA_PATH := "cessna172/Camera3D5"
 
 # Interaction state
 var first_selected_territory: String = ""
@@ -211,45 +218,9 @@ func handle_reinforcement_remove(territory_name: String, ctrl_pressed: bool):
 		print("Cannot remove armies from %s" % territory_name)
 
 func handle_attack_click(territory_name: String):
-	if game_manager.developer_mode:
-		# Developer mode: Use UI modals for attack resolution
-		attack_phase.handle_territory_clicked(territory_name)
-	else:
-		# Auto mode: Use automatic battle resolution
-		if first_selected_territory == "":
-			# Select attacking territory
-			var current_player = game_manager.get_current_player()
-			if current_player.territories_owned.has(territory_name):
-				if game_manager.get_territory_armies(territory_name) >= 2:
-					first_selected_territory = territory_name
-					if game_ui:
-						game_ui.set_instruction_text("✓ Selected %s. Click enemy territory to attack" % territory_name)
-					print("Selected %s to attack from" % territory_name)
-				else:
-					if game_ui:
-						game_ui.set_instruction_text("❌ Territory needs at least 2 armies to attack")
-					print("Territory needs at least 2 armies to attack")
-			else:
-				if game_ui:
-					game_ui.set_instruction_text("❌ You don't own %s" % territory_name)
-				print("You don't own %s" % territory_name)
-		else:
-			# Execute attack
-			var result = attack_phase.execute_attack(first_selected_territory, territory_name, 3)
-			if result.success:
-				if game_ui:
-					game_ui.set_instruction_text("✓ Attack executed!")
-				print("Attack executed!")
-			else:
-				if game_ui:
-					game_ui.set_instruction_text("❌ Cannot attack: %s" % result.get("error", "Unknown error"))
-				print("Cannot attack: %s" % result.get("error", "Unknown error"))
-			
-			first_selected_territory = ""
-			# Reset instruction after brief delay
-			if game_ui:
-				await get_tree().create_timer(1.5).timeout
-				game_ui._update_ui()
+	# Always use UI-based attack resolution
+	# AttackPhase shows RiskCombatUI (standard) or AttackResolutionUI (developer mode)
+	attack_phase.handle_territory_clicked(territory_name)
 
 func handle_fortify_click(territory_name: String):
 	if first_selected_territory == "":
@@ -300,6 +271,12 @@ func _input(event):
 	if event.is_action_pressed("toggle_unit_control"):
 		toggle_unit_control_mode()
 		get_viewport().set_input_as_handled()
+	
+	# Handle Ctrl+P to toggle fighter mode
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_P and event.ctrl_pressed:
+			toggle_fighter_mode()
+			get_viewport().set_input_as_handled()
 	
 	# Handle ESC to cancel territory selection
 	if event.is_action_pressed("ui_cancel") and awaiting_territory_selection:
@@ -416,6 +393,161 @@ func exit_tactical_mode():
 		game_ui._update_ui()
 	
 	print("Map: Exited tactical mode")
+
+func toggle_fighter_mode():
+	"""Toggle fighter plane mode (spawn/despawn fighter with Ctrl+P)"""
+	if not mode_manager or not map_camera:
+		return
+	
+	if mode_manager.is_fighter_mode():
+		# Exit fighter mode - despawn fighter and return to map camera
+		exit_fighter_mode()
+	else:
+		# Enter fighter mode - spawn fighter at map camera position
+		enter_fighter_mode()
+
+func enter_fighter_mode():
+	"""Spawn fighter at AirSpawn position and enter fighter mode"""
+	# Exit any other mode first (mutually exclusive)
+	if mode_manager.is_tactical_mode():
+		exit_tactical_mode()
+	
+	# Get AirSpawn node
+	var air_spawn = get_node_or_null("AirSpawn")
+	if not air_spawn:
+		push_error("Map: AirSpawn node not found")
+		return
+	
+	# Pick fighter scene and camera path based on inspector setting
+	var fighter_scene: PackedScene
+	var camera_path: String
+	match fighter_plane_type:
+		"WW2":
+			fighter_scene = FIGHTER_WW2_SCENE
+			camera_path = FIGHTER_WW2_CAMERA_PATH
+		_:
+			fighter_scene = FIGHTER_WW1_SCENE
+			camera_path = FIGHTER_WW1_CAMERA_PATH
+
+	# Instantiate fighter
+	var fighter = fighter_scene.instantiate()
+	if not fighter:
+		push_error("Map: Failed to instantiate fighter")
+		return
+	
+	# Add fighter to scene FIRST (required before setting global_position)
+	add_child(fighter)
+	
+	# Position fighter at AirSpawn location
+	fighter.global_position = air_spawn.global_position
+	
+	# Set fighter rotation to match AirSpawn's rotation
+	fighter.global_rotation = air_spawn.global_rotation
+	
+	# Get fighter's camera
+	var fighter_camera = fighter.get_node_or_null(camera_path)
+	if not fighter_camera:
+		push_error("Map: Fighter camera not found")
+		fighter.queue_free()
+		return
+	
+	# Enter fighter mode
+	mode_manager.enter_fighter_mode(fighter, fighter_camera)
+	_bind_hud_to_fighter(fighter)
+
+	# Shrink ground units while flying
+	if unit_manager:
+		unit_manager.set_fighter_scale_active(true)
+	
+	# Disable strategic input
+	if input_manager:
+		input_manager.set_process_input(false)
+	
+	# Switch camera with smooth transition
+	transition_to_camera(fighter_camera)
+	
+	# Set mouse mode for fighter controls
+	Input.mouse_mode = Input.MOUSE_MODE_CONFINED
+	
+	# Update UI if present
+	if game_ui:
+		game_ui.show_tactical_mode_ui()  # Reuse tactical UI for now
+	
+	print("Map: Entered fighter mode at position %s" % fighter.global_position)
+
+func exit_fighter_mode():
+	"""Exit fighter mode and return to strategic mode"""
+	if not mode_manager.is_fighter_mode():
+		return
+	
+	var fighter = mode_manager.get_active_fighter()
+	
+	# Store fighter camera reference BEFORE mode_manager clears it
+	var fighter_camera = mode_manager.active_fighter_camera
+	
+	# Exit fighter mode (this clears references)
+	mode_manager.exit_fighter_mode()
+
+	# Restore ground unit scale after leaving fighter mode
+	if unit_manager:
+		unit_manager.set_fighter_scale_active(false)
+	
+	# Re-enable strategic input
+	if input_manager:
+		input_manager.set_process_input(true)
+	
+	# Restore map camera to initial state
+	if map_camera:
+		map_camera.global_transform = initial_camera_transform
+		map_camera.fov = initial_camera_fov
+	
+	# Switch camera back to map with explicit source camera
+	if map_camera and fighter_camera:
+		transition_from_to(fighter_camera, map_camera)
+	elif map_camera:
+		# Fallback: direct switch if fighter camera was lost
+		map_camera.current = true
+	
+	# Restore mouse mode
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	
+	# Update UI
+	if game_ui:
+		game_ui.hide_tactical_mode_ui()
+		game_ui._update_ui()
+	
+	# Despawn fighter after camera transition completes
+	if fighter:
+		# Wait for camera transition to finish before despawning
+		await get_tree().create_timer(0.5).timeout
+		fighter.queue_free()
+
+	_hide_fighter_hud()
+	
+	print("Map: Exited fighter mode")
+
+func _ensure_fighter_hud() -> FighterHUD:
+	if fighter_hud:
+		fighter_hud.visible = true
+		return fighter_hud
+
+	if not fighter_hud_scene:
+		push_warning("Map: FighterHUD scene not found")
+		return null
+
+	fighter_hud = fighter_hud_scene.instantiate() as FighterHUD
+	add_child(fighter_hud)
+	return fighter_hud
+
+func _bind_hud_to_fighter(fighter: Node) -> void:
+	var hud := _ensure_fighter_hud()
+	if hud:
+		hud.bind_to_controller(fighter)
+
+func _hide_fighter_hud() -> void:
+	if fighter_hud:
+		fighter_hud.bind_to_controller(null)
+		fighter_hud.visible = false
 
 func transition_to_camera(target_camera: Camera3D, duration: float = 0.4):
 	"""Smoothly transition between cameras"""

@@ -15,11 +15,18 @@ const TERRITORY_MATERIAL_TEMPLATE = preload("res://materials/Map/territory_mater
 @export var player_colors: Array[Color] = [
 	Color(0.8, 0.2, 0.2, 1.0),
 	Color(0.2, 0.2, 0.8, 1.0),
-	Color(0.2, 0.8, 0.2, 1.0),
+	Color(0.199, 0.596, 0.199, 1.0),
 	Color(0.8, 0.8, 0.2, 1.0),
 	Color(0.8, 0.2, 0.8, 1.0),
 	Color(0.2, 0.8, 0.8, 1.0),
 ]
+
+# Material properties - configurable from inspector
+@export_group("Material Properties")
+@export_range(0.0, 1.0) var material_metallic: float = 1.0
+@export_range(0.0, 1.0) var material_roughness: float = 0.5
+@export_range(0.0, 1.0) var material_specular: float = 1.0
+@export_range(0.0, 1.0) var material_transparency: float = 0.0
 
 # State tracking - Visual state only
 var territory_owners: Dictionary = {}
@@ -97,16 +104,24 @@ func setup_color_system():
 	# Initialize material pool structure after caches are ready
 	initialize_material_pool()
 	
-	# SECOND PASS: Apply initial neutral colors now that caches are complete
-	for territory_name in territories_cache.keys():
-		var territory = territories_cache[territory_name]
-		set_territory_color(territory, neutral_color, 0)
+	# SECOND PASS: Apply initial neutral colors only if game hasn't started yet
+	# If players already exist (from PlayerSetup), Map.gd will set correct colors immediately
+	var skip_neutral_pass = GameManager and not GameManager.players.is_empty()
+	if not skip_neutral_pass:
+		for territory_name in territories_cache.keys():
+			var territory = territories_cache[territory_name]
+			set_territory_color(territory, neutral_color, 0)
+		print("TerritoryColorManager: Applied neutral colors to all territories")
+	else:
+		print("TerritoryColorManager: Skipping neutral colors (players already exist)")
 	
 	# Initialize 2D UI labels for all territories
 	initialize_all_territory_labels()
 	
 	# Pre-calculate territory centers once at startup (PERFORMANCE FIX)
 	precalculate_territory_centers()
+	
+	print("TerritoryColorManager: System ready")
 
 func initialize_material_pool():
 	"""Initialize material pool structure - materials created per-continent-per-player on demand"""
@@ -124,8 +139,8 @@ func set_territory_owner(territory_name: String, player_id: int):
 		push_warning("Territory not found: %s" % territory_name)
 		return
 	
-	var color = neutral_color if player_id == 0 else get_player_color(player_id)
-	set_territory_color(territory, color, player_id)
+	var base_color = neutral_color if player_id == 0 else get_player_color(player_id)
+	set_territory_color(territory, base_color, player_id)
 	print("Territory %s assigned to player %d" % [territory_name, player_id])
 
 func set_continent_owner(continent_name: String, player_id: int):
@@ -152,15 +167,20 @@ func get_continent_owner(continent_name: String) -> int:
 	return first_owner
 
 func get_player_color(player_id: int) -> Color:
-	# Try to get the actual color from the player in GameManager
-	if GameManager and not GameManager.players.is_empty():
-		for player in GameManager.players:
-			if player.id == player_id:
-				return player.color
+	"""Get the color for a player from the player_colors array defined in this manager"""
+	if player_id <= 0:
+		return neutral_color
 	
-	# Fallback to default colors if player not found
+	# Use the player_colors array defined in TerritoryColorManager
 	var index = (player_id - 1) % player_colors.size()
 	return player_colors[index]
+
+func get_territory_base_color(territory_name: String) -> Color:
+	"""Get the base (unmodified) color for a territory based on owner"""
+	var player_id = territory_owners.get(territory_name, 0)
+	if player_id == 0:
+		return neutral_color
+	return get_player_color(player_id)
 
 func set_territory_color(territory: Node3D, color: Color, player_id: int):
 	"""Apply color using per-territory material for independent transparency control"""
@@ -195,19 +215,28 @@ func set_territory_color(territory: Node3D, color: Color, player_id: int):
 	# FALLBACK: Get or create material for this territory (neutral color or edge cases)
 	material = get_territory_material(territory.name, continent_name, player_id)
 	if not material:
-		# Clone template material and override color
-		material = TERRITORY_MATERIAL_TEMPLATE.duplicate()
-		material.albedo_color = Color(color.r, color.g, color.b, 1.0)  # Always opaque
-		
-		# Remove texture if textures are disabled
 		var textures_enabled = SettingsManager.get_territory_textures_enabled()
-		if not textures_enabled:
-			material.albedo_texture = null
 		
-		# Template already has: metallic, roughness, cull_mode, texture (if present), etc.
-		# Just ensure transparency is disabled for gameplay
-		material.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
-		material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_OPAQUE_ONLY
+		if textures_enabled:
+			# Clone template (keeps texture) and apply export properties
+			material = TERRITORY_MATERIAL_TEMPLATE.duplicate()
+			material.albedo_color = Color(color.r, color.g, color.b, 1.0)
+			
+			# Apply export variable properties (override template defaults)
+			material.metallic = material_metallic
+			material.roughness = material_roughness
+			material.metallic_specular = material_specular
+			
+			# Handle transparency based on export value
+			if material_transparency > 0.0:
+				material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+				material.albedo_color.a = 1.0 - material_transparency
+			else:
+				material.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
+				material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_OPAQUE_ONLY
+		else:
+			# No textures - use clean material with export properties
+			material = create_configured_material(Color(color.r, color.g, color.b, 1.0))
 		
 		# Store in continent pool and territory cache
 		if not material_pool.has(continent_name):
@@ -247,6 +276,30 @@ func find_territory_continent(territory_name: String) -> String:
 		if territory_name in territories:
 			return continent_name
 	return ""
+
+func create_configured_material(albedo_color: Color) -> StandardMaterial3D:
+	"""Create a new StandardMaterial3D with export variable properties applied.
+	Used for both standard territory materials and brightness materials."""
+	var material = StandardMaterial3D.new()
+	material.albedo_color = albedo_color
+	
+	# Apply export variable properties
+	material.metallic = material_metallic
+	material.roughness = material_roughness
+	material.metallic_specular = material_specular
+	
+	# Handle transparency based on export value
+	if material_transparency > 0.0:
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		material.albedo_color.a = 1.0 - material_transparency
+	else:
+		material.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
+		material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_OPAQUE_ONLY
+	
+	material.cull_mode = BaseMaterial3D.CULL_BACK
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+	
+	return material
 
 func get_territory_material(territory_name: String, continent_name: String, player_id: int) -> StandardMaterial3D:
 	"""Get or create material for a specific territory in a continent"""

@@ -25,6 +25,7 @@ var original_positions: Dictionary = {}  # territory_name -> Vector3 (stores ori
 @export var animation_duration: float = 0.2  # Total animation time (drop + rise)
 
 func _ready():
+	add_to_group("territory_input")
 	setup_input_system()
 
 func setup_input_system():
