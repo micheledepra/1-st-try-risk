@@ -30,12 +30,16 @@ extends Node3D
 @onready var barrel2: Node3D = $TurretPivot/Turret/bone49/Barrel2
 @onready var muzzle1: Node3D = $TurretPivot/Turret/bone29/Barrel1/Muzzle1
 @onready var muzzle2: Node3D = $TurretPivot/Turret/bone49/Barrel2/Muzzle2
+@onready var fpv_camera: Camera3D = get_node_or_null("TurretPivot/Turret/bone49/Barrel2/Camera3D")  # barrel-mounted first-person camera
 
 # State variables
 var fire_cooldown: float = 0.0
 var current_barrel: int = 0  # 0 = barrel1, 1 = barrel2 (alternating)
 var is_standalone: bool = false
-var active_camera: Camera3D = null  # Reference to viewport camera for rotation sync
+
+# Centralized view system (key 1 first-person, key 2 follow, RMB aim-zoom). See UnitViewController.gd
+const UnitViewControllerScript = preload("res://Scripts/UnitViewController.gd")
+var _view: UnitViewControllerScript = null
 
 func _ready() -> void:
 	# Check if running standalone (no GameManager) or forced standalone mode
@@ -48,20 +52,33 @@ func _ready() -> void:
 		set_process_input(false)
 		return
 	
+	_setup_view_controller()
+
 	# Setup standalone testing environment - only if standalone_mode was explicitly set BEFORE _ready
 	# In UnitTestManager, mouse capture is handled externally after unit selection
 	if standalone_mode:
 		_setup_standalone_environment()
 
+func _setup_view_controller() -> void:
+	"""Attach the shared unit-view system (first-person / follow / aim-zoom)."""
+	if fpv_camera == null:
+		push_warning("AAController: first-person camera not found; view system disabled")
+		return
+	_view = UnitViewControllerScript.new()
+	_view.name = "UnitViewController"
+	add_child(_view)
+	_view.configure(self, fpv_camera, {
+		"follow_target": self,
+		"forward_node": body_pivot,
+		"fp_fov": 75.0,
+		"follow_distance": 14.0,
+		"follow_height": 7.0,
+	})
+
 func _setup_standalone_environment() -> void:
 	# Capture mouse for FPS-style control - called externally or when standalone_mode is pre-set
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	
-	# Get reference to viewport camera for rotation sync
-	active_camera = get_viewport().get_camera_3d()
-	if active_camera:
-		print("AAController: Found camera for rotation sync: ", active_camera.name)
-	
+
 	print("AAController: Standalone mode active")
 	print("  - W/S: Move forward/backward")
 	print("  - A/D: Rotate body left/right")
@@ -87,6 +104,9 @@ func _input(event: InputEvent) -> void:
 	
 	# Handle mouse motion for turret/barrel aiming
 	if event is InputEventMouseMotion:
+		# While free-looking in follow view, the mouse orbits the camera instead of the turret.
+		if _view != null and _view.consumes_mouse_motion():
+			return
 		if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED or not is_standalone:
 			# Horizontal rotation - rotate turret pivot
 			turret_pivot.rotate_y(-event.relative.x * mouse_sensitivity)
@@ -105,13 +125,7 @@ func _process(delta: float) -> void:
 	# Update fire cooldown
 	if fire_cooldown > 0:
 		fire_cooldown -= delta
-	
-	# Handle rapid fire when left mouse button is held
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-		if fire_cooldown <= 0:
-			fire_projectile()
-			fire_cooldown = fire_rate
-	
+
 	# Handle tank-style movement (W/S forward/back, A/D rotate)
 	var move_direction: float = 0.0
 	var rotate_direction: float = 0.0
@@ -134,20 +148,25 @@ func _process(delta: float) -> void:
 	
 	# Move the unit forward/backward based on body pivot direction
 	if move_direction != 0.0:
-		var forward = -body_pivot.global_transform.basis.z
+		# normalize: on the map the unit is scaled, so an un-normalized basis vector would over-speed
+		var forward = -body_pivot.global_transform.basis.z.normalized()
 		global_position += forward * move_direction * movement_speed * delta
+
+	# Fire AFTER movement so the muzzle transform is current this frame (no spawn offset while driving)
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		if fire_cooldown <= 0:
+			fire_projectile()
+			fire_cooldown = fire_rate
 
 func _rotate_barrels(vertical_delta: float) -> void:
 	# Apply rotation to both barrels and clamp
 	var new_rotation = barrel1.rotation.x + vertical_delta
 	new_rotation = clamp(new_rotation, deg_to_rad(-barrel_max_elevation), deg_to_rad(-barrel_max_depression))
-	
+
 	barrel1.rotation.x = new_rotation
 	barrel2.rotation.x = new_rotation
-	
-	# Rotate camera in place to match barrel elevation (inverted for camera look direction)
-	if active_camera:
-		active_camera.rotation.x = new_rotation
+	# The first-person camera is parented under Barrel2, so it elevates with the barrel
+	# automatically — no manual camera sync needed (and that old sync broke outside standalone).
 
 func fire_projectile() -> void:
 	# Get current muzzle based on alternating barrel

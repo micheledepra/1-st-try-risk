@@ -1,15 +1,23 @@
 extends Node3D
 
 # Export variables for user configuration
-@export var movement_speed: float = 3
-@export var rotation_speed: float = 1.1
+# Scale: ~4.3 game units per metre. Speeds below are real m/s * 4.3.
+# Panther: ~24 km/h cross-country, slow to accelerate (heavy ~45 t), powered turret ~24 deg/s.
+@export var max_speed_forward: float = 28.0   # ~6.5 m/s (~23 km/h cross-country)
+@export var max_speed_reverse: float = 11.0   # reverse gear is much slower
+@export var acceleration: float = 8.0         # u/s^2 - gradual pickup from a standstill
+@export var braking: float = 16.0             # u/s^2 - coast/brake to a stop (stop time scales with speed)
+@export var rotation_speed: float = 0.7       # hull yaw rate (A/D), rad/s
 @export var mouse_sensitivity: float = 0.002
+@export var turret_traverse_speed: float = 0.42  # rad/s (~24 deg/s, Panther powered traverse)
 @export var barrel_max_elevation: float = 20.0  # degrees upward
 @export var barrel_max_depression: float = -10.0  # degrees downward
 
 # Shooting configuration
-@export var projectile_speed: float = 150.0
+@export var projectile_speed: float = 4020.0  # Panther 75mm KwK 42: 935 m/s * 4.3 u/m
 @export var fire_rate: float = 0.2  # seconds between shots
+@export var muzzle_blast_scale: float = 1.25  # Cannon blast size as a factor of the unit's world scale (big)
+@export var bullet_scale: float = 5.0  # Cannon round size (large)
 
 # Effect scaling (automatically detected from unit scale)
 var effect_scale_multiplier: float = 1.0
@@ -19,9 +27,20 @@ var effect_scale_multiplier: float = 1.0
 @onready var turret_pivot: Node3D = $TurretPivot
 @onready var barrell_pivot: Node3D = $TurretPivot/BarrellPivot
 @onready var barrel_tip: Marker3D = $TurretPivot/BarrellPivot/BarrelTip
+@onready var fpv_camera: Camera3D = get_node_or_null("TurretPivot/BarrellPivot/Camera3D")  # first-person / over-gun camera
+
+# Centralized view system (key 1 first-person, key 2 follow, RMB aim-zoom). See UnitViewController.gd
+const UnitViewControllerScript = preload("res://Scripts/UnitViewController.gd")
+var _view: UnitViewControllerScript = null
 
 var fire_cooldown: float = 0.0
 var mode_manager: Node = null
+var fire_requested: bool = false  # Set in _input, executed at end of _process (after movement) so the muzzle transform is current
+var platform_velocity: Vector3 = Vector3.ZERO  # Tank's current velocity, inherited by fired rounds (moving-shooter physics)
+var barrel_smoke: GPUParticles3D = null  # Lingering world-space smoke trail emitted from the moving barrel
+var current_speed: float = 0.0  # Signed longitudinal speed (+forward / -reverse), ramped via accel/brake
+var turret_yaw_target: float = 0.0  # Desired turret yaw; turret traverses toward it at turret_traverse_speed
+const MAX_TURRET_LEAD: float = 0.4  # How far (rad) the aim target may lead the turret, so it behaves like rate control
 
 func _ready() -> void:
 	# DON'T capture mouse automatically - will be controlled by ModeManager
@@ -31,7 +50,9 @@ func _ready() -> void:
 	var map = get_tree().get_first_node_in_group("map")
 	if map:
 		mode_manager = map.get_node_or_null("ModeManager")
-	
+
+	_setup_view_controller()
+
 	# Detect standalone mode (playing from unit scene directly)
 	if _is_standalone_mode():
 		_hide_territory_labels()
@@ -42,30 +63,38 @@ func _ready() -> void:
 		effect_scale_multiplier = global_transform.basis.get_scale().x
 		print("TankController: Effect scale multiplier set to %.2f" % effect_scale_multiplier)
 
+	# Create the lingering barrel smoke trail (parented to the moving barrel tip)
+	_create_barrel_smoke_trail()
+
 func _input(event: InputEvent) -> void:
 	# Handle mouse motion for turret rotation
 	if event is InputEventMouseMotion:
-		# Rotate turret on Y-axis based on horizontal mouse movement
-		turret_pivot.rotate_y(-event.relative.x * mouse_sensitivity)
-		
-		# Calculate new barrel rotation
+		# While free-looking in follow view, the mouse orbits the camera instead of the turret.
+		if _view != null and _view.consumes_mouse_motion():
+			return
+		# Horizontal mouse commands a turret-traverse target; the turret slews toward it
+		# at a realistic max rate in _process (no instant snap).
+		turret_yaw_target += -event.relative.x * mouse_sensitivity
+
+		# Barrel elevation (vertical) is set directly
 		var new_rotation = barrell_pivot.rotation.x + (-event.relative.y * mouse_sensitivity)
-		# Clamp in radians
 		new_rotation = clamp(new_rotation, deg_to_rad(barrel_max_depression), deg_to_rad(barrel_max_elevation))
-		# Set the rotation directly
 		barrell_pivot.rotation.x = new_rotation
 	
-	# Handle shooting (left mouse button)
+	# Handle shooting (left mouse button) - defer the actual shot to end of _process
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-			fire_projectile()
+			fire_requested = true
 
 
 func _process(delta: float) -> void:
+	# Capture position before movement so we can derive the platform velocity this frame
+	var prev_position: Vector3 = global_position
+
 	# Update fire cooldown
 	if fire_cooldown > 0.0:
 		fire_cooldown -= delta
-	
+
 	# Handle keyboard input for body movement and rotation
 	var move_direction: float = 0.0
 	var rotate_direction: float = 0.0
@@ -82,14 +111,44 @@ func _process(delta: float) -> void:
 	elif Input.is_action_pressed("ui_right") or Input.is_key_pressed(KEY_D):
 		rotate_direction = -1.0
 	
-	# Apply rotation to body
+	# Turret traverse: slew toward the aim target at a realistic max rate (not instant).
+	# Clamp how far the target may lead so this behaves like rate control, not position-chasing.
+	turret_yaw_target = clamp(turret_yaw_target, turret_pivot.rotation.y - MAX_TURRET_LEAD, turret_pivot.rotation.y + MAX_TURRET_LEAD)
+	var max_yaw_step = turret_traverse_speed * delta
+	turret_pivot.rotation.y += clamp(turret_yaw_target - turret_pivot.rotation.y, -max_yaw_step, max_yaw_step)
+
+	# Apply rotation to body (hull yaw)
 	if rotate_direction != 0.0:
 		body_pivot.rotate_y(rotate_direction * rotation_speed * delta)
-	
-	# Apply movement in the direction the body is facing
-	if move_direction != 0.0:
-		var forward = -body_pivot.global_transform.basis.z
-		global_position += forward * move_direction * movement_speed * delta
+
+	# Longitudinal speed with acceleration / braking - no instant start or halt.
+	# Constant braking means stop time scales with the speed you brake from.
+	var target_speed: float = 0.0
+	if move_direction > 0.0:
+		target_speed = max_speed_forward
+	elif move_direction < 0.0:
+		target_speed = -max_speed_reverse
+	var accelerating: bool = target_speed != 0.0 and abs(target_speed) > abs(current_speed) and current_speed * target_speed >= 0.0
+	var rate: float = acceleration if accelerating else braking
+	current_speed = move_toward(current_speed, target_speed, rate * delta)
+	if absf(current_speed) > 0.0001:
+		# normalize: on the map the unit is scaled (~4x), so the un-normalized basis
+		# vector would move the tank ~4x too fast
+		var forward = -body_pivot.global_transform.basis.z.normalized()
+		global_position += forward * current_speed * delta
+
+	# Derive the platform (tank) velocity from this frame's actual displacement
+	if delta > 0.0:
+		platform_velocity = (global_position - prev_position) / delta
+	else:
+		platform_velocity = Vector3.ZERO
+
+	# Fire AFTER movement/rotation so the barrel transform is current this frame.
+	# Reading the muzzle position before movement spawned the round at the previous
+	# frame's barrel position, making it appear offset when driving.
+	if fire_requested:
+		fire_requested = false
+		fire_projectile()
 
 func fire_projectile() -> void:
 	"""Fire a projectile from the barrel tip"""
@@ -116,12 +175,15 @@ func fire_projectile() -> void:
 	var spawn_pos = barrel_tip.global_position
 	var direction = -barrel_tip.global_transform.basis.z
 	
-	# Spawn muzzle blast effect with scale (autoload - call directly)
-	BlastEffectPool.spawn_effect(spawn_pos, direction, effect_scale_multiplier)
+	# Spawn muzzle blast effect, sized to the unit and the cannon factor
+	BlastEffectPool.spawn_effect(spawn_pos, direction, effect_scale_multiplier * muzzle_blast_scale)
+
+	# Kick off the lingering barrel smoke trail
+	_activate_barrel_smoke()
 	
 	# Spawn projectile through pool or fallback
 	if has_node("/root/ProjectilePool"):
-		ProjectilePool.spawn_projectile(spawn_pos, direction, projectile_speed)
+		ProjectilePool.spawn_projectile(spawn_pos, direction, projectile_speed, effect_scale_multiplier, platform_velocity, bullet_scale)
 	else:
 		# Fallback for standalone mode (no ProjectilePool autoload)
 		push_warning("TankController: ProjectilePool not found, using fallback instantiation")
@@ -129,12 +191,34 @@ func fire_projectile() -> void:
 		if projectile_scene:
 			var projectile = projectile_scene.instantiate()
 			get_tree().root.add_child(projectile)
-			projectile.initialize(spawn_pos, direction, projectile_speed)
+			projectile.effect_scale = effect_scale_multiplier
+			projectile.initialize(spawn_pos, direction, projectile_speed, platform_velocity, bullet_scale)
 	
 	# Set cooldown
 	fire_cooldown = fire_rate
-	
-	# Optional: Add muzzle flash effect here in the future
+
+func _create_barrel_smoke_trail() -> void:
+	"""Instance a world-space smoke emitter parented to the barrel tip.
+	local_coords=false means emitted puffs stay in world space, so when the tank
+	drives the barrel leaves a trail of smoke behind it."""
+	if barrel_tip == null:
+		return
+	var smoke_scene = load("res://Scenes/Effects/BarrelSmoke.tscn")
+	if smoke_scene == null:
+		push_warning("TankController: BarrelSmoke.tscn not found")
+		return
+	barrel_smoke = smoke_scene.instantiate() as GPUParticles3D
+	barrel_smoke.emitting = false
+	barrel_tip.add_child(barrel_smoke)
+
+func _activate_barrel_smoke() -> void:
+	"""Emit the lingering barrel smoke for ~1 second after firing."""
+	if not is_instance_valid(barrel_smoke):
+		return
+	barrel_smoke.emitting = true
+	get_tree().create_timer(1.0).timeout.connect(func():
+		if is_instance_valid(barrel_smoke):
+			barrel_smoke.emitting = false)
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Handle Ctrl+U to exit tactical mode and return to map
@@ -153,6 +237,22 @@ func _unhandled_input(event: InputEvent) -> void:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		else:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+func _setup_view_controller() -> void:
+	"""Attach the shared unit-view system (first-person / follow / aim-zoom)."""
+	if fpv_camera == null:
+		push_warning("TankController: first-person camera not found; view system disabled")
+		return
+	_view = UnitViewControllerScript.new()
+	_view.name = "UnitViewController"
+	add_child(_view)
+	_view.configure(self, fpv_camera, {
+		"follow_target": self,
+		"forward_node": body_pivot,
+		"fp_fov": 75.0,
+		"follow_distance": 12.0,
+		"follow_height": 6.0,
+	})
 
 func _is_standalone_mode() -> bool:
 	"""Check if running standalone (not in main game)"""

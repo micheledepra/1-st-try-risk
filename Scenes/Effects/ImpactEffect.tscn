@@ -29,6 +29,7 @@ transform = Transform3D(1, 0, 0, 0, 1.368259, 0, 0, 0, 1, 0, 0, 0)
 amount = 75
 lifetime = 0.51
 explosiveness = 1.0
+local_coords = true
 use_fixed_seed = true
 seed = 3415667155
 trail_lifetime = 0.01

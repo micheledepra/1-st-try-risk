@@ -28,6 +28,7 @@ signal hud_state(throttle: float, pitch_deg: float, roll_deg: float, yaw_deg: fl
 @export_group("Combat")
 @export var fire_rate: float = 0.1  # Seconds between shots
 @export var projectile_speed: float = 200.0  # Air projectile speed
+@export var mg_muzzle_blast_scale: float = 0.5  # Machine-gun blast size (small, vs the tank cannon)
 
 @export_group("Mode")
 @export var standalone_mode: bool = false  # Set true for test scene
@@ -515,7 +516,7 @@ func _fire_projectile() -> void:
 	# Spawn muzzle flash
 	var blast_pool = get_node_or_null("/root/BlastEffectPool")
 	if blast_pool:
-		blast_pool.spawn_effect(spawn_pos, firing_direction, 0.5)
+		blast_pool.spawn_effect(spawn_pos, firing_direction, mg_muzzle_blast_scale)
 	
 	# Alternate muzzle for next shot
 	current_muzzle = 1 - current_muzzle

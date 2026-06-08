@@ -1,0 +1,70 @@
+[gd_scene load_steps=10 format=3]
+
+[sub_resource type="Curve" id="Curve_scale_bs"]
+_limits = [0.0, 1.5, 0.0, 1.0]
+_data = [Vector2(0, 0.3), 0.0, 0.0, 0, 0, Vector2(0.5, 0.9), 0.0, 0.0, 0, 0, Vector2(1, 1.2), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_scale_bs"]
+curve = SubResource("Curve_scale_bs")
+
+[sub_resource type="Gradient" id="Gradient_bs"]
+offsets = PackedFloat32Array(0, 0.2, 0.6, 1)
+colors = PackedColorArray(0.62, 0.6, 0.58, 0, 0.55, 0.55, 0.55, 0.45, 0.42, 0.42, 0.45, 0.25, 0.3, 0.3, 0.33, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_bs"]
+gradient = SubResource("Gradient_bs")
+
+[sub_resource type="Gradient" id="Gradient_soft"]
+offsets = PackedFloat32Array(0, 0.45, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_soft"]
+gradient = SubResource("Gradient_soft")
+width = 64
+height = 64
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bs"]
+transparency = 1
+shading_mode = 0
+billboard_mode = 3
+billboard_keep_scale = true
+albedo_texture = SubResource("GradientTexture2D_soft")
+vertex_color_use_as_albedo = true
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_bs"]
+emission_shape = 1
+emission_sphere_radius = 0.06
+direction = Vector3(0, 0, -1)
+spread = 35.0
+initial_velocity_min = 1.0
+initial_velocity_max = 2.5
+gravity = Vector3(0, 0.4, 0)
+damping_min = 0.5
+damping_max = 1.5
+scale_min = 0.3
+scale_max = 0.7
+scale_curve = SubResource("CurveTexture_scale_bs")
+color_ramp = SubResource("GradientTexture1D_bs")
+turbulence_enabled = true
+turbulence_noise_strength = 0.5
+turbulence_noise_scale = 0.4
+
+[sub_resource type="QuadMesh" id="QuadMesh_bs"]
+material = SubResource("StandardMaterial3D_bs")
+size = Vector2(0.4, 0.4)
+
+[node name="BarrelSmoke" type="GPUParticles3D"]
+cast_shadow = 0
+emitting = false
+amount = 120
+lifetime = 1.4
+one_shot = false
+explosiveness = 0.0
+lifetime_randomness = 0.4
+local_coords = false
+process_material = SubResource("ParticleProcessMaterial_bs")
+draw_pass_1 = SubResource("QuadMesh_bs")

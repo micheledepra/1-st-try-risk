@@ -7,9 +7,13 @@ extends Node3D
 signal hud_state(throttle: float, pitch_deg: float, roll_deg: float, yaw_deg: float)
 
 # === Combat Parameters ===
+# Scale: ~4.3 game units per metre. Speeds are real m/s * 4.3.
 @export_group("Combat")
 @export var fire_rate: float = 0.1  # Seconds between shots (600 RPM)
-@export var projectile_speed: float = 200.0  # Air projectile speed
+@export var projectile_speed: float = 3200.0  # WW1/MC.202 MG ~745 m/s * 4.3 u/m
+@export var mg_muzzle_blast_scale: float = 0.2  # MG blast: small. The cockpit camera sits right on the guns at 90deg FOV, which magnifies it, so this is kept well below the cannon's ~5.0
+@export var mg_bullet_scale: float = 1.35  # MG round = smaller version of the shared cannon round
+@export var mg_impact_scale: float = 1.5  # Impact-effect size for MG hits (small vs the tank)
 
 @export_group("Mode")
 @export var standalone_mode: bool = false  # Set true for test scene
@@ -20,11 +24,12 @@ signal hud_state(throttle: float, pitch_deg: float, roll_deg: float, yaw_deg: fl
 @onready var muzzle2: Node3D = $cessna172/Muzzle2
 @onready var muzzle3: Node3D = $cessna172.get_node_or_null("Muzzle3")
 @onready var muzzle4: Node3D = $cessna172.get_node_or_null("Muzzle4")
-@onready var camera1: Camera3D = $cessna172/Camera3D5  # First-person/default (FOV 90)
-@onready var camera2: Camera3D = $cessna172/Camera3D6  # Aiming camera (FOV 60)
-@onready var camera3: Camera3D = $cessna172/CameraWithoutRotation/Camera3D  # Third-person
+@onready var fpv_camera: Camera3D = $cessna172/Camera3D5  # first-person / cockpit camera
 
 var aero_control: Node = null
+# Centralized view system (key 1 first-person, key 2 follow, RMB aim-zoom). See UnitViewController.gd
+const UnitViewControllerScript = preload("res://Scripts/UnitViewController.gd")
+var _view: UnitViewControllerScript = null
 
 # === Muzzle Smoke Trails ===
 @onready var smoke_trail_1: GPUParticles3D = null
@@ -37,10 +42,6 @@ var current_muzzle_primary: int = 0  # Alternates between 0 (Muzzle1) and 1 (Muz
 var current_muzzle_secondary: int = 0  # Alternates between 0 (Muzzle3) and 1 (Muzzle4)
 var has_secondary_muzzles: bool = false
 var fire_cooldown: float = 0.0
-var current_camera: Camera3D = null
-var previous_camera: Camera3D = null  # For returning from aiming camera
-var camera_transition_tween: Tween = null
-var is_aiming: bool = false
 var is_standalone: bool = false
 
 func _ready() -> void:
@@ -55,21 +56,16 @@ func _ready() -> void:
 		push_error("FighterPhysicsController: Muzzle nodes not found!")
 		return
 	has_secondary_muzzles = muzzle3 != null and muzzle4 != null
-	if not camera1 or not camera2 or not camera3:
-		push_error("FighterPhysicsController: Camera3D nodes not found!")
+	if not fpv_camera:
+		push_error("FighterPhysicsController: first-person Camera3D (cessna172/Camera3D5) not found!")
 		return
-	
+
 	# Create muzzle smoke trails
 	_create_muzzle_smoke_trails()
-	
-	# Set default camera (first-person) - only activate if standalone_mode was set BEFORE _ready
-	# In UnitTestManager, camera is activated externally after unit selection
-	if standalone_mode:
-		camera1.current = true
-	
-	current_camera = camera1
-	previous_camera = camera1
-	
+
+	# Centralized view system owns the first-person / follow / aim-zoom cameras.
+	_setup_view_controller()
+
 	# CRITICAL: Ensure VehicleBody3D is awake and processing physics
 	if fighter is VehicleBody3D:
 		var vehicle_body = fighter as VehicleBody3D
@@ -102,7 +98,7 @@ func _ready() -> void:
 	else:
 		push_warning("FighterPhysicsController: Fighter is not a VehicleBody3D!")
 	
-	print("FighterPhysicsController: Initialized (standalone=%s) - Camera3D1 active" % is_standalone)
+	print("FighterPhysicsController: Initialized (standalone=%s) - view system active" % is_standalone)
 	print("FighterPhysicsController: Flight controls via project Input Map - WASDQE, PageUp/Down for throttle")
 	_emit_hud_state()
 
@@ -145,31 +141,19 @@ func _create_smoke_trail(target_muzzle: Node3D, trail_name: String) -> GPUPartic
 	target_muzzle.add_child(smoke_trail)
 	return smoke_trail
 
-func _input(event: InputEvent) -> void:
-	"""Handle camera switching inputs"""
-	# Key-based camera switching
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_1:
-			# Switch to first-person camera
-			if current_camera != camera1:
-				_switch_to_camera(camera1)
-		elif event.keycode == KEY_3:
-			# Switch to third-person camera
-			if current_camera != camera3:
-				_switch_to_camera(camera3)
-	
-	# RMB toggle for aiming camera
-	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_RIGHT:
-			if event.pressed and not is_aiming:
-				# Hold RMB - switch to aiming camera
-				previous_camera = current_camera
-				_switch_to_camera(camera2)
-				is_aiming = true
-			elif not event.pressed and is_aiming:
-				# Release RMB - switch back to previous camera
-				_switch_to_camera(previous_camera)
-				is_aiming = false
+func _setup_view_controller() -> void:
+	"""Attach the shared unit-view system (first-person / follow / aim-zoom)."""
+	_view = UnitViewControllerScript.new()
+	_view.name = "UnitViewController"
+	add_child(_view)
+	_view.configure(self, fpv_camera, {
+		"follow_target": fighter,
+		"forward_node": fighter,
+		"fp_fov": 90.0,
+		"follow_fov": 70.0,
+		"follow_distance": 18.0,
+		"follow_height": 6.0,
+	})
 
 func _process(delta: float) -> void:
 	"""Handle continuous firing and debug flight inputs"""
@@ -226,13 +210,19 @@ func _fire_from_pair(
 
 	var spawn_pos = muzzle.global_position
 	var firing_direction = muzzle.global_transform.basis.z.normalized()
-	var orientation_direction = fighter.global_transform.basis.z.normalized()
-	var frame_up = fighter.global_transform.basis.y.normalized()
 
-	pool.spawn_projectile(spawn_pos, firing_direction, projectile_speed, orientation_direction, frame_up)
+	# Inherit the plane's velocity so rounds fired in flight carry the aircraft's momentum
+	# (otherwise fast-moving fighters' bullets appear to drift backwards).
+	var plat_vel: Vector3 = Vector3.ZERO
+	if fighter is RigidBody3D:
+		plat_vel = (fighter as RigidBody3D).linear_velocity
+
+	# Same shared round as the tank cannon - just a smaller MG version (bullet_scale),
+	# so it inherits identical velocity/drag/gravity/swept-collision rules.
+	pool.spawn_projectile(spawn_pos, firing_direction, projectile_speed, mg_impact_scale, plat_vel, mg_bullet_scale)
 
 	if blast_pool:
-		blast_pool.spawn_effect(spawn_pos, firing_direction, 0.5)  # 0.5 scale for smaller effect
+		blast_pool.spawn_effect(spawn_pos, firing_direction, mg_muzzle_blast_scale)  # small MG blast
 
 	if smoke_trail:
 		smoke_trail.emitting = true
@@ -245,10 +235,11 @@ func _fire_from_pair(
 
 func _fire_projectile() -> void:
 	"""Fire projectiles from available muzzle pairs with muzzle flash and smoke"""
-	var pool = get_node_or_null("/root/AirProjectilePool")
+	# Unified bullet: fighters now fire the same Projectile as the tank cannon (smaller MG version)
+	var pool = get_node_or_null("/root/ProjectilePool")
 	if not pool:
 		if is_standalone:
-			push_warning("FighterPhysicsController: AirProjectilePool not found (standalone mode)")
+			push_warning("FighterPhysicsController: ProjectilePool not found (standalone mode)")
 		return
 
 	var blast_pool = get_node_or_null("/root/BlastEffectPool")
@@ -301,67 +292,3 @@ func _emit_hud_state() -> void:
 	var yaw_deg: float = rad_to_deg(euler.y)
 
 	emit_signal("hud_state", _get_throttle_value(), pitch_deg, roll_deg, yaw_deg)
-
-func _switch_to_camera(target_camera: Camera3D) -> void:
-	"""Switch to target camera with smooth transition"""
-	if not target_camera or target_camera == current_camera:
-		return
-	
-	var source_camera = current_camera
-	_transition_camera(source_camera, target_camera)
-	current_camera = target_camera
-	
-	# Update previous_camera if not aiming (for key-based switches)
-	if not is_aiming:
-		previous_camera = target_camera
-	
-	# Log camera switch
-	var camera_name = ""
-	if target_camera == camera1:
-		camera_name = "Camera3D1 (first-person)"
-	elif target_camera == camera2:
-		camera_name = "Camera3D2 (aiming)"
-	elif target_camera == camera3:
-		camera_name = "Camera3D3 (third-person)"
-	print_debug("FighterPhysicsController: Switched to ", camera_name)
-
-func _transition_camera(source_camera: Camera3D, target_camera: Camera3D, duration: float = 0.4) -> void:
-	# Smooth transition from source camera to target camera using Tween
-	if not source_camera or not target_camera:
-		if target_camera:
-			target_camera.current = true
-		return
-	
-	if source_camera == target_camera:
-		target_camera.current = true
-		return
-	
-	# Cancel existing transition
-	if camera_transition_tween:
-		camera_transition_tween.kill()
-	
-	# Store transform data
-	var start_transform = source_camera.global_transform
-	var end_transform = target_camera.global_transform
-	var start_fov = source_camera.fov
-	var end_fov = target_camera.fov
-	
-	# Create transition camera
-	var transition_cam = Camera3D.new()
-	add_child(transition_cam)
-	transition_cam.global_transform = start_transform
-	transition_cam.fov = start_fov
-	transition_cam.current = true
-	
-	# Animate transition
-	camera_transition_tween = create_tween()
-	camera_transition_tween.set_parallel(true)
-	camera_transition_tween.tween_property(transition_cam, "global_transform", end_transform, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	camera_transition_tween.tween_property(transition_cam, "fov", end_fov, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	
-	# Clean up after transition
-	camera_transition_tween.chain().tween_callback(func():
-		target_camera.current = true
-		transition_cam.queue_free()
-		camera_transition_tween = null
-	)

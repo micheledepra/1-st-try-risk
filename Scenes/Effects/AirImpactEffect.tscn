@@ -48,6 +48,7 @@ script = ExtResource("1_script")
 amount = 75
 lifetime = 0.71
 explosiveness = 1.0
+local_coords = true
 process_material = SubResource("ParticleProcessMaterial_impact")
 draw_pass_1 = SubResource("BoxMesh_4fv0c")
 
@@ -56,6 +57,7 @@ transparency = 0.78
 amount = 41
 lifetime = 0.25
 explosiveness = 0.95
+local_coords = true
 process_material = SubResource("ParticleProcessMaterial_blast")
 draw_pass_1 = SubResource("SphereMesh_blast")
 
