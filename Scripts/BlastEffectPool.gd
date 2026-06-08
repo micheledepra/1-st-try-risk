@@ -16,7 +16,7 @@ func _ready() -> void:
 	effect_scene = load(EFFECT_SCENE)
 	
 	# Pre-instantiate pool of effects
-	for i in range(3):
+	for i in range(8):
 		var effect = effect_scene.instantiate() as GPUParticles3D
 		effect.visible = false
 		effect.emitting = false
@@ -25,14 +25,17 @@ func _ready() -> void:
 	
 	print("BlastEffectPool: Initialized with %d pooled effects" % effect_pool.size())
 
-func spawn_effect(position: Vector3, direction: Vector3) -> void:
-	"""Spawn a muzzle blast effect at the given position facing the direction"""
-	
+func spawn_effect(position: Vector3, direction: Vector3, effect_scale: float = 1.0) -> void:
+	"""Spawn a muzzle blast effect at the given position facing the direction.
+	@param effect_scale: World-space scale for the effect. Pass
+	    barrel_tip.global_transform.basis.get_scale().x * BLAST_SCALE_FACTOR
+	    so the flash stays proportionate to each unit's visual size."""
+
 	# Check active effect limit - force cleanup oldest effect
 	if active_effects.size() >= MAX_EFFECTS:
 		var oldest_effect = active_effects[0]
 		return_effect(oldest_effect)
-	
+
 	# Get effect from pool
 	var effect: GPUParticles3D
 	if effect_pool.size() > 0:
@@ -42,12 +45,16 @@ func spawn_effect(position: Vector3, direction: Vector3) -> void:
 		effect = effect_scene.instantiate() as GPUParticles3D
 		add_child(effect)
 		print("BlastEffectPool: Pool exhausted, created new effect")
-	
+
 	# Validate effect
 	if not is_instance_valid(effect):
 		push_error("BlastEffectPool: Invalid effect instance!")
 		return
-	
+
+	# Scale effect proportional to the firing unit's visual size
+	var s = max(effect_scale, 0.001)
+	effect.scale = Vector3(s, s, s)
+
 	# Reset and play effect
 	effect.visible = true
 	if effect.has_method("reset_light"):

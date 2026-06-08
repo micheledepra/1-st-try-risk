@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la /c/Users/mchld/OneDrive/Documents/1-st-try-risk/*.md)",
+      "Bash(xargs wc -l)",
+      "Bash(node --version)",
+      "Bash(npm --version)",
+      "Bash(npx --version)",
+      "WebFetch(domain:github.com)",
+      "Bash(git clone https://github.com/Coding-Solo/godot-mcp.git /c/Users/mchld/.claude/godot-mcp)",
+      "Bash(npm install)",
+      "Bash(node /c/Users/mchld/.claude/godot-mcp/build/index.js --version)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(find C:UsersmchldOneDriveDocuments1-st-try-risk -name project.godot -o -name autoload*)",
+      "Bash(grep -r \"BlastEffectPool\\\\|ProjectilePool\\\\|ImpactEffectPool\\\\|UnitGlowEffect\" C:UsersmchldOneDriveDocuments1-st-try-risk --include=*.godot)",
+      "Bash(npx --yes @upstash/context7-mcp --version)",
+      "mcp__godot__get_godot_version",
+      "mcp__godot__run_project",
+      "mcp__godot__get_debug_output",
+      "Bash(python3 -c \":*)",
+      "mcp__godot__stop_project",
+      "Read(//c/Users/mchld/OneDrive/Documents/1-st-try-risk-wiki/**)",
+      "Read(//c/Users/mchld/OneDrive/Documents/1-st-try-risk-wiki/.obsidian/**)",
+      "mcp__godot__get_project_info",
+      "Bash(timeout 180 \"C:/GODOT/Godot_v4.5.1-stable_win64.exe\" --headless --path \"C:/Users/mchld/OneDrive/Documents/1-st-try-risk\" --editor --quit)",
+      "Bash(grep -ivE \"^\\\\s*$\")"
+    ]
+  }
+}

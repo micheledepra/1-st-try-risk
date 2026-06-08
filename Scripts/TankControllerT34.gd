@@ -23,16 +23,19 @@ var cylinder2_initial_pos: Vector3
 
 var fire_cooldown: float = 0.0
 var mode_manager: Node = null
+var combat_system: Node = null
 
 func _ready() -> void:
 	# DON'T capture mouse automatically - will be controlled by ModeManager
 	# Mouse capture is handled when entering tactical mode
-	
+
 	# Get reference to ModeManager
 	var map = get_tree().get_first_node_in_group("map")
 	if map:
 		mode_manager = map.get_node_or_null("ModeManager")
-	
+
+	combat_system = _get_or_create_combat_system()
+
 	# Detect standalone mode (playing from unit scene directly)
 	if _is_standalone_mode():
 		_hide_territory_labels()
@@ -125,22 +128,24 @@ func fire_projectile() -> void:
 	var spawn_pos = barrel_tip.global_position
 	var direction = -barrel_tip.global_transform.basis.z
 	
-	# Spawn projectile through pool or fallback
-	if has_node("/root/ProjectilePool"):
-		ProjectilePool.spawn_projectile(spawn_pos, direction, projectile_speed)
-	else:
-		# Fallback for standalone mode (no ProjectilePool autoload)
-		push_warning("TankControllerT34: ProjectilePool not found, using fallback instantiation")
-		var projectile_scene = load("res://Scenes/Units/Projectile.tscn")
-		if projectile_scene:
-			var projectile = projectile_scene.instantiate()
-			get_tree().root.add_child(projectile)
-			projectile.initialize(spawn_pos, direction, projectile_speed)
-	
+	# Fixed blast scale — scale moved to root node, both models use the same constant
+	const BLAST_SCALE := 5.0
+	combat_system.spawn_blast(spawn_pos, direction, BLAST_SCALE)
+
+	# Spawn projectile via combat system (handles pool or local fallback)
+	combat_system.spawn_projectile(spawn_pos, direction, projectile_speed)
+
 	# Set cooldown
 	fire_cooldown = fire_rate
-	
-	# Optional: Add muzzle flash effect here in the future
+
+func _get_or_create_combat_system() -> Node:
+	var existing = get_node_or_null("UnitCombatSystem")
+	if existing:
+		return existing
+	var cs = load("res://Scripts/UnitCombatSystem.gd").new()
+	cs.name = "UnitCombatSystem"
+	add_child(cs)
+	return cs
 
 func _is_standalone_mode() -> bool:
 	"""Check if running standalone (not in main game)"""

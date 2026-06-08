@@ -19,6 +19,12 @@ var distance_traveled: float = 0.0  # XZ-plane distance tracking
 var is_active: bool = false
 var spawn_grace_period: float = 0.01  # Prevent immediate collision with spawner
 
+# Back-references set by UnitCombatSystem.spawn_projectile() so projectile
+# routes callbacks through its owner's pools rather than global autoloads.
+var owner_pool: Node = null
+var owner_impact_pool: Node = null
+var owner_glow_effect: Node = null
+
 func _ready() -> void:
 	# body_entered: Terrain (StaticBody3D, layer 1)
 	# area_entered: Unit hitboxes (Area3D, layer 2)
@@ -64,37 +70,73 @@ func _physics_process(delta: float) -> void:
 	
 	# Despawn if traveled too far
 	if distance_traveled >= max_distance:
-		ProjectilePool.return_projectile(self)
+		var pp = _get_proj_pool()
+		if pp:
+			pp.return_projectile(self)
 
 func _on_body_entered(_body: Node) -> void:
 	"""Handle terrain collision (StaticBody3D, layer 1)"""
 	if not is_active or time_alive < spawn_grace_period:
 		return
-	
+	is_active = false  # Prevent duplicate hits from multi-face mesh collision
+
 	# Terrain hit - brown impact with light effect
-	ImpactEffectPool.spawn_effect(global_position, Color.SADDLE_BROWN, true)
-	ProjectilePool.return_projectile.call_deferred(self)
+	var ip = _get_impact_pool()
+	if ip:
+		ip.spawn_effect(global_position, Color.SADDLE_BROWN, true)
+	var pp = _get_proj_pool()
+	if pp:
+		pp.return_projectile.call_deferred(self)
 
 func _on_area_entered(area: Node) -> void:
 	"""Handle unit hitbox collision (Area3D, layer 2)"""
 	if not is_active or time_alive < spawn_grace_period:
 		return
-	
-	var impact_color: Color = Color.SADDLE_BROWN
-	var hit_unit: Node3D = null
-	
-	# Unit hitbox - check parent for player_color metadata
-	if area.get_parent() and area.get_parent().has_meta("player_color"):
-		impact_color = area.get_parent().get_meta("player_color")
-		hit_unit = area.get_parent()
-	
+
+	# Ignore territory hover Area3Ds — only respond to unit hitboxes
+	# (unit hitbox parents carry player_color metadata; territory areas don't)
+	if not area.get_parent() or not area.get_parent().has_meta("player_color"):
+		return
+
+	is_active = false  # Prevent duplicate hits
+
+	var hit_unit: Node3D = area.get_parent()
+	var impact_color: Color = hit_unit.get_meta("player_color")
+
 	# Spawn impact effect (no light for units - they get glow instead)
-	ImpactEffectPool.spawn_effect(global_position, impact_color, hit_unit == null)
-	
-	# Apply glow effect to unit if hit
-	if hit_unit:
-		UnitGlowEffect.apply_glow(hit_unit, impact_color, 5.0)
-	
-	ProjectilePool.return_projectile.call_deferred(self)
+	var ip = _get_impact_pool()
+	if ip:
+		ip.spawn_effect(global_position, impact_color, false)
+
+	# Apply glow effect to hit unit
+	var glow = _get_glow()
+	if glow:
+		glow.apply_glow(hit_unit, impact_color, 5.0)
+
 	# Return projectile to pool (deferred to avoid physics callback error)
-	ProjectilePool.return_projectile.call_deferred(self)
+	var pp = _get_proj_pool()
+	if pp:
+		pp.return_projectile.call_deferred(self)
+
+# ── Pool lookup helpers (local back-ref first, then autoload fallback) ────────
+
+func _get_proj_pool() -> Node:
+	if owner_pool:
+		return owner_pool
+	if has_node("/root/ProjectilePool"):
+		return get_node("/root/ProjectilePool")
+	return null
+
+func _get_impact_pool() -> Node:
+	if owner_impact_pool:
+		return owner_impact_pool
+	if has_node("/root/ImpactEffectPool"):
+		return get_node("/root/ImpactEffectPool")
+	return null
+
+func _get_glow() -> Node:
+	if owner_glow_effect:
+		return owner_glow_effect
+	if has_node("/root/UnitGlowEffect"):
+		return get_node("/root/UnitGlowEffect")
+	return null

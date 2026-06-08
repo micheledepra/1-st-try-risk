@@ -264,39 +264,39 @@ func _fade_out_tooltip():
 func _update_tooltip_data(territory_name: String):
 	# Get territory data
 	var continent = game_manager.map_data.get(territory_name, {}).get("continent", "Unknown")
-	var owner = game_manager.get_territory_owner(territory_name)
+	var territory_owner = game_manager.get_territory_owner(territory_name)
 	var armies = game_manager.get_territory_armies(territory_name)
-	
+
 	# Format continent name (replace underscores with spaces, capitalize)
 	var continent_formatted = _format_name(continent)
-	
+
 	# Format territory name (replace underscores with spaces, capitalize)
 	var territory_formatted = _format_name(territory_name)
-	
+
 	# Update labels
 	continent_label.text = continent_formatted
 	territory_label.text = territory_formatted
-	
-	if owner:
-		owner_label.text = "Owner: " + owner.player_name
+
+	if territory_owner:
+		owner_label.text = "Owner: " + territory_owner.player_name
 		army_label.text = "Armies: " + str(armies)
-		
+
 		# Update border color to match player color
 		var style_box = tooltip_panel.get_theme_stylebox("panel") as StyleBoxFlat
 		if style_box:
-			style_box.border_color = owner.color
+			style_box.border_color = territory_owner.color
 	else:
 		owner_label.text = "Owner: None"
 		army_label.text = "Armies: " + str(armies)
-		
+
 		# Default white border if no owner
 		var style_box = tooltip_panel.get_theme_stylebox("panel") as StyleBoxFlat
 		if style_box:
 			style_box.border_color = Color.WHITE
 
-func _format_name(name: String) -> String:
+func _format_name(input_name: String) -> String:
 	# Replace underscores with spaces
-	var formatted = name.replace("_", " ")
+	var formatted = input_name.replace("_", " ")
 	
 	# Capitalize each word
 	var words = formatted.split(" ")

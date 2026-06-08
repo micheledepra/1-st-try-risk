@@ -55,7 +55,7 @@ func _ready():
 
 func _position_panels():
 	# Get viewport size for responsive positioning
-	var viewport_size = get_viewport_rect().size
+	var _viewport_size = get_viewport_rect().size
 	
 	# Configure all panels to stop mouse events (so they're clickable)
 	# but allow pass-through everywhere else
@@ -247,7 +247,7 @@ func _on_turn_changed(_player: Player):
 func _on_phase_changed(_new_phase):
 	_update_ui()
 
-func _on_game_over(winner: Player):
+func _on_game_over(_winner: Player):
 	_update_ui()
 
 func _on_armies_changed(_territory_name: String, _army_count: int):

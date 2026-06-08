@@ -105,15 +105,22 @@ func _ready():
 		await get_tree().create_timer(1.0).timeout
 		start_game()
 
+func _exit_tree():
+	if input_manager:
+		if input_manager.territory_clicked.is_connected(_on_territory_clicked):
+			input_manager.territory_clicked.disconnect(_on_territory_clicked)
+		if input_manager.territory_right_clicked.is_connected(_on_territory_right_clicked):
+			input_manager.territory_right_clicked.disconnect(_on_territory_right_clicked)
+
 func update_territory_visuals():
 	# Update the visual representation of all territories based on current game state
 	if not game_manager or not color_manager:
 		return
 	
 	for territory_name in game_manager.territory_armies.keys():
-		var owner = game_manager.get_territory_owner(territory_name)
-		if owner:
-			color_manager.set_territory_owner(territory_name, owner.id)
+		var territory_owner = game_manager.get_territory_owner(territory_name)
+		if territory_owner:
+			color_manager.set_territory_owner(territory_name, territory_owner.id)
 
 func set_territory_owner(territory_name: String, player_id: int):
 	if color_manager:

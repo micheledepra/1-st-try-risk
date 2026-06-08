@@ -3183,11 +3183,11 @@ height = 1.1009216
 size = Vector3(5.8819427, 1.5512695, 3.166748)
 
 [node name="t_34" type="Node3D"]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 0)
+transform = Transform3D(-6.556708e-07, 0, -15, 0, 15, 0, 15, 0, -6.556708e-07, 0, 0, 0)
 script = ExtResource("1_onq4c")
 
 [node name="BodyPivot" type="Node3D" parent="."]
-transform = Transform3D(-6.556708e-07, 0, 15, 0, 15, 0, -15, 0, -6.556708e-07, -0.029008761, 1.7099763, 0.1095611)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -0.001934, 0.113998, 0.007304)
 
 [node name="Body" type="Node3D" parent="BodyPivot"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -0.10728665, -0.076173395, -0.010428762)
@@ -3673,7 +3673,7 @@ skeleton = NodePath("")
 surface_material_override/0 = ExtResource("1_186ai")
 
 [node name="TurretPivot" type="Node3D" parent="."]
-transform = Transform3D(-6.556708e-07, 0, 15, 0, 15, 0, -15, 0, -6.556708e-07, -0.029008761, 1.7099763, 0.1095611)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -0.001934, 0.113998, 0.007304)
 metadata/_edit_group_ = true
 
 [node name="turret" type="Node3D" parent="TurretPivot"]

@@ -88,16 +88,16 @@ func create_player_materials():
 	var textures_enabled = SettingsManager.get_territory_textures_enabled()
 	
 	for player in GameManager.players:
-		var material = TERRITORY_MATERIAL_TEMPLATE.duplicate()
-		material.albedo_color = player.color
-		
+		var player_mat = TERRITORY_MATERIAL_TEMPLATE.duplicate()
+		player_mat.albedo_color = player.color
+
 		# Remove texture if textures are disabled
 		if not textures_enabled:
-			material.albedo_texture = null
-		
+			player_mat.albedo_texture = null
+
 		# Store by color hash for fast lookup
 		var color_hash = player.color.to_html()
-		materials_dict[color_hash] = material
+		materials_dict[color_hash] = player_mat
 		
 		print("PlayerSetup: Created material for %s (color: %s, texture: %s)" % 
 			[player.player_name, color_hash, "enabled" if textures_enabled else "disabled"])

@@ -4,7 +4,7 @@ extends Node
 ## Manages projectile instances to reduce instantiation overhead
 ## Optimized for low-spec performance with object pooling
 
-const MAX_ACTIVE_PROJECTILES: int = 5
+const MAX_ACTIVE_PROJECTILES: int = 10
 const PROJECTILE_SCENE: String = "res://Scenes/Units/Projectile.tscn"
 
 var projectile_scene: PackedScene
@@ -16,7 +16,7 @@ func _ready() -> void:
 	projectile_scene = load(PROJECTILE_SCENE)
 	
 	# Pre-instantiate pool of projectiles
-	for i in range(2):
+	for i in range(6):
 		var projectile = projectile_scene.instantiate() as Area3D
 		projectile.visible = false
 		projectile.process_mode = Node.PROCESS_MODE_DISABLED

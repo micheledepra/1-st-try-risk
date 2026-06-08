@@ -59,7 +59,7 @@ func setup_transparency_manager():
 	for continent_name in continents_cache.keys():
 		update_continent_brightness(continent_name)
 
-func _on_armies_changed(territory_name: String, army_count: int):
+func _on_armies_changed(territory_name: String, _army_count: int):
 	"""Handle army count changes - update entire continent brightness"""
 	# Find which continent this territory belongs to
 	var continent_name = find_territory_continent(territory_name)

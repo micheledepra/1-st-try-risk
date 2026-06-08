@@ -272,8 +272,9 @@ func advance_to_next_player():
 func give_reinforcement_armies():
 	var player = get_current_player()
 	
-	# Base reinforcement: territories / 3 (minimum 1)
-	var base_armies = max(1, player.get_territory_count() / 3)
+	# Base reinforcement: floor(territories / 3), minimum 1 (classic Risk rule)
+	@warning_ignore("integer_division")
+	var base_armies: int = max(1, player.get_territory_count() / 3)
 	
 	# Add continent bonuses
 	var continent_bonus = 0
@@ -309,7 +310,9 @@ func does_player_own_continent(player_id: int, continent_name: String) -> bool:
 func advance_phase():
 	match current_phase:
 		GamePhase.SETUP:
-			# Cannot advance phase during setup - must use end_turn
+			# SETUP uses a different flow: end_turn() rotates through players until all
+			# territories are claimed, then transitions to REINFORCEMENT automatically.
+			# advance_phase() is intentionally not used for SETUP.
 			push_warning("Cannot advance phase during SETUP. Use End Turn to pass to next player.")
 			return
 			

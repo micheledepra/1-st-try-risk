@@ -168,7 +168,7 @@ func initialize_unit_pools():
 #   ✗ Processing disabled at scene level (zero CPU overhead)
 # =============================================================================
 
-func _on_armies_changed(territory_name: String, army_count: int):
+func _on_armies_changed(territory_name: String, _army_count: int):
 	"""Update unit visualization when army count changes"""
 	update_territory_units(territory_name)
 
@@ -180,17 +180,17 @@ func update_territory_units(territory_name: String):
 		return
 	
 	var army_count = game_manager.get_territory_armies(territory_name)
-	var owner = game_manager.get_territory_owner(territory_name)
-	
+	var territory_owner = game_manager.get_territory_owner(territory_name)
+
 	# Remove existing units if no armies or no owner
-	if army_count <= 0 or not owner:
+	if army_count <= 0 or not territory_owner:
 		despawn_territory_units(territory_name)
 		return
-	
-	# Spawn or update units
-	spawn_territory_units(territory_name, army_count, owner)
 
-func spawn_territory_units(territory_name: String, army_count: int, owner):
+	# Spawn or update units
+	spawn_territory_units(territory_name, army_count, territory_owner)
+
+func spawn_territory_units(territory_name: String, army_count: int, territory_owner):
 	"""Spawn units using appropriate formation template"""
 	var territory = territories_cache.get(territory_name)
 	if not territory:
@@ -200,7 +200,7 @@ func spawn_territory_units(territory_name: String, army_count: int, owner):
 	despawn_territory_units(territory_name)
 	
 	# Determine unit type based on player
-	var player_name = owner.player_name
+	var player_name = territory_owner.player_name
 	var unit_type: String
 	
 	if player_unit_types.has(player_name):
@@ -248,7 +248,7 @@ func spawn_territory_units(territory_name: String, army_count: int, owner):
 		unit.rotation = unit_data["rotation"]
 		
 		# Apply player color
-		apply_player_color(unit, owner.color)
+		apply_player_color(unit, territory_owner.color)
 		
 		# Reparent to territory - units become children and move with territory automatically
 		# This eliminates need for physics-based following or position updates
@@ -423,7 +423,7 @@ func find_all_mesh_instances_recursive(node: Node) -> Array[MeshInstance3D]:
 # TACTICAL MODE SUPPORT - Controllable unit spawning
 # =============================================================================
 
-func spawn_controllable_unit(territory_name: String, owner) -> Dictionary:
+func spawn_controllable_unit(territory_name: String, territory_owner) -> Dictionary:
 	"""Spawn a controllable unit on a territory (for tactical mode)
 	IMPORTANT: Uses FULL scene with controller, camera, and physics.
 	This is completely separate from decorative units (object pool).
@@ -435,7 +435,7 @@ func spawn_controllable_unit(territory_name: String, owner) -> Dictionary:
 		return {}
 	
 	# Use the player's assigned unit type
-	var player_name = owner.player_name
+	var player_name = territory_owner.player_name
 	var unit_type = player_unit_types.get(player_name, "panther")
 	
 	# ✓ CRITICAL: Use FULL scene for tactical mode, NOT decorative variant
@@ -461,8 +461,8 @@ func spawn_controllable_unit(territory_name: String, owner) -> Dictionary:
 	unit.scale = Vector3(final_scale, final_scale, final_scale)
 	
 	# Apply player color
-	apply_player_color(unit, owner.color)
-	
+	apply_player_color(unit, territory_owner.color)
+
 	# Find camera in unit
 	var unit_camera = find_camera_in_unit(unit)
 	if not unit_camera:
@@ -473,7 +473,7 @@ func spawn_controllable_unit(territory_name: String, owner) -> Dictionary:
 	# Hide one decorative unit to compensate
 	hide_one_decorative_unit(territory_name)
 	
-	print("TerritoryUnitManager: Spawned controllable %s on %s" % [owner.unit_type, territory_name])
+	print("TerritoryUnitManager: Spawned controllable %s on %s" % [territory_owner.unit_type, territory_name])
 	
 	return {
 		"unit": unit,

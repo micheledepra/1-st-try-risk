@@ -3179,10 +3179,11 @@ radius = 0.80029297
 height = 2.8286133
 
 [node name="t_34" type="Node3D"]
+transform = Transform3D(13, 0, 0, 0, 13, 0, 0, 0, 13, 0, 0, 0)
 physics_interpolation_mode = 2
 
 [node name="BodyPivot" type="Node3D" parent="."]
-transform = Transform3D(-5.68248e-07, 0, 13, 0, 13, 0, -13, 0, -5.68248e-07, -0.029008761, 1.4755647, 0.1095611)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -0.002231, 0.113505, 0.008428)
 
 [node name="Body" type="Node3D" parent="BodyPivot"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -0.10728665, -0.076173395, -0.010428762)

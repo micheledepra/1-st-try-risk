@@ -320,7 +320,7 @@ func _on_transfer_confirmed(units: int):
 		game_manager.eliminate_player(old_owner)
 	
 	# Check for victory
-	game_manager.check_victory()
+	game_manager.check_win_condition()
 	
 	_reset_selection()
 

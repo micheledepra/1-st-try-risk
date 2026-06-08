@@ -16,7 +16,7 @@ func _ready() -> void:
 	effect_scene = load(EFFECT_SCENE)
 	
 	# Pre-instantiate pool of effects
-	for i in range(5):
+	for i in range(15):
 		var effect = effect_scene.instantiate() as GPUParticles3D
 		effect.visible = false
 		effect.emitting = false

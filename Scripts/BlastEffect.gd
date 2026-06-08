@@ -29,15 +29,15 @@ func reset_light() -> void:
 				light_cleanup_timer.timeout.disconnect(_force_light_cleanup)
 			light_cleanup_timer = null
 
-func play_effect(position: Vector3, direction: Vector3) -> void:
+func play_effect(effect_pos: Vector3, direction: Vector3) -> void:
 	"""Play the muzzle blast effect at the given position facing the direction
-	@param position: Spawn position (barrel tip)
+	@param effect_pos: Spawn position (barrel tip)
 	@param direction: Firing direction (for particle emission orientation)"""
-	global_position = position
-	
+	global_position = effect_pos
+
 	# Orient particles to emit in firing direction
 	if direction.length() > 0.001:
-		look_at(position + direction, Vector3.UP)
+		look_at(effect_pos + direction, Vector3.UP)
 	
 	# CRITICAL FIX: Reset particle system state to allow re-emission
 	emitting = false

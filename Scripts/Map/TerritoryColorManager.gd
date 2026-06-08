@@ -177,22 +177,7 @@ func set_territory_color(territory: Node3D, color: Color, player_id: int):
 		push_warning("Territory %s not found in any continent" % territory.name)
 		return
 	
-	# Try to get pre-created material from GameManager first (FAST PATH)
-	var color_hash = color.to_html()
 	var material: StandardMaterial3D = null
-	
-	if GameManager.has_meta("territory_materials"):
-		var materials_dict = GameManager.get_meta("territory_materials")
-		material = materials_dict.get(color_hash)
-		
-		if material:
-			# Use pre-created material (inherits all template properties + player color)
-			territory_materials[territory.name] = material
-			for mesh in meshes:
-				mesh.set_surface_override_material(0, material)
-			return
-	
-	# FALLBACK: Get or create material for this territory (neutral color or edge cases)
 	material = get_territory_material(territory.name, continent_name, player_id)
 	if not material:
 		# Clone template material and override color
