@@ -3793,9 +3793,6 @@ mesh = SubResource("ArrayMesh_o1u6g")
 skeleton = NodePath("")
 surface_material_override/0 = ExtResource("1_186ai")
 
-[node name="Camera3D" type="Camera3D" parent="TurretPivot/turret"]
-transform = Transform3D(-1.131334e-08, -0.25881907, 0.9659258, 1, -4.371139e-08, -1.7763568e-15, 4.222196e-08, 0.9659258, 0.25881907, 0.13550186, 0, 0.052894622)
-
 [node name="headlight2" type="Node3D" parent="TurretPivot/turret"]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0.061881244, 0.051032647, -0.03602925)
 

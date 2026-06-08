@@ -1,8 +1,7 @@
-[gd_scene load_steps=222 format=4 uid="uid://cg018tob0jnlr"]
+[gd_scene load_steps=221 format=4 uid="uid://cg018tob0jnlr"]
 
 [ext_resource type="Material" uid="uid://clnejklt3j5jl" path="res://materials/Units/panther/Material #26.tres" id="1_cajcx"]
 [ext_resource type="Script" uid="uid://c3tjrmgrseixu" path="res://Scripts/TankController.gd" id="1_script"]
-[ext_resource type="Script" uid="uid://daqecq7txfj5v" path="res://Scripts/CameraZoomOnRMB.gd" id="3_326ix"]
 [ext_resource type="Script" uid="uid://chqrktawdeqcu" path="res://Scripts/DecorativeUnitHitbox.gd" id="3_jfe17"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_12bft"]
@@ -4187,7 +4186,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3.4617212)
 
 [node name="Camera3D" type="Camera3D" parent="TurretPivot/BarrellPivot"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0186944, 0.96760184)
-script = ExtResource("3_326ix")
 
 [node name="RigidBody3D" type="RigidBody3D" parent="."]
 input_ray_pickable = false
