@@ -36,12 +36,12 @@ func reset_light() -> void:
 				light_cleanup_timer.timeout.disconnect(_force_light_cleanup)
 			light_cleanup_timer = null
 
-func play_effect(position: Vector3, color: Color = Color.WHITE, enable_light: bool = true) -> void:
+func play_effect(spawn_position: Vector3, color: Color = Color.WHITE, enable_light: bool = true) -> void:
 	"""Play the air impact effect at the given position with tracer color
-	@param position: Impact position
+	@param spawn_position: Impact position
 	@param color: Tracer color (red or green)
 	@param enable_light: If true, spawns light effect (for terrain). If false, only particles (for units)"""
-	global_position = position
+	global_position = spawn_position
 	
 	# Set particle colors to match tracer
 	if impact_particles and impact_particles.process_material:

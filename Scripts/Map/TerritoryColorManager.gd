@@ -15,7 +15,7 @@ const TERRITORY_MATERIAL_TEMPLATE = preload("res://materials/Map/territory_mater
 @export var player_colors: Array[Color] = [
 	Color(0.8, 0.2, 0.2, 1.0),
 	Color(0.2, 0.2, 0.8, 1.0),
-	Color(0.199, 0.596, 0.199, 1.0),
+	Color(0.2, 0.8, 0.2, 1.0),
 	Color(0.8, 0.8, 0.2, 1.0),
 	Color(0.8, 0.2, 0.8, 1.0),
 	Color(0.2, 0.8, 0.8, 1.0),

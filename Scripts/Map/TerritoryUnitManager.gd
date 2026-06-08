@@ -174,7 +174,7 @@ func initialize_unit_pools():
 #   ✗ Processing disabled at scene level (zero CPU overhead)
 # =============================================================================
 
-func _on_armies_changed(territory_name: String, army_count: int):
+func _on_armies_changed(territory_name: String, _army_count: int):
 	"""Update unit visualization when army count changes"""
 	update_territory_units(territory_name)
 

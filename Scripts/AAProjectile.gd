@@ -69,7 +69,7 @@ func _on_body_entered(_body: Node) -> void:
 		return
 	_explode(true)  # Terrain hit with light
 
-func _on_area_entered(area: Node) -> void:
+func _on_area_entered(_area: Node) -> void:
 	"""Handle unit hitbox collision (Area3D)"""
 	if not is_active or time_alive < spawn_grace_period:
 		return

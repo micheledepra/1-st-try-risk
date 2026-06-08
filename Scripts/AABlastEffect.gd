@@ -36,11 +36,11 @@ func reset_light() -> void:
 				light_cleanup_timer.timeout.disconnect(_force_light_cleanup)
 			light_cleanup_timer = null
 
-func play_effect(position: Vector3, enable_light := true) -> void:
+func play_effect(spawn_position: Vector3, enable_light := true) -> void:
 	"""Play the AA blast effect at the given position
-	@param position: Explosion position
+	@param spawn_position: Explosion position
 	@param enable_light: If true, spawns light effect (for terrain/mid-air). If false, only particles (for units)"""
-	global_position = position
+	global_position = spawn_position
 	
 	# Reset and trigger impact particles (radial 360° burst)
 	if impact_particles:

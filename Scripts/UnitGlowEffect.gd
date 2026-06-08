@@ -21,7 +21,7 @@ func _ready() -> void:
 func apply_glow(unit: Node3D, color: Color, duration: float = GLOW_DURATION) -> void:
 	"""Apply emission glow effect to unit by toggling emission properties on existing materials
 	Ignores request if unit already has active glow"""
-	print("[UnitGlowEffect] apply_glow() called - unit: %s, color: %s, duration: %.1fs" % [unit.name if unit else "NULL", color, duration])
+	print("[UnitGlowEffect] apply_glow() called - unit: %s, color: %s, duration: %.1fs" % [str(unit.name) if unit else "NULL", color, duration])
 	
 	if not is_instance_valid(unit):
 		print("[UnitGlowEffect] ABORT: Unit instance not valid")
@@ -102,7 +102,7 @@ func apply_glow(unit: Node3D, color: Color, duration: float = GLOW_DURATION) -> 
 func cancel_glow(unit: Node3D) -> void:
 	"""Cancel active glow effect and restore original emission states
 	Called when unit is despawned/returned to pool"""
-	print("[UnitGlowEffect] cancel_glow() called - unit: %s" % (unit.name if unit and is_instance_valid(unit) else "NULL/INVALID"))
+	print("[UnitGlowEffect] cancel_glow() called - unit: %s" % (str(unit.name) if unit and is_instance_valid(unit) else "NULL/INVALID"))
 	
 	if not is_instance_valid(unit):
 		print("[UnitGlowEffect] ABORT: Unit instance not valid")

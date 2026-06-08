@@ -119,7 +119,7 @@ func _ready():
 
 func _position_panels():
 	# Get viewport size for responsive positioning
-	var viewport_size = get_viewport_rect().size
+	var _viewport_size = get_viewport_rect().size
 	
 	# Configure all panels to stop mouse events (so they're clickable)
 	# but allow pass-through everywhere else
@@ -401,7 +401,7 @@ func _on_phase_changed(_new_phase):
 	_update_ui()
 	_animate_current_phase_box(_new_phase)
 
-func _on_game_over(winner: Player):
+func _on_game_over(_winner: Player):
 	_update_ui()
 
 func _on_armies_changed(_territory_name: String, _army_count: int):
@@ -685,7 +685,8 @@ func _update_player_info_section():
 
 func _calculate_reinforcements(player: Player) -> int:
 	"""Calculate expected reinforcements for next turn"""
-	# Base reinforcement: territories / 3 (minimum 3)
+	# Base reinforcement: floor(territories / 3), minimum 3 (classic Risk rule)
+	@warning_ignore("integer_division")
 	var base_armies = max(3, player.territories_owned.size() / 3)
 	
 	# Add continent bonuses

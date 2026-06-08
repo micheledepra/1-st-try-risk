@@ -33,10 +33,10 @@ func reset_light() -> void:
 				light_cleanup_timer.timeout.disconnect(_force_light_cleanup)
 			light_cleanup_timer = null
 
-func play_effect(position: Vector3, color := Color.WHITE, enable_light := true) -> void:
+func play_effect(spawn_position: Vector3, color := Color.WHITE, enable_light := true) -> void:
 	"""Play the impact effect at the given position with color
 	@param enable_light: If true, spawns light effect (for terrain). If false, only particles (for units with glow)"""
-	global_position = position
+	global_position = spawn_position
 	
 	# Set particle color for main impact particles
 	var material = process_material as ParticleProcessMaterial

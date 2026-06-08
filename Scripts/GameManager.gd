@@ -272,7 +272,8 @@ func advance_to_next_player():
 func give_reinforcement_armies():
 	var player = get_current_player()
 	
-	# Base reinforcement: territories / 3 (minimum 1)
+	# Base reinforcement: floor(territories / 3), minimum 1 (classic Risk rule)
+	@warning_ignore("integer_division")
 	var base_armies = max(1, player.get_territory_count() / 3)
 	
 	# Add continent bonuses

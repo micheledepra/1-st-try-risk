@@ -274,7 +274,7 @@ func _fire_projectile() -> void:
 			blast_pool
 		)
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
 	"""Monitor physics state for debugging"""
 	if is_standalone and Engine.get_physics_frames() % 60 == 0:
 		if fighter is VehicleBody3D:
