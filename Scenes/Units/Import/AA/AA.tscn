@@ -4852,12 +4852,6 @@ rotation_speed = 0.8
 mouse_sensitivity = 0.001
 barrel_max_elevation = 30.0
 barrel_max_depression = -70.0
-projectile_speed = 250.0
-fire_rate = 0.14
-bullet_scale = 10.0
-aa_blast_timer = 1.5
-aa_explosion_radius = 10.0
-aa_muzzle_blast_scale = 3.5
 
 [node name="BodyPivot" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.313, 1.313, -0.357)
@@ -5852,7 +5846,7 @@ skeleton = NodePath("")
 transform = Transform3D(1.9999943, -0.004724973, 0.00062202854, 0.004724973, 1.9318517, -0.5176165, 0.0006220284, 0.51761645, 1.9318573, 0.130822, 0.5666468, -1.4344815)
 
 [node name="Camera3D" type="Camera3D" parent="TurretPivot/Turret/bone49/Barrel2"]
-transform = Transform3D(0.99995834, 2.3282094e-10, -0.009127946, -2.3283064e-10, 1, 0, 0.009127946, 2.1252655e-12, 0.99995834, -0.48609257, 1.0208912, -0.11838786)
+transform = Transform3D(0.99995834, -0.0013387961, -0.009029231, -3.783498e-10, 0.9891855, -0.14667004, 0.009127947, 0.14666393, 0.98914427, -0.48609245, 1.0208912, -0.11838786)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.9659258, 0.25881904, 0, -0.25881904, 0.9659258, 0, 81, 0)

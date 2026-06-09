@@ -1,167 +1,182 @@
-[gd_scene load_steps=21 format=3 uid="uid://c0qnw8skl8ej8"]
+[gd_scene load_steps=19 format=3 uid="uid://c0qnw8skl8ej8"]
 
 [ext_resource type="Script" uid="uid://f1qh6fxyaw0h" path="res://Scripts/BlastEffect.gd" id="1"]
 
-[sub_resource type="Gradient" id="Gradient_smoke"]
-offsets = PackedFloat32Array(0, 0.15, 0.7, 1)
-colors = PackedColorArray(0.7, 0.66, 0.6, 0, 0.6, 0.6, 0.6, 0.5, 0.42, 0.42, 0.45, 0.34, 0.3, 0.3, 0.33, 0)
+[sub_resource type="Gradient" id="grad_smoke"]
+offsets = PackedFloat32Array(0, 0.18, 0.7, 1)
+colors = PackedColorArray(0.85, 0.7, 0.5, 0, 0.6, 0.58, 0.55, 0.55, 0.42, 0.42, 0.44, 0.34, 0.3, 0.3, 0.32, 0)
 
-[sub_resource type="GradientTexture1D" id="GradientTexture1D_smoke"]
-gradient = SubResource("Gradient_smoke")
+[sub_resource type="GradientTexture1D" id="gtex_smoke"]
+gradient = SubResource("grad_smoke")
 
-[sub_resource type="Curve" id="Curve_scale"]
-_limits = [0.0, 1.5, 0.0, 1.0]
-_data = [Vector2(0, 0.3), 0.0, 0.0, 0, 0, Vector2(0.4, 1), 0.0, 0.0, 0, 0, Vector2(1, 1.4), 0.0, 0.0, 0, 0]
+[sub_resource type="Curve" id="curve_scale"]
+_limits = [0.0, 1.6, 0.0, 1.0]
+_data = [Vector2(0, 0.3), 0.0, 0.0, 0, 0, Vector2(0.4, 1), 0.0, 0.0, 0, 0, Vector2(1, 1.5), 0.0, 0.0, 0, 0]
 point_count = 3
 
-[sub_resource type="CurveTexture" id="CurveTexture_scale"]
-curve = SubResource("Curve_scale")
+[sub_resource type="CurveTexture" id="ctex_scale"]
+curve = SubResource("curve_scale")
 
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_blast"]
-emission_shape = 1
-emission_sphere_radius = 0.05
+[sub_resource type="ParticleProcessMaterial" id="ppm_smoke"]
+emission_shape = 2
+emission_sphere_radius = 1.0
 direction = Vector3(0, 0, -1)
-spread = 42.899
-flatness = 1.0
-initial_velocity_min = 5.0
-initial_velocity_max = 9.0
-gravity = Vector3(0, -2.5, 0)
-damping_min = 5.0
+spread = 55.0
+initial_velocity_min = 3.5
+initial_velocity_max = 8.0
+gravity = Vector3(0, 0.6, 0)
+damping_min = 4.0
 damping_max = 7.0
-scale_min = 0.12
-scale_max = 0.4
-scale_curve = SubResource("CurveTexture_scale")
-color_ramp = SubResource("GradientTexture1D_smoke")
+scale_min = 0.79999995
+scale_max = 1.6999999
+scale_curve = SubResource("ctex_scale")
+color_ramp = SubResource("gtex_smoke")
 turbulence_enabled = true
-turbulence_noise_strength = 0.44
-turbulence_noise_scale = 0.24
+turbulence_noise_strength = 7.94
+turbulence_noise_scale = 0.22
+turbulence_noise_speed_random = 0.36
+turbulence_influence_max = 1.0
 
-[sub_resource type="Gradient" id="Gradient_soft"]
+[sub_resource type="Gradient" id="grad_soft"]
 offsets = PackedFloat32Array(0, 0.45, 1)
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 0)
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_soft"]
-gradient = SubResource("Gradient_soft")
+[sub_resource type="GradientTexture2D" id="gtex_soft"]
+gradient = SubResource("grad_soft")
 fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(0, 0.5)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_smoke"]
+[sub_resource type="StandardMaterial3D" id="mat_smoke"]
 transparency = 1
 shading_mode = 0
 vertex_color_use_as_albedo = true
-albedo_texture = SubResource("GradientTexture2D_soft")
+albedo_texture = SubResource("gtex_soft")
 billboard_mode = 3
 billboard_keep_scale = true
 particles_anim_h_frames = 1
 particles_anim_v_frames = 1
 particles_anim_loop = false
 
-[sub_resource type="QuadMesh" id="QuadMesh_particle"]
-material = SubResource("StandardMaterial3D_smoke")
-size = Vector2(0.55, 0.55)
+[sub_resource type="QuadMesh" id="quad_smoke"]
+material = SubResource("mat_smoke")
+size = Vector2(0.6, 0.6)
 
-[sub_resource type="Gradient" id="Gradient_fire"]
+[sub_resource type="Gradient" id="grad_fire"]
 offsets = PackedFloat32Array(0, 0.3, 1)
-colors = PackedColorArray(1, 0.8, 0.35, 0.85, 1, 0.45, 0.12, 0.65, 0.5, 0.12, 0.04, 0)
+colors = PackedColorArray(1, 0.85, 0.4, 0.9, 1, 0.45, 0.12, 0.7, 0.5, 0.12, 0.04, 0)
 
-[sub_resource type="GradientTexture1D" id="GradientTexture1D_fire"]
-gradient = SubResource("Gradient_fire")
+[sub_resource type="GradientTexture1D" id="gtex_fire"]
+gradient = SubResource("grad_fire")
 
-[sub_resource type="Curve" id="Curve_fire_scale"]
-_limits = [0.0, 1.5, 0.0, 1.0]
-_data = [Vector2(0, 0.7), 0.0, 0.0, 0, 0, Vector2(0.2, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.35), 0.0, 0.0, 0, 0]
-point_count = 3
-
-[sub_resource type="CurveTexture" id="CurveTexture_fire_scale"]
-curve = SubResource("Curve_fire_scale")
-
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_fireball"]
+[sub_resource type="ParticleProcessMaterial" id="ppm_fire"]
 emission_shape = 1
-emission_sphere_radius = 0.35
+emission_sphere_radius = 0.25
 direction = Vector3(0, 0, -1)
-spread = 60.0
-initial_velocity_min = 0.0
-initial_velocity_max = 2.0
+spread = 65.0
+initial_velocity_max = 2.5
 gravity = Vector3(0, 0.5, 0)
 damping_min = 4.0
 damping_max = 8.0
 scale_min = 0.5
-scale_max = 1.5
-scale_curve = SubResource("CurveTexture_fire_scale")
-color_ramp = SubResource("GradientTexture1D_fire")
+scale_max = 1.4
+color_ramp = SubResource("gtex_fire")
 turbulence_enabled = true
-turbulence_noise_strength = 0.6
+turbulence_noise_strength = 0.7
 turbulence_noise_scale = 0.5
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fireball"]
+[sub_resource type="StandardMaterial3D" id="mat_fire"]
 transparency = 1
 blend_mode = 1
 shading_mode = 0
 vertex_color_use_as_albedo = true
-albedo_texture = SubResource("GradientTexture2D_soft")
-emission_enabled = true
-emission = Color(1, 0.5, 0.15, 1)
-emission_energy_multiplier = 2.5
+albedo_texture = SubResource("gtex_soft")
 billboard_mode = 3
 billboard_keep_scale = true
 particles_anim_h_frames = 1
 particles_anim_v_frames = 1
 particles_anim_loop = false
 
-[sub_resource type="QuadMesh" id="QuadMesh_fireball"]
-material = SubResource("StandardMaterial3D_fireball")
+[sub_resource type="QuadMesh" id="quad_fire"]
+material = SubResource("mat_fire")
 size = Vector2(0.7, 0.7)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flash"]
+[sub_resource type="StandardMaterial3D" id="mat_flash"]
 transparency = 1
 blend_mode = 1
 shading_mode = 0
-albedo_color = Color(1, 0.5, 0.18, 1)
+albedo_color = Color(1, 0.6, 0.25, 1)
+albedo_texture = SubResource("gtex_soft")
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cjai1"]
-transparency = 1
-shading_mode = 0
-refraction_enabled = true
+[sub_resource type="QuadMesh" id="quad_flash"]
+material = SubResource("mat_flash")
 
-[sub_resource type="SphereMesh" id="SphereMesh_flash"]
-material = SubResource("StandardMaterial3D_cjai1")
-radius = 0.4
-height = 0.8
+[sub_resource type="ParticleProcessMaterial" id="ppm_trail"]
+emission_shape = 1
+emission_sphere_radius = 0.08
+direction = Vector3(0, 0, -1)
+spread = 35.0
+initial_velocity_min = 0.5
+initial_velocity_max = 2.0
+gravity = Vector3(0, 0.4, 0)
+damping_min = 0.5
+damping_max = 1.5
+scale_min = 0.4
+scale_max = 0.9
+scale_curve = SubResource("ctex_scale")
+color_ramp = SubResource("gtex_smoke")
+turbulence_enabled = true
+turbulence_noise_strength = 0.5
+turbulence_noise_scale = 0.4
 
 [node name="BlastEffect" type="GPUParticles3D"]
 cast_shadow = 0
 emitting = false
-amount = 300
-lifetime = 1.4
+amount = 210
+lifetime = 3.8699999999999997
+interp_to_end = 0.08
 one_shot = true
 explosiveness = 1.0
+randomness = 0.96
 local_coords = true
-process_material = SubResource("ParticleProcessMaterial_blast")
-draw_pass_1 = SubResource("QuadMesh_particle")
+process_material = SubResource("ppm_smoke")
+draw_pass_1 = SubResource("quad_smoke")
 script = ExtResource("1")
 
 [node name="Fireball" type="GPUParticles3D" parent="."]
 cast_shadow = 0
 emitting = false
-amount = 28
-lifetime = 0.35
+amount = 26
+lifetime = 0.3
 one_shot = true
 explosiveness = 1.0
 local_coords = true
-process_material = SubResource("ParticleProcessMaterial_fireball")
-draw_pass_1 = SubResource("QuadMesh_fireball")
+process_material = SubResource("ppm_fire")
+draw_pass_1 = SubResource("quad_fire")
 
-[node name="MuzzleFlash" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.46999025, 0, 0, 0, 0.330418, 0, 0, 0, 1, 0, 0, 0)
-visible = false
-material_override = SubResource("StandardMaterial3D_flash")
-transparency = 0.97
+[node name="FlashCore" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.7368044, 0, 0, 0, 0.69513714, 0, 0, 0, 0.82333195, 0, 0, 0)
+transparency = 0.7
 cast_shadow = 0
-mesh = SubResource("SphereMesh_flash")
+mesh = SubResource("quad_flash")
 
 [node name="BlastLight" type="OmniLight3D" parent="."]
-light_color = Color(1, 0.4, 0.1, 1)
-light_energy = 12.0
-omni_range = 3.0
+light_color = Color(1, 0.45, 0.15, 1)
+light_energy = 8.0
+omni_range = 4.0
 omni_attenuation = 2.0
+
+[node name="SmokeTrail" type="GPUParticles3D" parent="."]
+cast_shadow = 0
+emitting = false
+amount = 14
+lifetime = 0.8
+one_shot = true
+explosiveness = 0.6
+process_material = SubResource("ppm_trail")
+draw_pass_1 = SubResource("quad_smoke")

@@ -170,6 +170,16 @@ func get_active_camera() -> Camera3D:
 	return _active_camera
 
 
+func get_view() -> int:
+	"""Current view enum (View.FIRST_PERSON / View.FOLLOW). Read by UnitSight."""
+	return _view
+
+
+func get_base_fov() -> float:
+	"""The active view's un-zoomed FOV, so an overlay can normalize for RMB aim-zoom."""
+	return _base_fov_for(_view)
+
+
 # === Per-frame update ======================================================
 
 func _process(delta: float) -> void:

@@ -115,7 +115,7 @@ texture_list = Array[Terrain3DTextureAsset]([SubResource("Terrain3DTextureAsset_
 [node name="Units test environment" type="Node3D"]
 script = ExtResource("1_a2b3c")
 selected_unit_type = 5
-npc_fighter_count = 2
+npc_fighter_count = 3
 npc_spawn_height_offset = 100.0
 
 [node name="Sda" parent="." instance=ExtResource("2_2w14o")]

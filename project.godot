@@ -19,14 +19,11 @@ config/icon="res://icon.svg"
 
 GameManager="*res://Scripts/GameManager.gd"
 SettingsManager="*res://Scripts/SettingsManager.gd"
+UnitGlowEffect="*res://Scripts/UnitGlowEffect.gd"
+UnitCombatState="*res://Scripts/UnitCombatState.gd"
 ProjectilePool="*res://Scripts/ProjectilePool.gd"
 ImpactEffectPool="*res://Scripts/ImpactEffectPool.gd"
 BlastEffectPool="*res://Scripts/BlastEffectPool.gd"
-AABlastEffectPool="*res://Scripts/AABlastEffectPool.gd"
-AAProjectilePool="*res://Scripts/AAProjectilePool.gd"
-UnitGlowEffect="*res://Scripts/UnitGlowEffect.gd"
-AirProjectilePool="*res://Scripts/AirProjectilePool.gd"
-AirImpactEffectPool="*res://Scripts/AirImpactEffectPool.gd"
 AeroUnits="*res://addons/godot_aerodynamic_physics/core/singletons/aero_units.gd"
 
 [editor_plugins]
