@@ -1,9 +1,7 @@
-[gd_scene load_steps=12 format=4 uid="uid://db2kre5kwdarw"]
+[gd_scene load_steps=10 format=4 uid="uid://db2kre5kwdarw"]
 
 [ext_resource type="Script" uid="uid://b7t1aoudmtvba" path="res://Scripts/FighterPhysicsController.gd" id="1_fighter"]
 [ext_resource type="PackedScene" uid="uid://dltbagq6wg2a3" path="res://Scenes/Units/Import/Fighter/FighterWW2/fww2_Mcc_Main.tscn" id="2_vhden"]
-[ext_resource type="Script" uid="uid://cup1h6shx4iqp" path="res://Scenes/Units/units_camera_3d.gd" id="3_hp6pp"]
-[ext_resource type="Script" uid="uid://daqecq7txfj5v" path="res://Scripts/CameraZoomOnRMB.gd" id="4_c71ay"]
 [ext_resource type="Texture2D" uid="uid://c2kly85hq6eyd" path="res://Scenes/Units/Import/Fighter/FighterWW2/textures/material_8_818_baseColor.jpeg" id="5_yq1lu"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_byy6o"]
@@ -102,22 +100,10 @@ transform = Transform3D(-0.9999756, 0.00036536925, -0.0069716605, 0, 0.99862945,
 
 [node name="Camera3D5" type="Camera3D" parent="cessna172"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6959777, 0.34174502)
-script = ExtResource("3_hp6pp")
-rotate_speed_deg = 35.0
-return_delay_sec = 0.4
-
-[node name="Camera3D6" type="Camera3D" parent="cessna172"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.82081103, -0.2537433)
-script = ExtResource("4_c71ay")
-
-[node name="Label3D" type="Label3D" parent="cessna172/Camera3D6"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.17136264, -2.168943)
-modulate = Color(0, 0, 0, 1)
-outline_modulate = Color(0, 0, 0, 0.6)
-text = "."
+fov = 90.0
 
 [node name="Material23" type="MeshInstance3D" parent="cessna172"]
-transform = Transform3D(-0.025, -6.570447e-09, 7.851682e-10, -5.986395e-10, 0.005199934, 0.024453236, -6.59006e-09, 0.024453236, -0.005199934, 5.1068153, -2.2226508, -3.620426)
+transform = Transform3D(-0.025, -6.570447e-09, 7.851682e-10, -5.986395e-10, 0.005199934, 0.024453236, -6.59006e-09, 0.024453236, -0.005199934, 5.1068153, -2.1595612, -3.620426)
 mesh = SubResource("ArrayMesh_o0hxr")
 skeleton = NodePath("")
 

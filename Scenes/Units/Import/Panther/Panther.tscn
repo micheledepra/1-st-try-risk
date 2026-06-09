@@ -1,8 +1,7 @@
-[gd_scene load_steps=222 format=4 uid="uid://cg018tob0jnlr"]
+[gd_scene load_steps=221 format=4 uid="uid://cg018tob0jnlr"]
 
 [ext_resource type="Material" uid="uid://clnejklt3j5jl" path="res://materials/Units/panther/Material #26.tres" id="1_cajcx"]
 [ext_resource type="Script" uid="uid://c3tjrmgrseixu" path="res://Scripts/TankController.gd" id="1_script"]
-[ext_resource type="Script" uid="uid://daqecq7txfj5v" path="res://Scripts/CameraZoomOnRMB.gd" id="3_326ix"]
 [ext_resource type="Script" uid="uid://chqrktawdeqcu" path="res://Scripts/DecorativeUnitHitbox.gd" id="3_jfe17"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_12bft"]
@@ -4187,24 +4186,31 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3.4617212)
 
 [node name="Camera3D" type="Camera3D" parent="TurretPivot/BarrellPivot"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0186944, 0.96760184)
-script = ExtResource("3_326ix")
 
 [node name="RigidBody3D" type="RigidBody3D" parent="."]
+collision_layer = 0
 input_ray_pickable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.18777084, 0.1671586, 1.5080872)
 shape = SubResource("BoxShape3D_j26cw")
 
-[node name="Hitbox" type="Area3D" parent="."]
+[node name="TurretHitbox" type="Area3D" parent="."]
 collision_layer = 2
 collision_mask = 4
 script = ExtResource("3_jfe17")
+metadata/hit_region = "turret"
 
-[node name="CollisionShape3D2" type="CollisionShape3D" parent="Hitbox"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TurretHitbox"]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0.25443447, 1.4773225, 1.5622541)
 shape = SubResource("CapsuleShape3D_jfe17")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Hitbox"]
+[node name="BodyHitbox" type="Area3D" parent="."]
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("3_jfe17")
+metadata/hit_region = "body"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="BodyHitbox"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15924954, 0.8533616, 1.4158325)
 shape = SubResource("BoxShape3D_326ix")

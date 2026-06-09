@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://cg018tob0jnlr" path="res://Scenes/Units/Import/Panther/Panther.tscn" id="2_panther"]
 [ext_resource type="PackedScene" uid="uid://bfkxreidk5n2t" path="res://Scenes/Units/Import/t34/t34Decorative.tscn" id="4_t34_dec"]
 [ext_resource type="PackedScene" uid="uid://b4ray8ujmeoaf" path="res://Scenes/Units/Import/Panther/PantherDecorative.tscn" id="5_panther_dec"]
-[ext_resource type="Script" path="res://Scenes/Units/UnitTestingUI.gd" id="6_ui_script"]
+[ext_resource type="Script" uid="uid://d2m2bc15spo10" path="res://Scenes/Units/UnitTestingUI.gd" id="6_ui_script"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
 size = Vector3(50, 1, 50)
@@ -21,7 +21,7 @@ light_volumetric_fog_energy = 4.579
 light_specular = 3.105
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.642788, 0.766044, 0, -0.766044, 0.642788, 0, 20, 15)
+transform = Transform3D(0.9388353, 0.057938542, -0.33945736, 0.05610087, 0.9468436, 0.31676492, 0.33976594, -0.31643397, 0.8856798, -3.9993658, 6.368948, 15)
 current = true
 
 [node name="TestArena" type="Node3D" parent="."]

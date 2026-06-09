@@ -1,0 +1,180 @@
+COMPREHENSIVE SPATIAL SCALE AUDIT FOR GODOT RISK GAME
+Date: 2026-06-08
+
+SECTION 1: MAP ROOT STRUCTURE (Map.tscn line 178)
+================================================
+[node name="Map" type="Node3D"]
+  Transform: Identity (scale 1.0)
+  ROOT SCALE: 1.0 baseline
+
+SECTION 2: CONTINENTS PARENT (Map.tscn line 213)
+================================================
+[node name="Continents" type="Node3D"]
+  Transform: Transform3D(19, 0, 0, 0, 19, 0, 0, 0, 19, -63.451496, 2.0564413, 0)
+  CONTINENTAL SCALE: 19.0 uniform (all axes)
+  Position: (-63.45, 2.06, 0)
+
+SECTION 3: CONTINENT INSTANCES (Map.tscn lines 215-231)
+=======================================================
+Within Continents parent (all have rotations applied):
+  north_america:  0.15x
+  south_america:  0.15x (rotated)
+  europe:         0.13x
+  africa:         0.199x (rotated)
+  asia:           0.25499x (rotated with shear)
+  australia:      ~0.20x (rotated)
+
+VARIANCE: 0.13x to 0.255x (non-uniform across continents)
+
+SECTION 4: TERRITORIES WITHIN CONTINENTS (America.tscn example)
+==============================================================
+alaska:                scale 1.3
+alberta:               scale 1.31
+northwest_territory:   scale 2.0
+ontario:               scale 1.0
+quebec:                scale 0.82
+greenland:             scale 1.2
+eastern_united_states: scale 1.46
+western_united_states: scale 0.93
+central_america:       scale 1.31
+
+RANGE: 0.82x to 2.0x (within each continent)
+
+SECTION 5: TERRITORY MESH SCALES (*.tscn line 67)
+================================================
+alaska.tscn:       0.16750419
+afghanistan.tscn:  0.1650165
+brazil.tscn:       0.14947681
+china.tscn:        0.14184397
+congo.tscn:        0.15206598
+egypt.tscn:        0.16255328
+iceland.tscn:      0.40144986
+india.tscn:        0.17825311
+indonesia.tscn:    0.13280213
+japan.tscn:        0.21231416
+madagascar.tscn:   0.24330899
+new_guinea.tscn:   0.18315019
+peru.tscn:         0.22222222
+scandinavia.tscn:  0.16835876
+siam.tscn:         0.19379845
+ukraine.tscn:      0.121496014
+
+RANGE: 0.121x to 0.40x (icelandscale outlier)
+Most common: 0.13x to 0.24x
+
+SECTION 6: COMPLETE SCALE CHAIN EXAMPLE - ALASKA
+================================================
+Mesh geometry -> World coordinates:
+1. Map root: 1.0
+2. Continents parent: 19.0
+3. north_america continent: 0.15
+4. alaska territory in continent: 1.3
+5. alaska.tscn MeshInstance3D: 0.16750419
+
+Total effective global scale: 19.0 * 0.15 * 1.3 * 0.16750419 = 0.618x
+
+Similar for BRAZIL:
+1. Map root: 1.0
+2. Continents: 19.0
+3. south_america: 0.15
+4. brazil in continent: varies
+5. brazil.tscn MeshInstance: 0.14947681
+
+SECTION 7: UNIT SCALE MANAGEMENT (TerritoryUnitManager.gd)
+===========================================================
+Line 54: @export var unit_scale: float = 2.0
+Line 55: @export var formation_scale_panther: float = 3
+Line 56: @export var formation_scale_t34: float = 4
+Line 57: @export var unit_height_offset: float = 0.5
+
+Lines 267-274: Scale compensation logic
+  var territory_global_scale = territory.global_transform.basis.get_scale()
+  var final_scale = (unit_scale * type_scale_multiplier) / territory_global_scale.x
+  unit.scale = Vector3(final_scale, final_scale, final_scale)
+  var global_scale = final_scale * territory_global_scale.x
+
+KEY BEHAVIOR: Units are inversely scaled to territory size, keeping them
+visually consistent across all territories regardless of their local scale.
+
+SECTION 8: TERRITORY WORLD POSITIONS
+====================================
+Extracted from territory .tscn transform positions (line 67 position components):
+
+Western extent:  iceland at X=-847.44
+Eastern extent:  japan at X=908.45
+Width: 1755.89 game units
+
+Northern extent: southern_europe at Z=-264.08
+Southern extent: madagascar at Z=462.98
+Depth: 727.06 game units
+
+Diagonal: sqrt(1755.89^2 + 727.06^2) = 1900.47 game units
+Map center: (30.50, 0, 99.45)
+
+SECTION 9: PROJECTILE RANGE vs MAP SIZE
+========================================
+Scripts/Projectile.gd line 13:
+  max_distance: float = 40464.0  # "matches map size"
+
+Analysis:
+  Territory position extent: 1900.47 units
+  Projectile max: 40464.0 units
+  Ratio: 40464 / 1900.47 = 21.29x
+
+This suggests projectiles operate at a scaled world coordinate system,
+approximately 21x larger than the base territory position scale.
+
+SECTION 10: SCALE INCONSISTENCIES AND CONCERNS
+===============================================
+
+1. TERRITORY POSITION ANOMALY:
+   Territory .tscn files contain WORLD positions (e.g., 526.45, 142.38)
+   These are treated as absolute coordinates, then scaled by 19x Continents parent
+   Result: implicit double-scaling of positions
+
+2. CONTINENT SCALE VARIANCE:
+   Continents have different scales (0.13 to 0.255) within the 19x parent
+   Creates non-uniform territorial sizing across continents
+   Design intent unclear: visual layout vs. world standardization
+
+3. MULTI-LEVEL SCALE COMPOSITION:
+   Four levels of scaling before geometry:
+   - Continents 19x
+   - Continent instance (0.13-0.26)
+   - Territory instance (0.82-2.0)
+   - Territory mesh (0.12-0.40)
+   Makes world-scale prediction difficult
+
+4. UNIT SCALE COMPENSATION:
+   Units use inverse scaling, disconnecting their world size from territorial size
+   Keeps units visually uniform but loses relationship to world scale
+   Makes "1 game unit = 1 meter" standardization complex
+
+5. CAMERA VIEW BOUNDS (CameraController.gd lines 12-13):
+   min_bounds: Vector3(-50, 5, -50)
+   max_bounds: Vector3(50, 50, 50)
+   These bounds are in Map-local coordinates, much smaller than territory positions
+   Indicates camera operates in a local framing system, not world coordinates
+
+SECTION 11: "1 GAME UNIT = 1 METER" STANDARDIZATION
+====================================================
+
+CURRENT SCALE REFERENCES:
+  Panther tank model: real-world ~6.9m, collision shape 5.46 units long
+  T34 tank model: real-world ~6.7m, collision shape 0.41 units long
+  Unit scale: 2.0 (applied to both)
+  
+  At these scales, 1 game unit ≠ 1 meter (would need units ~6.7-6.9 long)
+
+PROBLEM: The nested scale composition (19 * 0.13-0.26 * 0.82-2.0 * 0.12-0.40)
+creates effective scales ranging from ~0.3 to ~3.0 for territories, making
+world unit standardization impossible without refactoring.
+
+REQUIRED FOR STANDARDIZATION:
+1. Define root Map scale factor that converts game units to real meters
+2. Eliminate continent and territory scale variance (use 1.0 for all)
+3. Rescale all territory meshes uniformly
+4. Adjust camera bounds to world coordinates
+5. Recalibrate projectile max_distance
+6. Document final scale ratio (e.g., "1 unit = 0.5 meters")
+

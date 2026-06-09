@@ -1,96 +1,83 @@
 extends GPUParticles3D
 
-## Simple impact effect for projectile hits
-## Optimized for low-spec performance
+## Unified impact effect: coloured spark burst + a smoke puff + an optional
+## light pulse. One scene serves terrain, unit, and AA-airburst impacts.
+## play(position, color, with_light, unit_scale, big): big = AA airburst.
 
-var lifetime_timer: float = 0.0
-var is_playing: bool = false  # Track active state (emitting becomes false after one_shot burst)
-const EFFECT_DURATION: float = 2.0  # Total effect lifetime (matches BlastEffect particles)
-const LIGHT_ENERGY: float = 3.0  # Blast light energy
-const LIGHT_FADE_DURATION: float = 0.1  # Quick 0.1s red flash (blast style)
-const MAX_LIGHT_LIFETIME: float = 0.2  # Absolute max light lifetime (safety margin)
+const DURATION := 0.9
+const LIGHT_FADE := 0.12
 
-var blast_light: OmniLight3D  # Light from child BlastEffect
-var blast_effect: GPUParticles3D  # Child BlastEffect particles
-var light_cleanup_timer: SceneTreeTimer = null
+var is_playing := false
+var t := 0.0
+var light0 := 6.0
+
+@onready var smoke: GPUParticles3D = $Smoke
+@onready var impact_light: OmniLight3D = $ImpactLight
+
+# Per-instance process materials so concurrent impacts can be different colours.
+var _spark_pm: ParticleProcessMaterial
+var _smoke_pm: ParticleProcessMaterial
 
 func _ready() -> void:
 	one_shot = true
 	emitting = false
-	# Get child BlastEffect and its light
-	blast_effect = get_node_or_null("BlastEffect")
-	if blast_effect:
-		blast_light = blast_effect.get_node_or_null("BlastLight")
+	if process_material is ParticleProcessMaterial:
+		_spark_pm = process_material.duplicate()
+		process_material = _spark_pm
+	if smoke and smoke.process_material is ParticleProcessMaterial:
+		_smoke_pm = smoke.process_material.duplicate()
+		smoke.process_material = _smoke_pm
+	reset_light()
 
 func reset_light() -> void:
-	"""Reset light state for pooled reuse"""
-	if blast_light:
-		blast_light.light_energy = 0.0
-		blast_light.visible = false
-		# Cancel any pending cleanup timer
-		if light_cleanup_timer != null:
-			if light_cleanup_timer.timeout.is_connected(_force_light_cleanup):
-				light_cleanup_timer.timeout.disconnect(_force_light_cleanup)
-			light_cleanup_timer = null
+	if impact_light:
+		impact_light.visible = false
+		impact_light.light_energy = 0.0
 
-func play_effect(spawn_position: Vector3, color := Color.WHITE, enable_light := true) -> void:
-	"""Play the impact effect at the given position with color
-	@param enable_light: If true, spawns light effect (for terrain). If false, only particles (for units with glow)"""
-	global_position = spawn_position
-	
-	# Set particle color for main impact particles
-	var material = process_material as ParticleProcessMaterial
-	if material:
-		material.color = color
-	
-	# CRITICAL FIX: Reset particle system state to allow re-emission
+func play_effect(pos: Vector3, color := Color.WHITE, with_light := true, unit_scale := 1.0, big := false) -> void:
+	global_position = pos
+	var s: float = max(unit_scale, 0.01) * (1.6 if big else 1.0)
+	scale = Vector3.ONE * s
+
+	if _spark_pm:
+		_spark_pm.color = color.lightened(0.15)
+	if _smoke_pm:
+		var sc := Color(0.5, 0.5, 0.5).lerp(color, 0.3)
+		sc.a = 0.6
+		_smoke_pm.color = sc
+
+	amount = 28 if big else 16
 	emitting = false
-	restart()  # Reset GPUParticles3D internal state
+	restart()
 	emitting = true
-	is_playing = true  # Track that effect is active
-	
-	# Trigger child BlastEffect particles (synced)
-	if blast_effect:
-		blast_effect.emitting = false
-		blast_effect.restart()
-		blast_effect.emitting = true
-	
-	# Reset and enable blast light only if requested (terrain hits)
-	if blast_light and enable_light:
-		blast_light.light_energy = LIGHT_ENERGY
-		blast_light.visible = true
-		
-		# Safety timer: force light cleanup after max lifetime
-		if light_cleanup_timer != null:
-			if light_cleanup_timer.timeout.is_connected(_force_light_cleanup):
-				light_cleanup_timer.timeout.disconnect(_force_light_cleanup)
-		light_cleanup_timer = get_tree().create_timer(MAX_LIGHT_LIFETIME)
-		light_cleanup_timer.timeout.connect(_force_light_cleanup)
-	elif blast_light:
-		# Ensure light stays off for unit hits
-		blast_light.visible = false
-	
-	lifetime_timer = 0.0
+
+	if smoke:
+		smoke.amount = 20 if big else 12
+		smoke.emitting = false
+		smoke.restart()
+		smoke.emitting = true
+
+	if impact_light and with_light:
+		light0 = 10.0 if big else 6.0
+		impact_light.light_color = color
+		impact_light.light_energy = light0
+		impact_light.omni_range = (4.5 if big else 3.0) * s
+		impact_light.visible = true
+	elif impact_light:
+		impact_light.visible = false
+
+	t = 0.0
+	is_playing = true
 
 func _process(delta: float) -> void:
-	if is_playing:
-		lifetime_timer += delta
-		
-		# Fade out blast light with quick exponential curve (0.1s)
-		if blast_light and blast_light.visible:
-			var fade_progress = lifetime_timer / LIGHT_FADE_DURATION
-			# Exponential fade: energy decreases exponentially (e^(-6*t))
-			blast_light.light_energy = LIGHT_ENERGY * exp(-6.0 * fade_progress)
-			if fade_progress >= 1.0:
-				blast_light.visible = false
-		
-		if lifetime_timer >= EFFECT_DURATION:
-			is_playing = false
-			ImpactEffectPool.return_effect(self)
-
-func _force_light_cleanup() -> void:
-	"""Force cleanup of light after max lifetime (safety mechanism)"""
-	if blast_light and blast_light.visible:
-		blast_light.visible = false
-		blast_light.light_energy = 0.0
-	light_cleanup_timer = null
+	if not is_playing:
+		return
+	t += delta
+	if impact_light and impact_light.visible:
+		var p := t / LIGHT_FADE
+		impact_light.light_energy = light0 * exp(-6.0 * p)
+		if p >= 1.0:
+			impact_light.visible = false
+	if t >= DURATION:
+		is_playing = false
+		ImpactEffectPool.return_effect(self)

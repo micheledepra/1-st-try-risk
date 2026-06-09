@@ -21,6 +21,7 @@ const FIGHTER_WW1_SCENE := preload("res://Scenes/Units/Import/Fighter/Fighterww_
 const FIGHTER_WW2_SCENE := preload("res://Scenes/Units/Import/Fighter/FighterWW2/fww2_Mcc.tscn")
 const FIGHTER_WW1_CAMERA_PATH := "cessna172/Camera3D5"
 const FIGHTER_WW2_CAMERA_PATH := "cessna172/Camera3D5"
+const UnitViewControllerScript = preload("res://Scripts/UnitViewController.gd")
 
 # Interaction state
 var first_selected_territory: String = ""
@@ -568,42 +569,6 @@ func transition_to_camera(target_camera: Camera3D, duration: float = 0.4):
 	transition_from_to(current_camera, target_camera, duration)
 
 func transition_from_to(source_camera: Camera3D, target_camera: Camera3D, duration: float = 0.4):
-	"""Transition from explicit source camera to target camera"""
-	if not source_camera or not target_camera:
-		if target_camera:
-			target_camera.current = true
-		return
-	
-	if source_camera == target_camera:
-		target_camera.current = true
-		return
-	
-	# Cancel existing transition
-	if camera_transition_tween:
-		camera_transition_tween.kill()
-	
-	# Store transform data
-	var start_transform = source_camera.global_transform
-	var end_transform = target_camera.global_transform
-	var start_fov = source_camera.fov
-	var end_fov = target_camera.fov
-	
-	# Create transition camera
-	var transition_cam = Camera3D.new()
-	add_child(transition_cam)
-	transition_cam.global_transform = start_transform
-	transition_cam.fov = start_fov
-	transition_cam.current = true
-	
-	# Animate transition
-	camera_transition_tween = create_tween()
-	camera_transition_tween.set_parallel(true)
-	camera_transition_tween.tween_property(transition_cam, "global_transform", end_transform, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	camera_transition_tween.tween_property(transition_cam, "fov", end_fov, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	
-	# Clean up after transition
-	camera_transition_tween.chain().tween_callback(func():
-		target_camera.current = true
-		transition_cam.queue_free()
-		camera_transition_tween = null
-	)
+	"""Transition between cameras via the single shared blend (UnitViewController.blend_cameras),
+	so the strategic<->unit handoff and the in-unit view switches use the exact same routine."""
+	camera_transition_tween = UnitViewControllerScript.blend_cameras(self, source_camera, target_camera, duration, camera_transition_tween)

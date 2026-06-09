@@ -3793,9 +3793,6 @@ mesh = SubResource("ArrayMesh_o1u6g")
 skeleton = NodePath("")
 surface_material_override/0 = ExtResource("1_186ai")
 
-[node name="Camera3D" type="Camera3D" parent="TurretPivot/turret"]
-transform = Transform3D(-1.131334e-08, -0.25881907, 0.9659258, 1, -4.371139e-08, -1.7763568e-15, 4.222196e-08, 0.9659258, 0.25881907, 0.13550186, 0, 0.052894622)
-
 [node name="headlight2" type="Node3D" parent="TurretPivot/turret"]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0.061881244, 0.051032647, -0.03602925)
 
@@ -3836,25 +3833,34 @@ surface_material_override/0 = ExtResource("1_186ai")
 transform = Transform3D(1, 0, 0, 0, 1, -1.642028e-15, 0, 1.642028e-15, 1, -1.4901161e-08, 2.9802322e-08, -0.20824653)
 
 [node name="Camera3D" type="Camera3D" parent="TurretPivot/turret/BarrellPivot"]
-transform = Transform3D(-0.06666666, -5.828183e-09, 1.2525856e-16, 5.828183e-09, -0.06666666, -5.828184e-09, 7.6003287e-16, -5.828184e-09, 0.06666666, 5.355105e-09, -0.060963422, 0.08718294)
+transform = Transform3D(-0.06666666, -5.828183e-09, 1.2525869e-16, 5.828183e-09, -0.06666666, -5.828184e-09, 7.60033e-16, -5.828184e-09, 0.06666666, 5.5879354e-09, -0.068174586, 0.10079675)
 
 [node name="RigidBody3D" type="RigidBody3D" parent="."]
+collision_layer = 0
 input_ray_pickable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D"]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.13765383, 0.16939123, 0.07525253)
 shape = SubResource("BoxShape3D_onq4c")
 
-[node name="Hitbox" type="Area3D" parent="."]
+[node name="TurretHitbox" type="Area3D" parent="."]
 transform = Transform3D(-1, -1.509958e-07, 8.742278e-08, 1.509958e-07, -1, -4.37114e-08, 8.7422784e-08, -4.3711385e-08, 1, -0.027141303, 0.113506794, 0.10532865)
 collision_layer = 2
 collision_mask = 4
 script = ExtResource("3_vfjx4")
+metadata/hit_region = "turret"
 
-[node name="CollisionShape3D4" type="CollisionShape3D" parent="Hitbox"]
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="TurretHitbox"]
 transform = Transform3D(2.2649377e-07, 3, 3.9340154e-07, -3, 2.2649371e-07, 1.3113419e-07, 1.3113413e-07, -3.934015e-07, 3, -0.22908182, -1.730278, -0.05154779)
 shape = SubResource("CapsuleShape3D_vfjx4")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Hitbox"]
+[node name="BodyHitbox" type="Area3D" parent="."]
+transform = Transform3D(-1, -1.509958e-07, 8.742278e-08, 1.509958e-07, -1, -4.37114e-08, 8.7422784e-08, -4.3711385e-08, 1, -0.027141303, 0.113506794, 0.10532865)
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("3_vfjx4")
+metadata/hit_region = "body"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="BodyHitbox"]
 transform = Transform3D(1, 0, 0, 0, 1, 5.051912e-16, 0, 5.051912e-16, 1, -0.1686326, -0.8184496, -0.0233154)
 shape = SubResource("BoxShape3D_vfjx4")

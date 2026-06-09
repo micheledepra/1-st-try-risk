@@ -1,84 +1,102 @@
 extends GPUParticles3D
 
-## Muzzle blast effect for projectile firing
-## Creates a quick red flash with dissipating smoke particles
-## Optimized for low-spec performance
+## Muzzle blast: a light-orange/red light pulse + an additive fireball + a
+## randomized-shape burst smoke cloud that leaves a short world-space trail.
+## The overall size scales with projectile type (cannon biggest, AA mid, MG
+## smallest) and the firing unit's world scale. Pooled (BlastEffectPool).
 
-var lifetime_timer: float = 0.0
-var is_playing: bool = false
-const EFFECT_DURATION: float = 2.0  # Total effect lifetime
-const LIGHT_ENERGY: float = 3.0  # Initial light brightness
-const LIGHT_FADE_DURATION: float = 0.1  # Quick 0.1s red flash
+const Combat = preload("res://Scripts/UnitCombatState.gd")
 
-var blast_light: OmniLight3D
-var light_cleanup_timer: SceneTreeTimer = null
+# Per-type profile: geometry scale + particle counts + light + flash.
+const PROFILE := {
+	0: {"scale": 1.0, "smoke": 60, "fire": 26, "trail": 16, "light": 9.0, "range": 5.0, "flash": 1.0, "flash_t": 0.05},  # CANNON
+	1: {"scale": 0.30, "smoke": 16, "fire": 8, "trail": 8, "light": 3.0, "range": 1.8, "flash": 0.30, "flash_t": 0.03},  # MG
+	2: {"scale": 0.68, "smoke": 40, "fire": 18, "trail": 12, "light": 6.0, "range": 3.4, "flash": 0.60, "flash_t": 0.04},  # AA
+}
+
+const EFFECT_DURATION := 1.1
+const LIGHT_FADE := 0.07  # snappy muzzle-light pulse
+
+var is_playing := false
+var lifetime_timer := 0.0
+var light_energy0 := 9.0
+var flash_seconds := 0.05
+
+@onready var fireball: GPUParticles3D = $Fireball
+@onready var flash_core: MeshInstance3D = $FlashCore
+@onready var blast_light: OmniLight3D = $BlastLight
+@onready var smoke_trail: GPUParticles3D = $SmokeTrail
 
 func _ready() -> void:
 	one_shot = true
 	emitting = false
-	blast_light = get_node_or_null("BlastLight")
+	reset_state()
 
-func reset_light() -> void:
-	"""Reset light state for pooled reuse"""
+func reset_state() -> void:
+	if flash_core:
+		flash_core.visible = false
 	if blast_light:
-		blast_light.light_energy = 0.0
 		blast_light.visible = false
-		# Cancel any pending cleanup timer
-		if light_cleanup_timer != null:
-			if light_cleanup_timer.timeout.is_connected(_force_light_cleanup):
-				light_cleanup_timer.timeout.disconnect(_force_light_cleanup)
-			light_cleanup_timer = null
+		blast_light.light_energy = 0.0
 
-func play_effect(spawn_position: Vector3, direction: Vector3) -> void:
-	"""Play the muzzle blast effect at the given position facing the direction
-	@param spawn_position: Spawn position (barrel tip)
-	@param direction: Firing direction (for particle emission orientation)"""
-	global_position = spawn_position
-
-	# Orient particles to emit in firing direction
+func play_effect(pos: Vector3, direction: Vector3, ptype: int = 0, unit_scale: float = 1.0) -> void:
+	"""Fire the muzzle blast at `pos` facing `direction`, sized to `ptype`."""
+	var p: Dictionary = PROFILE.get(ptype, PROFILE[0])
+	global_position = pos
 	if direction.length() > 0.001:
-		look_at(spawn_position + direction, Vector3.UP)
-	
-	# CRITICAL FIX: Reset particle system state to allow re-emission
+		look_at(pos + direction, Vector3.UP)
+	# Per-shot shape variation: random roll about the firing axis.
+	rotate_object_local(Vector3(0, 0, 1), randf() * TAU)
+
+	var s: float = p["scale"] * max(unit_scale, 0.01)
+	scale = Vector3.ONE * s
+
+	# Particle counts come from the profile (not stretched by unit scale).
+	amount = p["smoke"]
 	emitting = false
-	restart()  # Reset GPUParticles3D internal state
+	restart()
 	emitting = true
-	is_playing = true
-	
-	# Enable and reset light for red flash
+
+	if fireball:
+		fireball.amount = p["fire"]
+		fireball.emitting = false
+		fireball.restart()
+		fireball.emitting = true
+
+	if smoke_trail:
+		smoke_trail.amount = p["trail"]
+		smoke_trail.emitting = false
+		smoke_trail.restart()
+		smoke_trail.emitting = true
+
+	if flash_core:
+		flash_core.scale = Vector3.ONE * p["flash"]
+		flash_core.visible = true
+	flash_seconds = p["flash_t"]
+
 	if blast_light:
-		blast_light.light_energy = LIGHT_ENERGY
+		light_energy0 = p["light"]
+		blast_light.light_energy = light_energy0
+		blast_light.omni_range = p["range"] * max(unit_scale, 0.01)
 		blast_light.visible = true
-		
-		# Safety timer: force light cleanup after max duration
-		if light_cleanup_timer != null:
-			if light_cleanup_timer.timeout.is_connected(_force_light_cleanup):
-				light_cleanup_timer.timeout.disconnect(_force_light_cleanup)
-		light_cleanup_timer = get_tree().create_timer(LIGHT_FADE_DURATION * 2.0)
-		light_cleanup_timer.timeout.connect(_force_light_cleanup)
-	
+
 	lifetime_timer = 0.0
+	is_playing = true
 
 func _process(delta: float) -> void:
-	if is_playing:
-		lifetime_timer += delta
-		
-		# Quick fade out of red light (0.1s)
-		if blast_light and blast_light.visible:
-			var fade_progress = lifetime_timer / LIGHT_FADE_DURATION
-			# Exponential fade for quick falloff
-			blast_light.light_energy = LIGHT_ENERGY * exp(-6.0 * fade_progress)
-			if fade_progress >= 1.0:
-				blast_light.visible = false
-		
-		# Return to pool after effect duration
-		if lifetime_timer >= EFFECT_DURATION:
-			is_playing = false
-			BlastEffectPool.return_effect(self)
+	if not is_playing:
+		return
+	lifetime_timer += delta
 
-func _force_light_cleanup() -> void:
-	"""Force cleanup of light after max lifetime (safety mechanism)"""
+	if flash_core and flash_core.visible and lifetime_timer >= flash_seconds:
+		flash_core.visible = false
+
 	if blast_light and blast_light.visible:
-		blast_light.visible = false
-		blast_light.light_energy = 0.0
-	light_cleanup_timer = null
+		var progress := lifetime_timer / LIGHT_FADE
+		blast_light.light_energy = light_energy0 * exp(-9.0 * progress)
+		if progress >= 1.0:
+			blast_light.visible = false
+
+	if lifetime_timer >= EFFECT_DURATION:
+		is_playing = false
+		BlastEffectPool.return_effect(self)

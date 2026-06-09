@@ -296,9 +296,11 @@ func get_unit_from_pool(pool: Array[Node3D]) -> Node3D:
 
 func return_unit_to_pool(unit: Node3D):
 	"""Return unit to pool for reuse"""
-	# Cancel any active glow effect before returning to pool
+	# Cancel any active glow effect and clear combat state before returning to pool
 	if has_node("/root/UnitGlowEffect"):
 		UnitGlowEffect.cancel_glow(unit)
+	if has_node("/root/UnitCombatState"):
+		UnitCombatState.reset_unit(unit)
 	
 	if unit.get_parent():
 		unit.get_parent().remove_child(unit)
@@ -373,6 +375,8 @@ func apply_player_color(unit: Node3D, player_color: Color):
 
 	# Set meta on unit root for hit detection by projectiles (glow uses this color)
 	unit.set_meta("player_color", tinted_player_color)
+	# Tag as a tank target for the combat matrix (only tanks spawn via this manager).
+	unit.set_meta("unit_type", "tank")
 	
 	var mesh_instances = find_all_mesh_instances_recursive(unit)
 	

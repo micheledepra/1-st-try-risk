@@ -23,6 +23,14 @@ var turn_timer: float = 0.0
 var orbit_center: Vector3
 var orbit_sign: float = 1.0
 
+# Combat: a fatal hit jams the surfaces; a non-fatal hit briefly perturbs them.
+var _dead: bool = false
+var _kill_roll: float = 0.0
+var _kill_yaw: float = 0.0
+var _perturb_timer: float = 0.0
+var _perturb_roll: float = 0.0
+var _perturb_yaw: float = 0.0
+
 func _ready() -> void:
 	# Seed for small heading variations
 	randomize()
@@ -35,11 +43,27 @@ func _ready() -> void:
 	desired_altitude = max(min_altitude, cruise_altitude)
 	_configure_assist()
 	_pick_new_direction()
+	set_meta("unit_type", "plane")
+	if not has_meta("player_color"):
+		set_meta("player_color", Color(0.85, 0.4, 0.2))
+	set_meta("effect_scale", 1.0)
 
 func _physics_process(delta: float) -> void:
 	if not aero or not aero_body:
 		return
-	
+
+	if _dead:
+		aero.set_control_input("roll", _kill_roll)
+		aero.set_control_input("yaw", _kill_yaw)
+		aero.set_control_input("pitch", -0.2)
+		aero.set_control_input("throttle", 0.0)
+		return
+	if _perturb_timer > 0.0:
+		_perturb_timer -= delta
+		aero.set_control_input("roll", _perturb_roll)
+		aero.set_control_input("yaw", _perturb_yaw)
+		return
+
 	turn_timer -= delta
 	if turn_timer <= 0.0:
 		_pick_new_direction()
@@ -130,3 +154,23 @@ func _drive_direct() -> void:
 	# Bias nose up if we get too low
 	if aero_body.global_transform.origin.y < min_altitude * 0.6:
 		aero.set_control_input("pitch", 0.35)
+
+func apply_kill() -> void:
+	"""Fatal hit: jam the surfaces and cut the assist so the NPC spins down."""
+	_dead = true
+	_kill_roll = (1.0 if randf() < 0.5 else -1.0) * randf_range(0.6, 1.0)
+	_kill_yaw = (1.0 if randf() < 0.5 else -1.0) * randf_range(0.5, 1.0)
+	if aero:
+		aero.flight_assist = null
+	assist = null
+
+func perturb_controls(seconds: float) -> void:
+	if _dead:
+		return
+	_perturb_timer = max(_perturb_timer, seconds)
+	_perturb_roll = (1.0 if randf() < 0.5 else -1.0) * randf_range(0.5, 0.9)
+	_perturb_yaw = (1.0 if randf() < 0.5 else -1.0) * randf_range(0.4, 0.8)
+
+func _exit_tree() -> void:
+	if has_node("/root/UnitCombatState"):
+		UnitCombatState.reset_unit(self)

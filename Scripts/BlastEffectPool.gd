@@ -1,87 +1,53 @@
 extends Node
 
-## BlastEffectPool
-## Manages muzzle blast effect instances to reduce instantiation overhead
-## Optimized for low-spec performance with object pooling
+## BlastEffectPool - pools the unified muzzle BlastEffect.
+## spawn_effect(position, direction, ptype, unit_scale): ptype is a
+## UnitCombatState.PType; the effect sizes itself by type + unit scale.
 
-const MAX_EFFECTS: int = 10
-const EFFECT_SCENE: String = "res://Scenes/Effects/BlastEffect.tscn"
+const BLAST_SCENE: String = "res://Scenes/Effects/BlastEffect.tscn"
+const MAX_EFFECTS: int = 24
+const PRE_INSTANTIATE: int = 8
 
-var effect_scene: PackedScene
-var effect_pool: Array[GPUParticles3D] = []
-var active_effects: Array[GPUParticles3D] = []
+var blast_scene: PackedScene
+var pool: Array[GPUParticles3D] = []
+var active: Array[GPUParticles3D] = []
 
 func _ready() -> void:
-	# Preload effect scene
-	effect_scene = load(EFFECT_SCENE)
-	
-	# Pre-instantiate pool of effects
-	for i in range(3):
-		var effect = effect_scene.instantiate() as GPUParticles3D
-		effect.visible = false
-		effect.emitting = false
-		add_child(effect)
-		effect_pool.append(effect)
-	
-	print("BlastEffectPool: Initialized with %d pooled effects" % effect_pool.size())
+	blast_scene = load(BLAST_SCENE)
+	for i in range(PRE_INSTANTIATE):
+		var e := blast_scene.instantiate() as GPUParticles3D
+		e.visible = false
+		add_child(e)
+		pool.append(e)
 
-func spawn_effect(position: Vector3, direction: Vector3, effect_scale: float = 1.0) -> void:
-	"""Spawn a muzzle blast effect at the given position facing the direction
-	@param effect_scale: Scale multiplier for the effect (default 1.0)"""
-	
-	# Check active effect limit - force cleanup oldest effect
-	if active_effects.size() >= MAX_EFFECTS:
-		var oldest_effect = active_effects[0]
-		return_effect(oldest_effect)
-	
-	# Get effect from pool
-	var effect: GPUParticles3D
-	if effect_pool.size() > 0:
-		effect = effect_pool.pop_back()
+func spawn_effect(position: Vector3, direction: Vector3, ptype: int = 0, unit_scale: float = 1.0) -> void:
+	if active.size() >= MAX_EFFECTS:
+		return_effect(active[0])
+
+	var e: GPUParticles3D
+	if pool.size() > 0:
+		e = pool.pop_back()
 	else:
-		# Pool exhausted, create new one
-		effect = effect_scene.instantiate() as GPUParticles3D
-		add_child(effect)
-		print("BlastEffectPool: Pool exhausted, created new effect")
-	
-	# Validate effect
-	if not is_instance_valid(effect):
-		push_error("BlastEffectPool: Invalid effect instance!")
+		e = blast_scene.instantiate() as GPUParticles3D
+		add_child(e)
+
+	if not is_instance_valid(e):
 		return
-	
-	# Apply scale to effect
-	effect.scale = Vector3.ONE * effect_scale
-	
-	# Reset and play effect
-	effect.visible = true
-	if effect.has_method("reset_light"):
-		effect.reset_light()
-	effect.play_effect(position, direction)
-	active_effects.append(effect)
+
+	e.visible = true
+	e.reset_state()
+	e.play_effect(position, direction, ptype, unit_scale)
+	active.append(e)
 
 func return_effect(effect: GPUParticles3D) -> void:
-	"""Return an effect to the pool for reuse"""
 	if effect == null or not is_instance_valid(effect):
 		return
-	
-	# Deactivate effect and reset light state
-	effect.visible = false
+	effect.is_playing = false
 	effect.emitting = false
-	effect.global_position = Vector3.ZERO
-	effect.scale = Vector3.ONE  # Reset scale for reuse
-	
-	# Ensure particles are fully stopped for clean reuse
-	if effect is GPUParticles3D:
-		effect.restart()
-	
-	if effect.has_method("reset_light"):
-		effect.reset_light()
-	
-	# Remove from active list
-	var idx = active_effects.find(effect)
+	effect.visible = false
+	effect.reset_state()
+	var idx := active.find(effect)
 	if idx >= 0:
-		active_effects.remove_at(idx)
-	
-	# Return to pool if not already there
-	if not effect_pool.has(effect):
-		effect_pool.append(effect)
+		active.remove_at(idx)
+	if not pool.has(effect):
+		pool.append(effect)
